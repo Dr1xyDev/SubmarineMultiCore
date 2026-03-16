@@ -1,0 +1,52 @@
+<?php
+
+/*
+ *
+ *   _____       _                          _
+ *  / ____|     | |                        (_)
+ * | (___  _   _| |__  _ __ ___   __ _ _ __ _ _ __   ___
+ *  \___ \| | | | '_ \| '_ ` _ \ / _` | '__| | '_ \ / _ \
+ *  ____) | |_| | |_) | | | | | | (_| | |  | | | | |  __/
+ * |_____/ \__,_|_.__/|_| |_| |_|\__,_|_|  |_|_| |_|\___|
+ *
+ * This program is private software. No license required.
+ * Publication of this program is forbidden and will be punished.
+ *
+ * @author SEMENNEJO
+ * @link vk.com/vk.snikers && t.me/semennejo
+ *
+ *
+ */
+
+declare(strict_types=1);
+
+namespace pocketmine\block;
+
+use pocketmine\item\ItemIds;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
+
+class GlowFrame extends ItemFrame
+{
+	protected $id = self::GLOW_FRAME;
+
+	protected $itemId = ItemIds::GLOW_FRAME;
+
+	public function __construct(int $meta = 0)
+	{
+		$this->meta = $meta;
+	}
+
+	public function getName() : string
+	{
+		return "Glow Frame";
+	}
+
+	public function getBlockProtocol(int $playerProtocol) : ?Block
+	{
+		if ($playerProtocol < ProtocolInfo::PROTOCOL_440) {
+			return BlockFactory::get(BlockIds::ITEM_FRAME_BLOCK, $this->meta);
+		}
+
+		return null;
+	}
+}

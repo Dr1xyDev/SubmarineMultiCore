@@ -1,0 +1,13 @@
+prefix=/home/runner/work/PHP-Binaries/PHP-Binaries/bin/php7
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+modules=1
+
+Name: libXML
+Version: 2.10.1
+Description: libXML library version2.
+Requires:
+Libs: -L${libdir} -lxml2
+Libs.private: -L/home/runner/work/PHP-Binaries/PHP-Binaries/bin/php7/lib -lz     -lm  
+Cflags: -I${includedir}/libxml2 

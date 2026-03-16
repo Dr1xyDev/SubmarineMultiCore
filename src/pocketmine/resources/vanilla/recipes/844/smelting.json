@@ -1,0 +1,2553 @@
+[
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": -271
+        },
+        "output": {
+            "id": 752
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": 16
+        },
+        "output": {
+            "id": 263
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": 960
+        },
+        "output": {
+            "id": 966
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": 964
+        },
+        "output": {
+            "id": 966
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": 971
+        },
+        "output": {
+            "id": 966
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": -311
+        },
+        "output": {
+            "id": 523
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": 967
+        },
+        "output": {
+            "id": 966
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": 968
+        },
+        "output": {
+            "id": 966
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": 969
+        },
+        "output": {
+            "id": 966
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": -406
+        },
+        "output": {
+            "id": 263
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": -408
+        },
+        "output": {
+            "id": 523
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": -405
+        },
+        "output": {
+            "id": 264
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": -407
+        },
+        "output": {
+            "id": 388
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": -402
+        },
+        "output": {
+            "id": 266
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": -401
+        },
+        "output": {
+            "id": 265
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": -400
+        },
+        "output": {
+            "meta": 4,
+            "id": 351
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": -403
+        },
+        "output": {
+            "id": 331
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": 56
+        },
+        "output": {
+            "id": 264
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": 129
+        },
+        "output": {
+            "id": 388
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": 14
+        },
+        "output": {
+            "id": 266
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": 286
+        },
+        "output": {
+            "id": 371
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": 294
+        },
+        "output": {
+            "id": 371
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": 418
+        },
+        "output": {
+            "id": 371
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": 285
+        },
+        "output": {
+            "id": 371
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": 284
+        },
+        "output": {
+            "id": 371
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": 283
+        },
+        "output": {
+            "id": 371
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": 258
+        },
+        "output": {
+            "id": 452
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": 292
+        },
+        "output": {
+            "id": 452
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": 417
+        },
+        "output": {
+            "id": 452
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": 15
+        },
+        "output": {
+            "id": 265
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": 257
+        },
+        "output": {
+            "id": 452
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": 256
+        },
+        "output": {
+            "id": 452
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": 267
+        },
+        "output": {
+            "id": 452
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": 21
+        },
+        "output": {
+            "meta": 4,
+            "id": 351
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": -288
+        },
+        "output": {
+            "id": 266
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": 153
+        },
+        "output": {
+            "id": 406
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": 522
+        },
+        "output": {
+            "id": 523
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": 521
+        },
+        "output": {
+            "id": 266
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": 520
+        },
+        "output": {
+            "id": 265
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "meta": 32767,
+            "id": 73
+        },
+        "output": {
+            "id": 331
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "id": 305
+        },
+        "output": {
+            "id": 452
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "id": 303
+        },
+        "output": {
+            "id": 452
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "id": 302
+        },
+        "output": {
+            "id": 452
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "id": 304
+        },
+        "output": {
+            "id": 452
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "id": 961
+        },
+        "output": {
+            "id": 966
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "id": 962
+        },
+        "output": {
+            "id": 966
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "id": 963
+        },
+        "output": {
+            "id": 966
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "id": 965
+        },
+        "output": {
+            "id": 966
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "id": 317
+        },
+        "output": {
+            "id": 371
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "id": 315
+        },
+        "output": {
+            "id": 371
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "id": 314
+        },
+        "output": {
+            "id": 371
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "id": 316
+        },
+        "output": {
+            "id": 371
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "id": 309
+        },
+        "output": {
+            "id": 452
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "id": 307
+        },
+        "output": {
+            "id": 452
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "id": 306
+        },
+        "output": {
+            "id": 452
+        }
+    },
+    {
+        "block": "blast_furnace",
+        "input": {
+            "id": 308
+        },
+        "output": {
+            "id": 452
+        }
+    },
+    {
+        "block": "campfire",
+        "input": {
+            "meta": 32767,
+            "id": 363
+        },
+        "output": {
+            "id": 364
+        }
+    },
+    {
+        "block": "campfire",
+        "input": {
+            "meta": 32767,
+            "id": 365
+        },
+        "output": {
+            "id": 366
+        }
+    },
+    {
+        "block": "campfire",
+        "input": {
+            "meta": 32767,
+            "id": 349
+        },
+        "output": {
+            "id": 350
+        }
+    },
+    {
+        "block": "campfire",
+        "input": {
+            "meta": 32767,
+            "id": 335
+        },
+        "output": {
+            "id": 464
+        }
+    },
+    {
+        "block": "campfire",
+        "input": {
+            "meta": 32767,
+            "id": 423
+        },
+        "output": {
+            "id": 424
+        }
+    },
+    {
+        "block": "campfire",
+        "input": {
+            "meta": 32767,
+            "id": 319
+        },
+        "output": {
+            "id": 320
+        }
+    },
+    {
+        "block": "campfire",
+        "input": {
+            "meta": 32767,
+            "id": 392
+        },
+        "output": {
+            "id": 393
+        }
+    },
+    {
+        "block": "campfire",
+        "input": {
+            "meta": 32767,
+            "id": 411
+        },
+        "output": {
+            "id": 412
+        }
+    },
+    {
+        "block": "campfire",
+        "input": {
+            "meta": 32767,
+            "id": 460
+        },
+        "output": {
+            "id": 463
+        }
+    },
+    {
+        "block": "deprecated",
+        "input": {
+            "id": 162
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "deprecated",
+        "input": {
+            "meta": 4,
+            "id": -212
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "deprecated",
+        "input": {
+            "meta": 2,
+            "id": 17
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "deprecated",
+        "input": {
+            "meta": 2,
+            "id": -212
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "deprecated",
+        "input": {
+            "meta": 1,
+            "id": 162
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "deprecated",
+        "input": {
+            "meta": 5,
+            "id": -212
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "deprecated",
+        "input": {
+            "meta": 3,
+            "id": 17
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "deprecated",
+        "input": {
+            "meta": 3,
+            "id": -212
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "deprecated",
+        "input": {
+            "id": 17
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "deprecated",
+        "input": {
+            "id": -212
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "deprecated",
+        "input": {
+            "meta": 1,
+            "id": 17
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "deprecated",
+        "input": {
+            "meta": 1,
+            "id": -212
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "deprecated",
+        "input": {
+            "meta": 12,
+            "id": -212
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "deprecated",
+        "input": {
+            "meta": 10,
+            "id": -212
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "deprecated",
+        "input": {
+            "meta": 13,
+            "id": -212
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "deprecated",
+        "input": {
+            "meta": 11,
+            "id": -212
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "deprecated",
+        "input": {
+            "meta": 8,
+            "id": -212
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "deprecated",
+        "input": {
+            "meta": 9,
+            "id": -212
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 12,
+            "id": 155
+        },
+        "output": {
+            "meta": 15,
+            "id": 155
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 161
+        },
+        "output": {
+            "id": -785
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 162
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -212
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -271
+        },
+        "output": {
+            "id": 752
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -324
+        },
+        "output": {
+            "id": -785
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -325
+        },
+        "output": {
+            "id": -785
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -234
+        },
+        "output": {
+            "id": -377
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 363
+        },
+        "output": {
+            "id": 364
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 18
+        },
+        "output": {
+            "id": -785
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 17
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -212
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 159
+        },
+        "output": {
+            "meta": 7,
+            "id": 235
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 159
+        },
+        "output": {
+            "meta": 7,
+            "id": 231
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 159
+        },
+        "output": {
+            "meta": 7,
+            "id": 232
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 81
+        },
+        "output": {
+            "meta": 2,
+            "id": 351
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -540
+        },
+        "output": {
+            "id": -785
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -541
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -550
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 365
+        },
+        "output": {
+            "id": 366
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 432
+        },
+        "output": {
+            "id": 433
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 82
+        },
+        "output": {
+            "id": 172
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 337
+        },
+        "output": {
+            "id": 336
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 16
+        },
+        "output": {
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -379
+        },
+        "output": {
+            "id": -378
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 4
+        },
+        "output": {
+            "id": 1
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 349
+        },
+        "output": {
+            "id": 350
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 960
+        },
+        "output": {
+            "id": 966
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 964
+        },
+        "output": {
+            "id": 966
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 971
+        },
+        "output": {
+            "id": 966
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -311
+        },
+        "output": {
+            "id": 523
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 967
+        },
+        "output": {
+            "id": 966
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 968
+        },
+        "output": {
+            "id": 966
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 969
+        },
+        "output": {
+            "id": 966
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 159
+        },
+        "output": {
+            "meta": 7,
+            "id": 229
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 161
+        },
+        "output": {
+            "id": -785
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 162
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -212
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -391
+        },
+        "output": {
+            "id": -410
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -406
+        },
+        "output": {
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -408
+        },
+        "output": {
+            "id": 523
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -405
+        },
+        "output": {
+            "id": 264
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -407
+        },
+        "output": {
+            "id": 388
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -402
+        },
+        "output": {
+            "id": 266
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -401
+        },
+        "output": {
+            "id": 265
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -400
+        },
+        "output": {
+            "meta": 4,
+            "id": 351
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -403
+        },
+        "output": {
+            "id": 331
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -387
+        },
+        "output": {
+            "id": -409
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 56
+        },
+        "output": {
+            "id": 264
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 129
+        },
+        "output": {
+            "id": 388
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 14
+        },
+        "output": {
+            "id": 266
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 286
+        },
+        "output": {
+            "id": 371
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 294
+        },
+        "output": {
+            "id": 371
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 418
+        },
+        "output": {
+            "id": 371
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 285
+        },
+        "output": {
+            "id": 371
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 284
+        },
+        "output": {
+            "id": 371
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 283
+        },
+        "output": {
+            "id": 371
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 159
+        },
+        "output": {
+            "meta": 7,
+            "id": 227
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 159
+        },
+        "output": {
+            "meta": 7,
+            "id": 233
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 258
+        },
+        "output": {
+            "id": 452
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 292
+        },
+        "output": {
+            "id": 452
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 417
+        },
+        "output": {
+            "id": 452
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 15
+        },
+        "output": {
+            "id": 265
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 257
+        },
+        "output": {
+            "id": 452
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 256
+        },
+        "output": {
+            "id": 452
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 267
+        },
+        "output": {
+            "id": 452
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 18
+        },
+        "output": {
+            "id": -785
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 17
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -212
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 335
+        },
+        "output": {
+            "id": 464
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 21
+        },
+        "output": {
+            "meta": 4,
+            "id": 351
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 159
+        },
+        "output": {
+            "meta": 7,
+            "id": 223
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 159
+        },
+        "output": {
+            "meta": 7,
+            "id": 228
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 159
+        },
+        "output": {
+            "meta": 7,
+            "id": 225
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 159
+        },
+        "output": {
+            "meta": 7,
+            "id": 222
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -472
+        },
+        "output": {
+            "id": -785
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -489
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -498
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 423
+        },
+        "output": {
+            "id": 424
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 112
+        },
+        "output": {
+            "id": -303
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -288
+        },
+        "output": {
+            "id": 266
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 87
+        },
+        "output": {
+            "id": 405
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 18
+        },
+        "output": {
+            "id": -785
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 17
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -212
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 159
+        },
+        "output": {
+            "meta": 7,
+            "id": 221
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -763
+        },
+        "output": {
+            "id": -785
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -764
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -773
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 159
+        },
+        "output": {
+            "meta": 7,
+            "id": 226
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -274
+        },
+        "output": {
+            "id": -280
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 319
+        },
+        "output": {
+            "id": 320
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 392
+        },
+        "output": {
+            "id": 393
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 159
+        },
+        "output": {
+            "meta": 7,
+            "id": 219
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 153
+        },
+        "output": {
+            "id": 406
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 411
+        },
+        "output": {
+            "id": 412
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 522
+        },
+        "output": {
+            "id": 523
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 521
+        },
+        "output": {
+            "id": 266
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 520
+        },
+        "output": {
+            "id": 265
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 12
+        },
+        "output": {
+            "id": 20
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 159
+        },
+        "output": {
+            "meta": 7,
+            "id": 234
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 73
+        },
+        "output": {
+            "id": 331
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -616
+        },
+        "output": {
+            "id": 911
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 460
+        },
+        "output": {
+            "id": 463
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -156
+        },
+        "output": {
+            "meta": 10,
+            "id": 351
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 18
+        },
+        "output": {
+            "id": -785
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 17
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -212
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 98
+        },
+        "output": {
+            "meta": 2,
+            "id": 98
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -8
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -212
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -6
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -212
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -553
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -552
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -9
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -212
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -7
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -212
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -500
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -501
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -10
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -212
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -779
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -780
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -5
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": -212
+        },
+        "output": {
+            "meta": 1,
+            "id": 263
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 19
+        },
+        "output": {
+            "id": 19
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 159
+        },
+        "output": {
+            "meta": 7,
+            "id": 220
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "meta": 32767,
+            "id": 159
+        },
+        "output": {
+            "meta": 7,
+            "id": 224
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "id": 305
+        },
+        "output": {
+            "id": 452
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "id": 303
+        },
+        "output": {
+            "id": 452
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "id": 302
+        },
+        "output": {
+            "id": 452
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "id": 304
+        },
+        "output": {
+            "id": 452
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "id": 961
+        },
+        "output": {
+            "id": 966
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "id": 962
+        },
+        "output": {
+            "id": 966
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "id": 963
+        },
+        "output": {
+            "id": 966
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "id": 965
+        },
+        "output": {
+            "id": 966
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "id": 317
+        },
+        "output": {
+            "id": 371
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "id": 315
+        },
+        "output": {
+            "id": 371
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "id": 314
+        },
+        "output": {
+            "id": 371
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "id": 316
+        },
+        "output": {
+            "id": 371
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "id": 309
+        },
+        "output": {
+            "id": 452
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "id": 307
+        },
+        "output": {
+            "id": 452
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "id": 306
+        },
+        "output": {
+            "id": 452
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "id": 308
+        },
+        "output": {
+            "id": 452
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "id": 179
+        },
+        "output": {
+            "meta": 3,
+            "id": 179
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "id": 12
+        },
+        "output": {
+            "id": 20
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "id": 24
+        },
+        "output": {
+            "meta": 3,
+            "id": 24
+        }
+    },
+    {
+        "block": "furnace",
+        "input": {
+            "id": 1
+        },
+        "output": {
+            "id": -183
+        }
+    },
+    {
+        "block": "smoker",
+        "input": {
+            "meta": 32767,
+            "id": 363
+        },
+        "output": {
+            "id": 364
+        }
+    },
+    {
+        "block": "smoker",
+        "input": {
+            "meta": 32767,
+            "id": 365
+        },
+        "output": {
+            "id": 366
+        }
+    },
+    {
+        "block": "smoker",
+        "input": {
+            "meta": 32767,
+            "id": 349
+        },
+        "output": {
+            "id": 350
+        }
+    },
+    {
+        "block": "smoker",
+        "input": {
+            "meta": 32767,
+            "id": 335
+        },
+        "output": {
+            "id": 464
+        }
+    },
+    {
+        "block": "smoker",
+        "input": {
+            "meta": 32767,
+            "id": 423
+        },
+        "output": {
+            "id": 424
+        }
+    },
+    {
+        "block": "smoker",
+        "input": {
+            "meta": 32767,
+            "id": 319
+        },
+        "output": {
+            "id": 320
+        }
+    },
+    {
+        "block": "smoker",
+        "input": {
+            "meta": 32767,
+            "id": 392
+        },
+        "output": {
+            "id": 393
+        }
+    },
+    {
+        "block": "smoker",
+        "input": {
+            "meta": 32767,
+            "id": 411
+        },
+        "output": {
+            "id": 412
+        }
+    },
+    {
+        "block": "smoker",
+        "input": {
+            "meta": 32767,
+            "id": 460
+        },
+        "output": {
+            "id": 463
+        }
+    },
+    {
+        "block": "soul_campfire",
+        "input": {
+            "meta": 32767,
+            "id": 363
+        },
+        "output": {
+            "id": 364
+        }
+    },
+    {
+        "block": "soul_campfire",
+        "input": {
+            "meta": 32767,
+            "id": 365
+        },
+        "output": {
+            "id": 366
+        }
+    },
+    {
+        "block": "soul_campfire",
+        "input": {
+            "meta": 32767,
+            "id": 349
+        },
+        "output": {
+            "id": 350
+        }
+    },
+    {
+        "block": "soul_campfire",
+        "input": {
+            "meta": 32767,
+            "id": 335
+        },
+        "output": {
+            "id": 464
+        }
+    },
+    {
+        "block": "soul_campfire",
+        "input": {
+            "meta": 32767,
+            "id": 423
+        },
+        "output": {
+            "id": 424
+        }
+    },
+    {
+        "block": "soul_campfire",
+        "input": {
+            "meta": 32767,
+            "id": 319
+        },
+        "output": {
+            "id": 320
+        }
+    },
+    {
+        "block": "soul_campfire",
+        "input": {
+            "meta": 32767,
+            "id": 392
+        },
+        "output": {
+            "id": 393
+        }
+    },
+    {
+        "block": "soul_campfire",
+        "input": {
+            "meta": 32767,
+            "id": 411
+        },
+        "output": {
+            "id": 412
+        }
+    },
+    {
+        "block": "soul_campfire",
+        "input": {
+            "meta": 32767,
+            "id": 460
+        },
+        "output": {
+            "id": 463
+        }
+    }
+]

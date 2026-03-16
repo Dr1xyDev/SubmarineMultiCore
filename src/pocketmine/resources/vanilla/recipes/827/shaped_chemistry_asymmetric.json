@@ -1,0 +1,3564 @@
+[
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 15,
+                "id": 241
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 15,
+                "count": 3,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 15,
+                "id": 241
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 15,
+                "count": 3,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 15,
+                "id": 160
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 15,
+                "count": 3,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 15,
+                "id": 160
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 15,
+                "count": 3,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 11,
+                "id": 241
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 11,
+                "count": 3,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 11,
+                "id": 241
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 11,
+                "count": 3,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 11,
+                "id": 160
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 11,
+                "count": 3,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 11,
+                "id": 160
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 11,
+                "count": 3,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 12,
+                "id": 241
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 12,
+                "count": 3,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 12,
+                "id": 241
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 12,
+                "count": 3,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 12,
+                "id": 160
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 12,
+                "count": 3,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 12,
+                "id": 160
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 12,
+                "count": 3,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 9,
+                "id": 241
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 9,
+                "count": 3,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 9,
+                "id": 160
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 9,
+                "count": 3,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "id": 20
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "count": 3,
+                "id": 253
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "id": 102
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "count": 3,
+                "id": 190
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 7,
+                "id": 241
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 7,
+                "count": 3,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 7,
+                "id": 160
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 7,
+                "count": 3,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 13,
+                "id": 241
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 13,
+                "count": 3,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 13,
+                "id": 160
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 13,
+                "count": 3,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 3,
+                "id": 241
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 3,
+                "count": 3,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 3,
+                "id": 160
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 3,
+                "count": 3,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 8,
+                "id": 241
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 8,
+                "count": 3,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 8,
+                "id": 160
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 8,
+                "count": 3,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 5,
+                "id": 241
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 5,
+                "count": 3,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 5,
+                "id": 160
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 5,
+                "count": 3,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 2,
+                "id": 241
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 2,
+                "count": 3,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 2,
+                "id": 160
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 2,
+                "count": 3,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 1,
+                "id": 241
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 1,
+                "count": 3,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 1,
+                "id": 160
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 1,
+                "count": 3,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 6,
+                "id": 241
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 6,
+                "count": 3,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 6,
+                "id": 160
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 6,
+                "count": 3,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 10,
+                "id": 241
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 10,
+                "count": 3,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 10,
+                "id": 160
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 10,
+                "count": 3,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 14,
+                "id": 241
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 14,
+                "count": 3,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 14,
+                "id": 160
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 14,
+                "count": 3,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "id": 241
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "count": 3,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "id": 241
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "count": 3,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "id": 160
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "count": 3,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "id": 160
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "count": 3,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 4,
+                "id": 241
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 4,
+                "count": 3,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "id": 499
+            },
+            "B": {
+                "meta": 4,
+                "id": 160
+            },
+            "C": {
+                "meta": 14,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 4,
+                "count": 3,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 16,
+                "id": 499
+            },
+            "B": {
+                "meta": 35,
+                "id": 499
+            },
+            "C": {
+                "meta": 32767,
+                "id": 351
+            },
+            "D": {
+                "meta": 10,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 4,
+                "id": 166
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 16,
+                "id": 499
+            },
+            "B": {
+                "meta": 35,
+                "id": 499
+            },
+            "C": {
+                "meta": 32767,
+                "id": 351
+            },
+            "D": {
+                "meta": 10,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 3,
+                "id": 166
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 16,
+                "id": 499
+            },
+            "B": {
+                "meta": 35,
+                "id": 499
+            },
+            "C": {
+                "meta": 32767,
+                "id": 351
+            },
+            "D": {
+                "meta": 10,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 6,
+                "id": 166
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 16,
+                "id": 499
+            },
+            "B": {
+                "meta": 35,
+                "id": 499
+            },
+            "C": {
+                "meta": 32767,
+                "id": 351
+            },
+            "D": {
+                "meta": 10,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 8,
+                "id": 166
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 16,
+                "id": 499
+            },
+            "B": {
+                "meta": 35,
+                "id": 499
+            },
+            "C": {
+                "meta": 32767,
+                "id": 351
+            },
+            "D": {
+                "meta": 10,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 2,
+                "id": 166
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 16,
+                "id": 499
+            },
+            "B": {
+                "meta": 35,
+                "id": 499
+            },
+            "C": {
+                "meta": 32767,
+                "id": 351
+            },
+            "D": {
+                "meta": 10,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 12,
+                "id": 166
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 16,
+                "id": 499
+            },
+            "B": {
+                "meta": 35,
+                "id": 499
+            },
+            "C": {
+                "meta": 32767,
+                "id": 351
+            },
+            "D": {
+                "meta": 10,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 10,
+                "id": 166
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 16,
+                "id": 499
+            },
+            "B": {
+                "meta": 35,
+                "id": 499
+            },
+            "C": {
+                "meta": 32767,
+                "id": 351
+            },
+            "D": {
+                "meta": 10,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 13,
+                "id": 166
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 16,
+                "id": 499
+            },
+            "B": {
+                "meta": 35,
+                "id": 499
+            },
+            "C": {
+                "meta": 32767,
+                "id": 351
+            },
+            "D": {
+                "meta": 10,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 14,
+                "id": 166
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 16,
+                "id": 499
+            },
+            "B": {
+                "meta": 35,
+                "id": 499
+            },
+            "C": {
+                "meta": 32767,
+                "id": 351
+            },
+            "D": {
+                "meta": 10,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 9,
+                "id": 166
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 16,
+                "id": 499
+            },
+            "B": {
+                "meta": 35,
+                "id": 499
+            },
+            "C": {
+                "meta": 32767,
+                "id": 351
+            },
+            "D": {
+                "meta": 10,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 5,
+                "id": 166
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 16,
+                "id": 499
+            },
+            "B": {
+                "meta": 35,
+                "id": 499
+            },
+            "C": {
+                "meta": 32767,
+                "id": 351
+            },
+            "D": {
+                "meta": 10,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 1,
+                "id": 166
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 16,
+                "id": 499
+            },
+            "B": {
+                "meta": 35,
+                "id": 499
+            },
+            "C": {
+                "meta": 32767,
+                "id": 351
+            },
+            "D": {
+                "meta": 10,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 15,
+                "id": 166
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 16,
+                "id": 499
+            },
+            "B": {
+                "meta": 35,
+                "id": 499
+            },
+            "C": {
+                "meta": 32767,
+                "id": 351
+            },
+            "D": {
+                "meta": 10,
+                "id": 499
+            }
+        },
+        "output": [
+            {
+                "meta": 11,
+                "id": 166
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 21,
+                "id": 499
+            },
+            "B": {
+                "meta": 7,
+                "id": 50
+            }
+        },
+        "output": [
+            {
+                "meta": 15,
+                "id": 204
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "A",
+            "B"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 21,
+                "id": 499
+            },
+            "B": {
+                "id": -23
+            },
+            "C": {
+                "meta": 32767,
+                "id": 280
+            }
+        },
+        "output": [
+            {
+                "meta": 5,
+                "id": 442
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "A",
+            "B",
+            "C"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 22,
+                "id": 499
+            },
+            "B": {
+                "meta": 7,
+                "id": 50
+            }
+        },
+        "output": [
+            {
+                "meta": 15,
+                "id": 202
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "A",
+            "B"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 22,
+                "id": 499
+            },
+            "B": {
+                "id": -23
+            },
+            "C": {
+                "meta": 32767,
+                "id": 280
+            }
+        },
+        "output": [
+            {
+                "meta": 1,
+                "id": 442
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "A",
+            "B",
+            "C"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 23,
+                "id": 499
+            },
+            "B": {
+                "meta": 7,
+                "id": 50
+            }
+        },
+        "output": [
+            {
+                "id": 204
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "A",
+            "B"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 23,
+                "id": 499
+            },
+            "B": {
+                "id": -23
+            },
+            "C": {
+                "meta": 32767,
+                "id": 280
+            }
+        },
+        "output": [
+            {
+                "meta": 4,
+                "id": 442
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "A",
+            "B",
+            "C"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 24,
+                "id": 499
+            },
+            "B": {
+                "meta": 7,
+                "id": 50
+            }
+        },
+        "output": [
+            {
+                "id": 202
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "A",
+            "B"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 24,
+                "id": 499
+            },
+            "B": {
+                "id": -23
+            },
+            "C": {
+                "meta": 32767,
+                "id": 280
+            }
+        },
+        "output": [
+            {
+                "meta": 2,
+                "id": 442
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "A",
+            "B",
+            "C"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 25,
+                "id": 499
+            },
+            "B": {
+                "id": -23
+            },
+            "C": {
+                "meta": 32767,
+                "id": 280
+            }
+        },
+        "output": [
+            {
+                "meta": 14,
+                "id": 442
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "A",
+            "B",
+            "C"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "id": 499
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            },
+            "C": {
+                "id": -13
+            },
+            "D": {
+                "meta": 32767,
+                "id": 420
+            }
+        },
+        "output": [
+            {
+                "meta": 15,
+                "id": 448
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "id": 499
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            },
+            "C": {
+                "id": -13
+            },
+            "D": {
+                "meta": 32767,
+                "id": 420
+            }
+        },
+        "output": [
+            {
+                "meta": 11,
+                "id": 448
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "id": 499
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            },
+            "C": {
+                "id": -13
+            },
+            "D": {
+                "meta": 32767,
+                "id": 420
+            }
+        },
+        "output": [
+            {
+                "id": 448
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "id": 499
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            },
+            "C": {
+                "id": -13
+            },
+            "D": {
+                "meta": 32767,
+                "id": 420
+            }
+        },
+        "output": [
+            {
+                "meta": 12,
+                "id": 448
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "id": 499
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            },
+            "C": {
+                "id": -13
+            },
+            "D": {
+                "meta": 32767,
+                "id": 420
+            }
+        },
+        "output": [
+            {
+                "meta": 12,
+                "id": 448
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "id": 499
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            },
+            "C": {
+                "id": -13
+            },
+            "D": {
+                "meta": 32767,
+                "id": 420
+            }
+        },
+        "output": [
+            {
+                "meta": 9,
+                "id": 448
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "id": 499
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            },
+            "C": {
+                "id": -13
+            },
+            "D": {
+                "meta": 32767,
+                "id": 420
+            }
+        },
+        "output": [
+            {
+                "meta": 7,
+                "id": 448
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "id": 499
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            },
+            "C": {
+                "id": -13
+            },
+            "D": {
+                "meta": 32767,
+                "id": 420
+            }
+        },
+        "output": [
+            {
+                "meta": 13,
+                "id": 448
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "id": 499
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            },
+            "C": {
+                "id": -13
+            },
+            "D": {
+                "meta": 32767,
+                "id": 420
+            }
+        },
+        "output": [
+            {
+                "meta": 15,
+                "id": 448
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "id": 499
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            },
+            "C": {
+                "id": -13
+            },
+            "D": {
+                "meta": 32767,
+                "id": 420
+            }
+        },
+        "output": [
+            {
+                "meta": 11,
+                "id": 448
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "id": 499
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            },
+            "C": {
+                "id": -13
+            },
+            "D": {
+                "meta": 32767,
+                "id": 420
+            }
+        },
+        "output": [
+            {
+                "meta": 3,
+                "id": 448
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "id": 499
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            },
+            "C": {
+                "id": -13
+            },
+            "D": {
+                "meta": 32767,
+                "id": 420
+            }
+        },
+        "output": [
+            {
+                "meta": 8,
+                "id": 448
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "id": 499
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            },
+            "C": {
+                "id": -13
+            },
+            "D": {
+                "meta": 32767,
+                "id": 420
+            }
+        },
+        "output": [
+            {
+                "meta": 5,
+                "id": 448
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "id": 499
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            },
+            "C": {
+                "id": -13
+            },
+            "D": {
+                "meta": 32767,
+                "id": 420
+            }
+        },
+        "output": [
+            {
+                "meta": 2,
+                "id": 448
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "id": 499
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            },
+            "C": {
+                "id": -13
+            },
+            "D": {
+                "meta": 32767,
+                "id": 420
+            }
+        },
+        "output": [
+            {
+                "meta": 1,
+                "id": 448
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "id": 499
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            },
+            "C": {
+                "id": -13
+            },
+            "D": {
+                "meta": 32767,
+                "id": 420
+            }
+        },
+        "output": [
+            {
+                "meta": 6,
+                "id": 448
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "id": 499
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            },
+            "C": {
+                "id": -13
+            },
+            "D": {
+                "meta": 32767,
+                "id": 420
+            }
+        },
+        "output": [
+            {
+                "meta": 10,
+                "id": 448
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "id": 499
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            },
+            "C": {
+                "id": -13
+            },
+            "D": {
+                "meta": 32767,
+                "id": 420
+            }
+        },
+        "output": [
+            {
+                "meta": 14,
+                "id": 448
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "id": 499
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            },
+            "C": {
+                "id": -13
+            },
+            "D": {
+                "meta": 32767,
+                "id": 420
+            }
+        },
+        "output": [
+            {
+                "id": 448
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "id": 499
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            },
+            "C": {
+                "id": -13
+            },
+            "D": {
+                "meta": 32767,
+                "id": 420
+            }
+        },
+        "output": [
+            {
+                "meta": 4,
+                "id": 448
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 32767,
+                "id": 254
+            }
+        },
+        "output": [
+            {
+                "meta": 15,
+                "count": 16,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 32767,
+                "id": 254
+            }
+        },
+        "output": [
+            {
+                "meta": 15,
+                "count": 16,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 32767,
+                "id": 254
+            }
+        },
+        "output": [
+            {
+                "meta": 11,
+                "count": 16,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 32767,
+                "id": 254
+            }
+        },
+        "output": [
+            {
+                "meta": 11,
+                "count": 16,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 32767,
+                "id": 254
+            }
+        },
+        "output": [
+            {
+                "meta": 12,
+                "count": 16,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 32767,
+                "id": 254
+            }
+        },
+        "output": [
+            {
+                "meta": 12,
+                "count": 16,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 32767,
+                "id": 254
+            }
+        },
+        "output": [
+            {
+                "meta": 9,
+                "count": 16,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 32767,
+                "id": 254
+            }
+        },
+        "output": [
+            {
+                "meta": 7,
+                "count": 16,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 32767,
+                "id": 254
+            }
+        },
+        "output": [
+            {
+                "meta": 13,
+                "count": 16,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 32767,
+                "id": 254
+            }
+        },
+        "output": [
+            {
+                "meta": 3,
+                "count": 16,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 32767,
+                "id": 254
+            }
+        },
+        "output": [
+            {
+                "meta": 8,
+                "count": 16,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 32767,
+                "id": 254
+            }
+        },
+        "output": [
+            {
+                "meta": 5,
+                "count": 16,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 32767,
+                "id": 254
+            }
+        },
+        "output": [
+            {
+                "meta": 2,
+                "count": 16,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 32767,
+                "id": 254
+            }
+        },
+        "output": [
+            {
+                "meta": 1,
+                "count": 16,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 32767,
+                "id": 254
+            }
+        },
+        "output": [
+            {
+                "meta": 6,
+                "count": 16,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 32767,
+                "id": 254
+            }
+        },
+        "output": [
+            {
+                "meta": 10,
+                "count": 16,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 32767,
+                "id": 254
+            }
+        },
+        "output": [
+            {
+                "meta": 14,
+                "count": 16,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 32767,
+                "id": 254
+            }
+        },
+        "output": [
+            {
+                "count": 16,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 32767,
+                "id": 254
+            }
+        },
+        "output": [
+            {
+                "count": 16,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 32767,
+                "id": 254
+            }
+        },
+        "output": [
+            {
+                "meta": 4,
+                "count": 16,
+                "id": 191
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "id": -22
+            },
+            "B": {
+                "id": 46
+            }
+        },
+        "output": [
+            {
+                "meta": 2,
+                "id": 46
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "A",
+            "B"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "id": -23
+            },
+            "B": {
+                "meta": 7,
+                "id": 50
+            }
+        },
+        "output": [
+            {
+                "meta": 7,
+                "id": 239
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "A",
+            "B"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "id": 253
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            }
+        },
+        "output": [
+            {
+                "meta": 15,
+                "count": 8,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "id": 253
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            }
+        },
+        "output": [
+            {
+                "meta": 11,
+                "count": 8,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "id": 253
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            }
+        },
+        "output": [
+            {
+                "count": 8,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "id": 253
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            }
+        },
+        "output": [
+            {
+                "meta": 12,
+                "count": 8,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "id": 253
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            }
+        },
+        "output": [
+            {
+                "meta": 12,
+                "count": 8,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "id": 253
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            }
+        },
+        "output": [
+            {
+                "meta": 9,
+                "count": 8,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "id": 253
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            }
+        },
+        "output": [
+            {
+                "meta": 7,
+                "count": 8,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "id": 253
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            }
+        },
+        "output": [
+            {
+                "meta": 13,
+                "count": 8,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "id": 253
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            }
+        },
+        "output": [
+            {
+                "meta": 15,
+                "count": 8,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "id": 253
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            }
+        },
+        "output": [
+            {
+                "meta": 11,
+                "count": 8,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "id": 253
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            }
+        },
+        "output": [
+            {
+                "meta": 3,
+                "count": 8,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "id": 253
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            }
+        },
+        "output": [
+            {
+                "meta": 8,
+                "count": 8,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "id": 253
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            }
+        },
+        "output": [
+            {
+                "meta": 5,
+                "count": 8,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "id": 253
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            }
+        },
+        "output": [
+            {
+                "meta": 2,
+                "count": 8,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "id": 253
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            }
+        },
+        "output": [
+            {
+                "meta": 1,
+                "count": 8,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "id": 253
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            }
+        },
+        "output": [
+            {
+                "meta": 6,
+                "count": 8,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "id": 253
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            }
+        },
+        "output": [
+            {
+                "meta": 10,
+                "count": 8,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "id": 253
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            }
+        },
+        "output": [
+            {
+                "meta": 14,
+                "count": 8,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "id": 253
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            }
+        },
+        "output": [
+            {
+                "count": 8,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "id": 253
+            },
+            "B": {
+                "meta": 32767,
+                "id": 351
+            }
+        },
+        "output": [
+            {
+                "meta": 4,
+                "count": 8,
+                "id": 254
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "id": 253
+            }
+        },
+        "output": [
+            {
+                "count": 16,
+                "id": 190
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    }
+]

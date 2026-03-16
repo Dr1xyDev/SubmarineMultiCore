@@ -1,0 +1,146 @@
+[
+    {
+        "addition": {
+            "meta": 32767,
+            "name": 742
+        },
+        "block": "smithing_table",
+        "input": {
+            "meta": 32767,
+            "name": 279
+        },
+        "output": 746,
+        "template": {
+            "meta": 32767,
+            "name": 802
+        }
+    },
+    {
+        "addition": {
+            "meta": 32767,
+            "name": 742
+        },
+        "block": "smithing_table",
+        "input": {
+            "meta": 32767,
+            "name": 313
+        },
+        "output": 751,
+        "template": {
+            "meta": 32767,
+            "name": 802
+        }
+    },
+    {
+        "addition": {
+            "meta": 32767,
+            "name": 742
+        },
+        "block": "smithing_table",
+        "input": {
+            "meta": 32767,
+            "name": 311
+        },
+        "output": 749,
+        "template": {
+            "meta": 32767,
+            "name": 802
+        }
+    },
+    {
+        "addition": {
+            "meta": 32767,
+            "name": 742
+        },
+        "block": "smithing_table",
+        "input": {
+            "meta": 32767,
+            "name": 310
+        },
+        "output": 748,
+        "template": {
+            "meta": 32767,
+            "name": 802
+        }
+    },
+    {
+        "addition": {
+            "meta": 32767,
+            "name": 742
+        },
+        "block": "smithing_table",
+        "input": {
+            "meta": 32767,
+            "name": 293
+        },
+        "output": 747,
+        "template": {
+            "meta": 32767,
+            "name": 802
+        }
+    },
+    {
+        "addition": {
+            "meta": 32767,
+            "name": 742
+        },
+        "block": "smithing_table",
+        "input": {
+            "meta": 32767,
+            "name": 312
+        },
+        "output": 750,
+        "template": {
+            "meta": 32767,
+            "name": 802
+        }
+    },
+    {
+        "addition": {
+            "meta": 32767,
+            "name": 742
+        },
+        "block": "smithing_table",
+        "input": {
+            "meta": 32767,
+            "name": 278
+        },
+        "output": 745,
+        "template": {
+            "meta": 32767,
+            "name": 802
+        }
+    },
+    {
+        "addition": {
+            "meta": 32767,
+            "name": 742
+        },
+        "block": "smithing_table",
+        "input": {
+            "meta": 32767,
+            "name": 277
+        },
+        "output": 744,
+        "template": {
+            "meta": 32767,
+            "name": 802
+        }
+    },
+    {
+        "addition": {
+            "meta": 32767,
+            "name": 742
+        },
+        "block": "smithing_table",
+        "input": {
+            "meta": 32767,
+            "name": 276
+        },
+        "output": 743,
+        "template": {
+            "meta": 32767,
+            "name": 802
+        }
+    }
+]

@@ -1,0 +1,2272 @@
+{
+    "Standard_Alex": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "Standard_Steve": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "Standard_CustomSlim": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "Standard_Custom": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "KingsAndPaupers_KingsAndPaupersKing": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "KingsAndPaupers_KingsAndPaupersQueen": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "KingsAndPaupers_KingsAndPaupersButcher": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "KingsAndPaupers_KingsAndPaupersBlacksmith": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "KingsAndPaupers_KingsAndPaupersJester": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "KingsAndPaupers_KingsAndPaupersExecutioner": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "KingsAndPaupers_KingsAndPaupersNoblewoman": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "KingsAndPaupers_KingsAndPaupersBarmaid": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "KingsAndPaupers_KingsAndPaupersBaker": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "KingsAndPaupers_KingsAndPaupersFisherman": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "KingsAndPaupers_KingsAndPaupersCommonerWoman": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "KingsAndPaupers_KingsAndPaupersFriar": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "KingsAndPaupers_KingsAndPaupersBeggar": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "KingsAndPaupers_KingsAndPaupersNobleman": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "KingsAndPaupers_KingsAndPaupersKnight": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "Sports_SportsSoccerPlayer": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "Sports_SportsFootballPlayer": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "Sports_SportsMarathonRunner": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "Sports_SportsJockey": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "Sports_SportsSwimmer": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "Sports_SportsMartialArtist": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "Sports_SportsTennisPlayer": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "Sports_SportsBaseballPlayer": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "Sports_SportsGymnast": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "Sports_SportsBoxer": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "Sports_SportsBasketballPlayer": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "Sports_SportsHockeyPlayer": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "Sports_SportsFigureSkater": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "Sports_SportsVolleyballPlayer": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "Sports_SportsFencer": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "EneijaSurvivors_EneijaSurvivorsAlejandro": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaSurvivors_EneijaSurvivorsElena": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaSurvivors_EneijaSurvivorsUdreck": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaSurvivors_EneijaSurvivorsNinas": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaSurvivors_EneijaSurvivorsOrin": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaSurvivors_EneijaSurvivorsParker": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaSurvivors_EneijaSurvivorsHans": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaSurvivors_EneijaSurvivorsTrinity": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaSurvivors_EneijaSurvivorsKrull": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaSurvivors_EneijaSurvivorsFlynn": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaSurvivors_EneijaSurvivorsDemitri": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaSurvivors_EneijaSurvivorsValentia": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaSurvivors_EneijaSurvivorsUlysses": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaSurvivors_EneijaSurvivorsMarina": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaSurvivors_EneijaSurvivorsJeffry": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaSurvivors_EneijaSurvivorsBrianne": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaSurvivors_EneijaSurvivorsAlpha13": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaSurvivors_EneijaSurvivorsBeta49": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "SummerFestival_SummerFestivalAquila": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "SummerFestival_SummerFestivalCoolBro": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "SummerFestival_SummerFestivalDerekDunk": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "SummerFestival_SummerFestivalDjDonJon": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "SummerFestival_SummerFestivalFionaFire": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "SummerFestival_SummerFestivalFredGoggle": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "SummerFestival_SummerFestivalFreyGoggle": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "SummerFestival_SummerFestivalHermanHoops": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "SummerFestival_SummerFestivalJacktheSailor": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "SummerFestival_SummerFestivalMagicMina": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "SummerFestival_SummerFestivalMerBoy": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "SummerFestival_SummerFestivalMrVanderneus": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "SummerFestival_SummerFestivalSabrinatheWall": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "SummerFestival_SummerFestivalShellSeekerLuan": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "SummerFestival_SummerFestivalSoaringBird": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "SummerFestival_SummerFestivalTheBaroness": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "SummerFestival_SummerFestivalTheMask": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "SummerFestival_SummerFestivalTurtle": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "SummerFestival_SummerFestivalZapSpeedy": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "SummerFestival_SummerFestivalZenZak": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "CyberSpaceSkinPack_CyberSpaceSkinPackBlueKnight": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "CyberSpaceSkinPack_CyberSpaceSkinPackBlueScout": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "CyberSpaceSkinPack_CyberSpaceSkinPackBlueMech": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "CyberSpaceSkinPack_CyberSpaceSkinPackRedKnight": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "CyberSpaceSkinPack_CyberSpaceSkinPackRedScout": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "CyberSpaceSkinPack_CyberSpaceSkinPackRedMech": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "CyberSpaceSkinPack_CyberSpaceSkinPackGreenKnight": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "CyberSpaceSkinPack_CyberSpaceSkinPackGreenScout": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "CyberSpaceSkinPack_CyberSpaceSkinPackGreenMech": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "CyberSpaceSkinPack_CyberSpaceSkinPackYellowKnight": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "CyberSpaceSkinPack_CyberSpaceSkinPackYellowScout": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "CyberSpaceSkinPack_CyberSpaceSkinPackYellowMech": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PetPack_PetPackTrainerMitzi": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "PetPack_PetPackTrainerJake": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PetPack_PetPackMax": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PetPack_PetPackLucky": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PetPack_PetPackAlex": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PetPack_PetPackMurphy": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PetPack_PetPackScotty": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "PetPack_PetPackCooper": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PetPack_PetPackTiki": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PetPack_PetPackPookie": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "PetPack_PetPackRuby": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "PetPack_PetPackGroomerAlicia": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "PetPack_PetPackDrOwen": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PetPack_PetPackPrincess": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "PetPack_PetPackMango": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "PetPack_PetPackRoxie": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PetPack_PetPackOlive": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PetPack_PetPackDoodle": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PetPack_PetPackTommy": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PetPack_PetPackFoo": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "TorchwallKingdom_TorchwallKingdomHaroldIronfist": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TorchwallKingdom_TorchwallKingdomSilverKnight": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TorchwallKingdom_TorchwallKingdomBlackKnight": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TorchwallKingdom_TorchwallKingdomGoldKnight": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TorchwallKingdom_TorchwallKingdomMarekTheMerciless": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TorchwallKingdom_TorchwallKingdomFionaTheFerocious": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TorchwallKingdom_TorchwallKingdomKingReaves": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TorchwallKingdom_TorchwallKingdomQueenJulia": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "TorchwallKingdom_TorchwallKingdomPrinceEdmund": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TorchwallKingdom_TorchwallKingdomPrincessCeline": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "TorchwallKingdom_TorchwallKingdomIgorAlexander": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TorchwallKingdom_TorchwallKingdomPhillipaLatreaux": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "TorchwallKingdom_TorchwallKingdomOmarAlabaster": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TorchwallKingdom_TorchwallKingdomAmiraElena": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "TorchwallKingdom_TorchwallKingdomIrisBudwell": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "TorchwallKingdom_TorchwallKingdomRolandMossfoot": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TorchwallKingdom_TorchwallKingdomPrinceOfPuns": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TorchwallKingdom_TorchwallKingdomMadEustace": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TorchwallKingdom_TorchwallKingdomErnestTheHermit": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TorchwallKingdom_TorchwallKingdomHarryHollowpockets": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "WisteriaGrove_WisteriaGroveDruid": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "WisteriaGrove_WisteriaGroveDyrad": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "WisteriaGrove_WisteriaGroveElfMan": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "WisteriaGrove_WisteriaGroveElfWoman": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "WisteriaGrove_WisteriaGrovePixie": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "TeamUp_TeamUpYellowScout": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "TeamUp_TeamUpBlueLumberjack": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TeamUp_TeamUpBlueMiner": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "TeamUp_TeamUpBlueScout": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TeamUp_TeamUpBlueSoldier": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "TeamUp_TeamUpGreenLumberjack": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "TeamUp_TeamUpGreenMiner": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TeamUp_TeamUpGreenScout": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "TeamUp_TeamUpGreenSoldier": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TeamUp_TeamUpRedLumberjack": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TeamUp_TeamUpRedMiner": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "TeamUp_TeamUpRedScout": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TeamUp_TeamUpRedSoldier": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "TeamUp_TeamUpYellowLumberjack": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "TeamUp_TeamUpYellowMiner": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TeamUp_TeamUpYellowSoldier": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PiratesAndFishfolk_PiratesAndFishfolkTedTheExplorer": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PiratesAndFishfolk_PiratesAndFishfolkBeatrix": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PiratesAndFishfolk_PiratesAndFishfolkCapnHankGolddigger": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PiratesAndFishfolk_PiratesAndFishfolkCaptainBrandi": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PiratesAndFishfolk_PiratesAndFishfolkQuickshotCasey": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PiratesAndFishfolk_PiratesAndFishfolkPenelopeKidd": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PiratesAndFishfolk_PiratesAndFishfolkAntoniaQuickfist": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PiratesAndFishfolk_PiratesAndFishfolkDesmondTheSwitch": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PiratesAndFishfolk_PiratesAndFishfolkCaptainCrabby": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PiratesAndFishfolk_PiratesAndFishfolkFiskgutt": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PiratesAndFishfolk_PiratesAndFishfolkAdmiralAmelia": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PiratesAndFishfolk_PiratesAndFishfolkAdmiralFlintlock": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PiratesAndFishfolk_PiratesAndFishfolkLadyBlushe": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PiratesAndFishfolk_PiratesAndFishfolkLordFancypants": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PiratesAndFishfolk_PiratesAndFishfolkMarlinBrightfin": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PiratesAndFishfolk_PiratesAndFishfolkNeresBrightfin": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PiratesAndFishfolk_PiratesAndFishfolkCoconutBill": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PiratesAndFishfolk_PiratesAndFishfolkSurvivorSusie": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PiratesAndFishfolk_PiratesAndFishfolkBansheeOfTheDeeps": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PiratesAndFishfolk_PiratesAndFishfolkPetePlankwalker": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "AdventurersDream_AdventurersDreamBarbarian": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "AdventurersDream_AdventurersDreamKnight": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "AdventurersDream_AdventurersDreamRanger": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "AdventurersDream_AdventurersDreamShepherd": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "AdventurersDream_AdventurersDreamSorceress": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "EneijaPastel_EneijaPastelPeony": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaPastel_EneijaPastelMacaron": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaPastel_EneijaPastelRaz": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaPastel_EneijaPastelCupcake": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaPastel_EneijaPastelCloud": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaPastel_EneijaPastelBlu": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaPastel_EneijaPastelSkyla": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaPastel_EneijaPastelMarina": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaPastel_EneijaPastelOregano": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaPastel_EneijaPastelSage": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaPastel_EneijaPastelBasil": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaPastel_EneijaPastelJade": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaPastel_EneijaPastelPeriwinkle": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaPastel_EneijaPastelRoyal": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaPastel_EneijaPastelOrchid": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaPastel_EneijaPastelLilac": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaPastel_EneijaPastelBiscotti": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaPastel_EneijaPastelRay": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaPastel_EneijaPastelStarlight": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EneijaPastel_EneijaPastelSunshine": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EverydayHeroes_EverydayHeroesmailwoman": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "EverydayHeroes_EverydayHeroesconstruction": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EverydayHeroes_EverydayHeroesastronaut": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EverydayHeroes_EverydayHeroesbluehelmet": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "EverydayHeroes_EverydayHeroeschef": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EverydayHeroes_EverydayHeroesdoctor": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "EverydayHeroes_EverydayHeroesfireman": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EverydayHeroes_EverydayHeroesjudge": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EverydayHeroes_EverydayHeroeslawyer": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EverydayHeroes_EverydayHeroeslifeguard": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EverydayHeroes_EverydayHeroesnurse": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "EverydayHeroes_EverydayHeroesparamedic": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "EverydayHeroes_EverydayHeroespilot": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "EverydayHeroes_EverydayHeroespolicewoman": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "EverydayHeroes_EverydayHeroesscientist": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "BattleAndBeasts_BattleAndBeastsEndermaninaSuit": {
+        "geometry": "geometry.BattleAndBeasts.EndermaninaSuit"
+    },
+    "BattleAndBeasts_BattleAndBeastsZombieinaSuit": {
+        "geometry": "geometry.BattleAndBeasts.ZombieinaSuit"
+    },
+    "BattleAndBeasts_BattleAndBeastsCaveSpiderinaSuit": {
+        "geometry": "geometry.BattleAndBeasts.CaveSpiderinaSuit"
+    },
+    "BattleAndBeasts_BattleAndBeastsChickeninaSuit": {
+        "geometry": "geometry.BattleAndBeasts.ChickeninaSuit"
+    },
+    "BattleAndBeasts_BattleAndBeastsZebra": {
+        "geometry": "geometry.BattleAndBeasts.Zebra"
+    },
+    "BattleAndBeasts_BattleAndBeastsPanther": {
+        "geometry": "geometry.BattleAndBeasts.Panther"
+    },
+    "BattleAndBeasts_BattleAndBeastsWarthog": {
+        "geometry": "geometry.BattleAndBeasts.Warthog"
+    },
+    "BattleAndBeasts_BattleAndBeastsMandrillBaboon": {
+        "geometry": "geometry.BattleAndBeasts.MandrillBaboon"
+    },
+    "BattleAndBeasts_BattleAndBeastsMeerkat": {
+        "geometry": "geometry.BattleAndBeasts.Meerkat"
+    },
+    "BattleAndBeasts_BattleAndBeastsRhinoceros": {
+        "geometry": "geometry.BattleAndBeasts.Rhinoceros"
+    },
+    "BattleAndBeasts_BattleAndBeastsHippopotamus": {
+        "geometry": "geometry.BattleAndBeasts.Hippopotamus"
+    },
+    "BattleAndBeasts_BattleAndBeastsElephant": {
+        "geometry": "geometry.BattleAndBeasts.Elephant"
+    },
+    "BattleAndBeasts_BattleAndBeastsLion": {
+        "geometry": "geometry.BattleAndBeasts.Lion"
+    },
+    "BattleAndBeasts_BattleAndBeastsAardvark": {
+        "geometry": "geometry.BattleAndBeasts.Aardvark"
+    },
+    "BattleAndBeasts_BattleAndBeastsLeopard": {
+        "geometry": "geometry.BattleAndBeasts.Leopard"
+    },
+    "BattleAndBeasts_BattleAndBeastsGnu": {
+        "geometry": "geometry.BattleAndBeasts.Gnu"
+    },
+    "BattleAndBeasts_BattleAndBeastsHyena": {
+        "geometry": "geometry.BattleAndBeasts.Hyena"
+    },
+    "BattleAndBeasts_BattleAndBeastsAntelope": {
+        "geometry": "geometry.BattleAndBeasts.Antelope"
+    },
+    "BattleAndBeasts_BattleAndBeastsGorilla": {
+        "geometry": "geometry.BattleAndBeasts.Gorilla"
+    },
+    "BattleAndBeasts_BattleAndBeastsBushBaby": {
+        "geometry": "geometry.BattleAndBeasts.BushBaby"
+    },
+    "BattleAndBeasts_BattleAndBeastsCrocodile": {
+        "geometry": "geometry.BattleAndBeasts.Crocodile"
+    },
+    "BattleAndBeasts_BattleAndBeastsSpartan": {
+        "geometry": "geometry.BattleAndBeasts.Spartan",
+        "cape": "Spartan_cape"
+    },
+    "BattleAndBeasts_BattleAndBeastsRoman": {
+        "geometry": "geometry.BattleAndBeasts.Roman"
+    },
+    "BattleAndBeasts_BattleAndBeastsNorseRaider": {
+        "geometry": "geometry.BattleAndBeasts.NorseRaider"
+    },
+    "BattleAndBeasts_BattleAndBeastsMedievalKnight": {
+        "geometry": "geometry.BattleAndBeasts.MedievalKnight"
+    },
+    "BattleAndBeasts_BattleAndBeastsSamuraiWarrior": {
+        "geometry": "geometry.BattleAndBeasts.SamuraiWarrior"
+    },
+    "BattleAndBeasts_BattleAndBeastsSteppesWarrior": {
+        "geometry": "geometry.BattleAndBeasts.SteppesWarrior"
+    },
+    "BattleAndBeasts_BattleAndBeastsNativeAmerican": {
+        "geometry": "geometry.BattleAndBeasts.NativeAmerican"
+    },
+    "BattleAndBeasts_BattleAndBeastsCowhand": {
+        "geometry": "geometry.BattleAndBeasts.Cowhand"
+    },
+    "BattleAndBeasts_BattleAndBeastsSouthernAfricanWarrior": {
+        "geometry": "geometry.BattleAndBeasts.SouthernAfricanWarrior"
+    },
+    "BattleAndBeasts_BattleAndBeastsImperialBritishSoldier": {
+        "geometry": "geometry.BattleAndBeasts.ImperialBritishSoldier"
+    },
+    "BattleAndBeasts_BattleAndBeastsAfricanWarrior": {
+        "geometry": "geometry.BattleAndBeasts.AfricanWarrior"
+    },
+    "BattleAndBeasts_BattleAndBeastsImperialFrenchSoldier": {
+        "geometry": "geometry.BattleAndBeasts.ImperialFrenchSoldier"
+    },
+    "BattleAndBeasts_BattleAndBeastsSpartanv2": {
+        "geometry": "geometry.BattleAndBeasts.Spartanv2"
+    },
+    "BattleAndBeasts_BattleAndBeastsRomanv2": {
+        "geometry": "geometry.BattleAndBeasts.Romanv2"
+    },
+    "BattleAndBeasts_BattleAndBeastsNorseRaiderv2": {
+        "geometry": "geometry.BattleAndBeasts.NorseRaiderv2"
+    },
+    "BattleAndBeasts_BattleAndBeastsMedievalKnightv2": {
+        "geometry": "geometry.BattleAndBeasts.MedievalKnightv2"
+    },
+    "BattleAndBeasts_BattleAndBeastsSamuraiWarriorv2": {
+        "geometry": "geometry.BattleAndBeasts.SamuraiWarriorv2"
+    },
+    "BattleAndBeasts_BattleAndBeastsSteppesWarriorv2": {
+        "geometry": "geometry.BattleAndBeasts.SteppesWarriorv2"
+    },
+    "BattleAndBeasts_BattleAndBeastsNativeAmericanv2": {
+        "geometry": "geometry.BattleAndBeasts.NativeAmericanv2"
+    },
+    "BattleAndBeasts_BattleAndBeastsCowhandv2": {
+        "geometry": "geometry.BattleAndBeasts.Cowhandv2"
+    },
+    "BattleAndBeasts_BattleAndBeastsSouthernAfricanWarriorv2": {
+        "geometry": "geometry.BattleAndBeasts.SouthernAfricanWarriorv2"
+    },
+    "BattleAndBeasts_BattleAndBeastsImperialBritishSoldierv2": {
+        "geometry": "geometry.BattleAndBeasts.ImperialBritishSoldierv2"
+    },
+    "BattleAndBeasts_BattleAndBeastsAfricanWarriorv2": {
+        "geometry": "geometry.BattleAndBeasts.AfricanWarriorv2"
+    },
+    "BattleAndBeasts_BattleAndBeastsImperialFrenchSoldierv2": {
+        "geometry": "geometry.BattleAndBeasts.ImperialFrenchSoldierv2"
+    },
+    "MashupAdventureTime_MashupAdventureTimeFinn": {
+        "geometry": "geometry.MashupAdventureTime.Finn"
+    },
+    "MashupAdventureTime_MashupAdventureTimeFinnJammies": {
+        "geometry": "geometry.MashupAdventureTime.FinnJammies"
+    },
+    "MashupAdventureTime_MashupAdventureTimeFionna": {
+        "geometry": "geometry.MashupAdventureTime.Fionna"
+    },
+    "MashupAdventureTime_MashupAdventureTimeFionnaDress": {
+        "geometry": "geometry.MashupAdventureTime.FionnaDress"
+    },
+    "MashupAdventureTime_MashupAdventureTimeJake": {
+        "geometry": "geometry.MashupAdventureTime.Jake"
+    },
+    "MashupAdventureTime_MashupAdventureTimeCake": {
+        "geometry": "geometry.MashupAdventureTime.Cake"
+    },
+    "MashupAdventureTime_MashupAdventureTimePrincessBubblegum": {
+        "geometry": "geometry.MashupAdventureTime.PrincessBubblegum"
+    },
+    "MashupAdventureTime_MashupAdventureTimePrinceGumball": {
+        "geometry": "geometry.MashupAdventureTime.PrinceGumball"
+    },
+    "MashupAdventureTime_MashupAdventureTimeLadyRainicorn": {
+        "geometry": "geometry.MashupAdventureTime.LadyRainicorn"
+    },
+    "MashupAdventureTime_MashupAdventureTimeIceKing": {
+        "geometry": "geometry.MashupAdventureTime.IceKing"
+    },
+    "MashupAdventureTime_MashupAdventureTimeSimonPetrikov": {
+        "geometry": "geometry.MashupAdventureTime.SimonPetrikov"
+    },
+    "MashupAdventureTime_MashupAdventureTimeIceQueen": {
+        "geometry": "geometry.MashupAdventureTime.IceQueen"
+    },
+    "MashupAdventureTime_MashupAdventureTimeMarceline": {
+        "geometry": "geometry.MashupAdventureTime.Marceline"
+    },
+    "MashupAdventureTime_MashupAdventureTimeMarshallLee": {
+        "geometry": "geometry.MashupAdventureTime.MarshallLee"
+    },
+    "MashupAdventureTime_MashupAdventureTimeKingofOoo": {
+        "geometry": "geometry.MashupAdventureTime.KingofOoo"
+    },
+    "MashupAdventureTime_MashupAdventureTimeBMO": {
+        "geometry": "geometry.MashupAdventureTime.BMO"
+    },
+    "MashupAdventureTime_MashupAdventureTimeFlamePrincess": {
+        "geometry": "geometry.MashupAdventureTime.FlamePrincess"
+    },
+    "MashupAdventureTime_MashupAdventureTimeFlamePrince": {
+        "geometry": "geometry.MashupAdventureTime.FlamePrince"
+    },
+    "MashupAdventureTime_MashupAdventureTimeEarlofLemongrab": {
+        "geometry": "geometry.MashupAdventureTime.EarlofLemongrab"
+    },
+    "MashupAdventureTime_MashupAdventureTimeMagicMan": {
+        "geometry": "geometry.MashupAdventureTime.MagicMan"
+    },
+    "MashupAdventureTime_MashupAdventureTimeRicardio": {
+        "geometry": "geometry.MashupAdventureTime.Ricardio"
+    },
+    "MashupAdventureTime_MashupAdventureTimeGunter": {
+        "geometry": "geometry.MashupAdventureTime.Gunter"
+    },
+    "MashupAdventureTime_MashupAdventureTimeBilly": {
+        "geometry": "geometry.MashupAdventureTime.Billy"
+    },
+    "MashupAdventureTime_MashupAdventureTimeBillyYoung": {
+        "geometry": "geometry.MashupAdventureTime.BillyYoung"
+    },
+    "MashupAdventureTime_MashupAdventureTimeRaggedyPrincess": {
+        "geometry": "geometry.MashupAdventureTime.RaggedyPrincess"
+    },
+    "MashupAdventureTime_MashupAdventureTimeEmeraldPrincess": {
+        "geometry": "geometry.MashupAdventureTime.EmeraldPrincess"
+    },
+    "MashupAdventureTime_MashupAdventureTimeDrPrincess": {
+        "geometry": "geometry.MashupAdventureTime.DrPrincess"
+    },
+    "MashupAdventureTime_MashupAdventureTimeBreakfastPrincess": {
+        "geometry": "geometry.MashupAdventureTime.BreakfastPrincess"
+    },
+    "MashupAdventureTime_MashupAdventureTimeSirSlicer": {
+        "geometry": "geometry.MashupAdventureTime.SirSlicer"
+    },
+    "MashupAdventureTime_MashupAdventureTimeDeath": {
+        "geometry": "geometry.MashupAdventureTime.Death"
+    },
+    "MashupAdventureTime_MashupAdventureTimeTheLich": {
+        "geometry": "geometry.MashupAdventureTime.TheLich"
+    },
+    "MashupAdventureTime_MashupAdventureTimeHuntressWizard": {
+        "geometry": "geometry.MashupAdventureTime.HuntressWizard",
+        "cape": "HuntressWizard_cape"
+    },
+    "MashupAdventureTime_MashupAdventureTimeCharlie": {
+        "geometry": "geometry.MashupAdventureTime.Charlie"
+    },
+    "MashupAdventureTime_MashupAdventureTimeJakeJr": {
+        "geometry": "geometry.MashupAdventureTime.JakeJr"
+    },
+    "MashupAdventureTime_MashupAdventureTimeViola": {
+        "geometry": "geometry.MashupAdventureTime.Viola"
+    },
+    "MashupAdventureTime_MashupAdventureTimeHeadMarauder": {
+        "geometry": "geometry.MashupAdventureTime.HeadMarauder"
+    },
+    "MashupAdventureTime_MashupAdventureTimeWitch": {
+        "geometry": "geometry.MashupAdventureTime.Witch"
+    },
+    "MashupAdventureTime_MashupAdventureTimeHunsonAbadeer": {
+        "geometry": "geometry.MashupAdventureTime.HunsonAbadeer"
+    },
+    "MashupAdventureTime_MashupAdventureTimeGrobGobGlobGrod": {
+        "geometry": "geometry.MashupAdventureTime.GrobGobGlobGrod"
+    },
+    "MashupAdventureTime_MashupAdventureTimeFrozenYogurtPrincess": {
+        "geometry": "geometry.MashupAdventureTime.FrozenYogurtPrincess"
+    },
+    "MashupAdventureTime_MashupAdventureTimeGaryTheMermaidQueen": {
+        "geometry": "geometry.MashupAdventureTime.GaryTheMermaidQueen"
+    },
+    "MashupAdventureTime_MashupAdventureTimeSusanStrong": {
+        "geometry": "geometry.MashupAdventureTime.SusanStrong"
+    },
+    "MashupAdventureTime_MashupAdventureTimeMartinMertensYoung": {
+        "geometry": "geometry.MashupAdventureTime.MartinMertensYoung"
+    },
+    "MashupAdventureTime_MashupAdventureTimeMartinMertens": {
+        "geometry": "geometry.MashupAdventureTime.MartinMertens"
+    },
+    "MashupAdventureTime_MashupAdventureTimeGrassFinn": {
+        "geometry": "geometry.MashupAdventureTime.GrassFinn"
+    },
+    "MashupAdventureTime_MashupAdventureTimeFrieda": {
+        "geometry": "geometry.MashupAdventureTime.Frieda"
+    },
+    "MashupAdventureTime_MashupAdventureTimeDrGross": {
+        "geometry": "geometry.MashupAdventureTime.DrGross"
+    },
+    "MashupAdventureTime_MashupAdventureTimeMinerva": {
+        "geometry": "geometry.MashupAdventureTime.Minerva"
+    },
+    "MashupAdventureTime_MashupAdventureTimeBettyGrof": {
+        "geometry": "geometry.MashupAdventureTime.BettyGrof"
+    },
+    "MashupAdventureTime_MashupAdventureTimeBananaGuard": {
+        "geometry": "geometry.MashupAdventureTime.BananaGuard"
+    },
+    "MashupAdventureTime_MashupAdventureTimeLumpySpacePrincess": {
+        "geometry": "geometry.MashupAdventureTime.LumpySpacePrincess"
+    },
+    "Skyrim_SkyrimDragonbornMale": {
+        "geometry": "geometry.Skyrim.SkyrimDragonbornMale"
+    },
+    "Skyrim_SkyrimDragonbornFemale": {
+        "geometry": "geometry.Skyrim.SkyrimDragonbornFemale"
+    },
+    "Skyrim_SkyrimAncano": {
+        "geometry": "geometry.Skyrim.SkyrimAncano"
+    },
+    "Skyrim_SkyrimElenwen": {
+        "geometry": "geometry.Skyrim.SkyrimElenwen"
+    },
+    "Skyrim_SkyrimArgonianFighter": {
+        "geometry": "geometry.Skyrim.SkyrimArgonianFighter"
+    },
+    "Skyrim_SkyrimArgonianMage": {
+        "geometry": "geometry.Skyrim.SkyrimArgonianMage"
+    },
+    "Skyrim_SkyrimWoodElfArcher": {
+        "geometry": "geometry.Skyrim.SkyrimWoodElfArcher"
+    },
+    "Skyrim_SkyrimWoodElfMage": {
+        "geometry": "geometry.Skyrim.SkyrimWoodElfMage"
+    },
+    "Skyrim_SkyrimBretonMage": {
+        "geometry": "geometry.Skyrim.SkyrimBretonMage"
+    },
+    "Skyrim_SkyrimForswornShaman": {
+        "geometry": "geometry.Skyrim.SkyrimForswornShaman"
+    },
+    "Skyrim_SkyrimDarkElfMage": {
+        "geometry": "geometry.Skyrim.SkyrimDarkElfMage"
+    },
+    "Skyrim_SkyrimDarkElfAssassin": {
+        "geometry": "geometry.Skyrim.SkyrimDarkElfAssassin"
+    },
+    "Skyrim_SkyrimImperialSoldier": {
+        "geometry": "geometry.Skyrim.SkyrimImperialSoldier"
+    },
+    "Skyrim_SkyrimVex": {
+        "geometry": "geometry.Skyrim.SkyrimVex"
+    },
+    "Skyrim_SkyrimKhajiitMerchant": {
+        "geometry": "geometry.Skyrim.SkyrimKhajiitMerchant"
+    },
+    "Skyrim_SkyrimStormcloakSoldier": {
+        "geometry": "geometry.Skyrim.SkyrimStormcloakSoldier"
+    },
+    "Skyrim_SkyrimLydia": {
+        "geometry": "geometry.Skyrim.SkyrimLydia"
+    },
+    "Skyrim_SkyrimOrcBlacksmith": {
+        "geometry": "geometry.Skyrim.SkyrimOrcBlacksmith"
+    },
+    "Skyrim_SkyrimOrcWarriorFemale": {
+        "geometry": "geometry.Skyrim.SkyrimOrcWarriorFemale"
+    },
+    "Skyrim_SkyrimNazir": {
+        "geometry": "geometry.Skyrim.SkyrimNazir",
+        "cape": "SkyrimNazir_cape"
+    },
+    "Skyrim_SkyrimSaadia": {
+        "geometry": "geometry.Skyrim.SkyrimSaadia"
+    },
+    "Skyrim_SkyrimVampireLord": {
+        "geometry": "geometry.Skyrim.SkyrimVampireLord",
+        "cape": "SkyrimVampireLord_cape"
+    },
+    "Skyrim_SkyrimIsran": {
+        "geometry": "geometry.Skyrim.SkyrimIsran"
+    },
+    "Skyrim_SkyrimAstrid": {
+        "geometry": "geometry.Skyrim.SkyrimAstrid"
+    },
+    "Skyrim_SkyrimAelatheHuntress": {
+        "geometry": "geometry.Skyrim.SkyrimAelatheHuntress"
+    },
+    "Skyrim_SkyrimMaiqtheLiar": {
+        "geometry": "geometry.Skyrim.SkyrimMaiqtheLiar"
+    },
+    "Skyrim_SkyrimGreybeard": {
+        "geometry": "geometry.Skyrim.SkyrimGreybeard"
+    },
+    "Skyrim_SkyrimFrostTroll": {
+        "geometry": "geometry.Skyrim.SkyrimFrostTroll"
+    },
+    "Skyrim_SkyrimFlameAtronach": {
+        "geometry": "geometry.Skyrim.SkyrimFlameAtronach"
+    },
+    "Skyrim_SkyrimDragonPriest": {
+        "geometry": "geometry.Skyrim.SkyrimDragonPriest"
+    },
+    "Skyrim_SkyrimHagraven": {
+        "geometry": "geometry.Skyrim.SkyrimHagraven"
+    },
+    "Skyrim_SkyrimDraugrDeathlord": {
+        "geometry": "geometry.Skyrim.SkyrimDraugrDeathlord"
+    },
+    "Skyrim_SkyrimSheogorath": {
+        "geometry": "geometry.Skyrim.SkyrimSheogorath"
+    },
+    "Skyrim_SkyrimSpriggan": {
+        "geometry": "geometry.Skyrim.SkyrimSpriggan"
+    },
+    "Skyrim_SkyrimDwarvenCenturion": {
+        "geometry": "geometry.Skyrim.SkyrimDwarvenCenturion"
+    },
+    "Skyrim_SkyrimWispmother": {
+        "geometry": "geometry.Skyrim.SkyrimWispmother"
+    },
+    "Skyrim_SkyrimDremoraLord": {
+        "geometry": "geometry.Skyrim.SkyrimDremoraLord"
+    },
+    "Skyrim_SkyrimMasterNecromancer": {
+        "geometry": "geometry.Skyrim.SkyrimMasterNecromancer"
+    },
+    "Skyrim_SkyrimVilkas": {
+        "geometry": "geometry.Skyrim.SkyrimVilkas"
+    },
+    "Skyrim_SkyrimOrcWarriorMale": {
+        "geometry": "geometry.Skyrim.SkyrimOrcWarriorMale"
+    },
+    "GreekMythology_GreekMythologyAtalanta": {
+        "geometry": "geometry.GreekMythology.Atalanta"
+    },
+    "GreekMythology_GreekMythologyHephaestus": {
+        "geometry": "geometry.GreekMythology.Hephaestus"
+    },
+    "GreekMythology_GreekMythologyAchilles": {
+        "geometry": "geometry.GreekMythology.Achilles"
+    },
+    "GreekMythology_GreekMythologyAphrodite": {
+        "geometry": "geometry.GreekMythology.Aphrodite"
+    },
+    "GreekMythology_GreekMythologyApollo": {
+        "geometry": "geometry.GreekMythology.Apollo"
+    },
+    "GreekMythology_GreekMythologyAres": {
+        "geometry": "geometry.GreekMythology.Ares"
+    },
+    "GreekMythology_GreekMythologyArgonaut1": {
+        "geometry": "geometry.GreekMythology.Argonaut1"
+    },
+    "GreekMythology_GreekMythologyArgonaut2": {
+        "geometry": "geometry.GreekMythology.Argonaut2"
+    },
+    "GreekMythology_GreekMythologyArtemis": {
+        "geometry": "geometry.GreekMythology.Artemis"
+    },
+    "GreekMythology_GreekMythologyAthena": {
+        "geometry": "geometry.GreekMythology.Athena"
+    },
+    "GreekMythology_GreekMythologyCadmus": {
+        "geometry": "geometry.GreekMythology.Cadmus"
+    },
+    "GreekMythology_GreekMythologyCerberus": {
+        "geometry": "geometry.GreekMythology.Cerberus"
+    },
+    "GreekMythology_GreekMythologyCyclops": {
+        "geometry": "geometry.GreekMythology.Cyclops"
+    },
+    "GreekMythology_GreekMythologyDryad": {
+        "geometry": "geometry.GreekMythology.Dryad"
+    },
+    "GreekMythology_GreekMythologyErinyes": {
+        "geometry": "geometry.GreekMythology.Erinyes"
+    },
+    "GreekMythology_GreekMythologyHades": {
+        "geometry": "geometry.GreekMythology.Hades"
+    },
+    "GreekMythology_GreekMythologyHarpy": {
+        "geometry": "geometry.GreekMythology.Harpy"
+    },
+    "GreekMythology_GreekMythologyHelenOfTroy": {
+        "geometry": "geometry.GreekMythology.HelenOfTroy"
+    },
+    "GreekMythology_GreekMythologyHera": {
+        "geometry": "geometry.GreekMythology.Hera"
+    },
+    "GreekMythology_GreekMythologyHeracles": {
+        "geometry": "geometry.GreekMythology.Heracles"
+    },
+    "GreekMythology_GreekMythologyHermes": {
+        "geometry": "geometry.GreekMythology.Hermes"
+    },
+    "GreekMythology_GreekMythologyHydra": {
+        "geometry": "geometry.GreekMythology.Hydra"
+    },
+    "GreekMythology_GreekMythologyJason": {
+        "geometry": "geometry.GreekMythology.Jason"
+    },
+    "GreekMythology_GreekMythologyMedea": {
+        "geometry": "geometry.GreekMythology.Medea"
+    },
+    "GreekMythology_GreekMythologyMedusa": {
+        "geometry": "geometry.GreekMythology.Medusa"
+    },
+    "GreekMythology_GreekMythologyMinos": {
+        "geometry": "geometry.GreekMythology.Minos"
+    },
+    "GreekMythology_GreekMythologyMinotaur": {
+        "geometry": "geometry.GreekMythology.Minotaur"
+    },
+    "GreekMythology_GreekMythologyOdysseus": {
+        "geometry": "geometry.GreekMythology.Odysseus"
+    },
+    "GreekMythology_GreekMythologyPerseus": {
+        "geometry": "geometry.GreekMythology.Perseus"
+    },
+    "GreekMythology_GreekMythologyPoseidon": {
+        "geometry": "geometry.GreekMythology.Poseidon"
+    },
+    "GreekMythology_GreekMythologyPrometheus": {
+        "geometry": "geometry.GreekMythology.Prometheus"
+    },
+    "GreekMythology_GreekMythologySatyr": {
+        "geometry": "geometry.GreekMythology.Satyr"
+    },
+    "GreekMythology_GreekMythologySeaMonster": {
+        "geometry": "geometry.GreekMythology.SeaMonster"
+    },
+    "GreekMythology_GreekMythologySiren": {
+        "geometry": "geometry.GreekMythology.Siren"
+    },
+    "GreekMythology_GreekMythologySpartoi": {
+        "geometry": "geometry.GreekMythology.Spartoi"
+    },
+    "GreekMythology_GreekMythologyStygianWitch": {
+        "geometry": "geometry.GreekMythology.StygianWitch"
+    },
+    "GreekMythology_GreekMythologyTheseus": {
+        "geometry": "geometry.GreekMythology.Theseus"
+    },
+    "GreekMythology_GreekMythologyTrojanWarrior": {
+        "geometry": "geometry.GreekMythology.TrojanWarrior"
+    },
+    "GreekMythology_GreekMythologyZeus": {
+        "geometry": "geometry.GreekMythology.Zeus"
+    },
+    "MagicTheGathering_MagicTheGatheringGideon": {
+        "geometry": "geometry.MagicTheGathering.Gideon"
+    },
+    "MagicTheGathering_MagicTheGatheringJace": {
+        "geometry": "geometry.MagicTheGathering.Jace"
+    },
+    "MagicTheGathering_MagicTheGatheringLiliana": {
+        "geometry": "geometry.MagicTheGathering.Liliana"
+    },
+    "MagicTheGathering_MagicTheGatheringChandra": {
+        "geometry": "geometry.MagicTheGathering.Chandra"
+    },
+    "MagicTheGathering_MagicTheGatheringNissa": {
+        "geometry": "geometry.MagicTheGathering.Nissa"
+    },
+    "MagicTheGathering_MagicTheGatheringAjani": {
+        "geometry": "geometry.MagicTheGathering.Ajani"
+    },
+    "MagicTheGathering_MagicTheGatheringNicolBolas": {
+        "geometry": "geometry.MagicTheGathering.NicolBolas"
+    },
+    "MagicTheGathering_MagicTheGatheringEmrakul": {
+        "geometry": "geometry.MagicTheGathering.Emrakul"
+    },
+    "MagicTheGathering_MagicTheGatheringTezzeret": {
+        "geometry": "geometry.MagicTheGathering.Tezzeret"
+    },
+    "MagicTheGathering_MagicTheGatheringSamut": {
+        "geometry": "geometry.MagicTheGathering.Samut"
+    },
+    "MagicTheGathering_MagicTheGatheringSaheeliRai": {
+        "geometry": "geometry.MagicTheGathering.SaheeliRai"
+    },
+    "MagicTheGathering_MagicTheGatheringTamiyo": {
+        "geometry": "geometry.MagicTheGathering.Tamiyo"
+    },
+    "MagicTheGathering_MagicTheGatheringAvacyn": {
+        "geometry": "geometry.MagicTheGathering.Avacyn"
+    },
+    "MagicTheGathering_MagicTheGatheringDovinBaan": {
+        "geometry": "geometry.MagicTheGathering.DovinBaan"
+    },
+    "MagicTheGathering_MagicTheGatheringHazoret": {
+        "geometry": "geometry.MagicTheGathering.Hazoret"
+    },
+    "Fallout_FalloutFalloutVaultBoy": {
+        "geometry": "geometry.Fallout.FalloutVaultBoy"
+    },
+    "Fallout_FalloutFalloutVaultGirl": {
+        "geometry": "geometry.Fallout.FalloutVaultGirl"
+    },
+    "Fallout_FalloutFallout1AlbertCole": {
+        "geometry": "geometry.Fallout.Fallout1AlbertCole"
+    },
+    "Fallout_FalloutFallout1AlbertColev2": {
+        "geometry": "geometry.Fallout.Fallout1AlbertColev2"
+    },
+    "Fallout_FalloutFallout1MaxStone": {
+        "geometry": "geometry.Fallout.Fallout1MaxStone"
+    },
+    "Fallout_FalloutFallout1MaxStonev2": {
+        "geometry": "geometry.Fallout.Fallout1MaxStonev2"
+    },
+    "Fallout_FalloutFallout1NataliaDubrovhsky": {
+        "geometry": "geometry.Fallout.Fallout1NataliaDubrovhsky"
+    },
+    "Fallout_FalloutFallout1NataliaDubrovhskyv2": {
+        "geometry": "geometry.Fallout.Fallout1NataliaDubrovhskyv2"
+    },
+    "Fallout_FalloutFallout2Chitsa": {
+        "geometry": "geometry.Fallout.Fallout2Chitsa"
+    },
+    "Fallout_FalloutFallout2Hakunin": {
+        "geometry": "geometry.Fallout.Fallout2Hakunin"
+    },
+    "Fallout_FalloutFallout2Harold": {
+        "geometry": "geometry.Fallout.Fallout2Harold"
+    },
+    "Fallout_FalloutFallout2Mingan": {
+        "geometry": "geometry.Fallout.Fallout2Mingan"
+    },
+    "Fallout_FalloutFallout2Narg": {
+        "geometry": "geometry.Fallout.Fallout2Narg"
+    },
+    "Fallout_FalloutFallout3BettyStanislausBraun": {
+        "geometry": "geometry.Fallout.Fallout3BettyStanislausBraun"
+    },
+    "Fallout_FalloutFallout3BrotherhoodofSteelPaladin": {
+        "geometry": "geometry.Fallout.Fallout3BrotherhoodofSteelPaladin"
+    },
+    "Fallout_FalloutFallout3ButchDeLoria": {
+        "geometry": "geometry.Fallout.Fallout3ButchDeLoria"
+    },
+    "Fallout_FalloutFallout3Clover": {
+        "geometry": "geometry.Fallout.Fallout3Clover"
+    },
+    "Fallout_FalloutFallout3ColonelAutumn": {
+        "geometry": "geometry.Fallout.Fallout3ColonelAutumn"
+    },
+    "Fallout_FalloutFallout3Fawkes": {
+        "geometry": "geometry.Fallout.Fallout3Fawkes"
+    },
+    "Fallout_FalloutFallout3James": {
+        "geometry": "geometry.Fallout.Fallout3James"
+    },
+    "Fallout_FalloutFallout3LoneWanderer": {
+        "geometry": "geometry.Fallout.Fallout3LoneWanderer"
+    },
+    "Fallout_FalloutFallout3LoneWandererv2": {
+        "geometry": "geometry.Fallout.Fallout3LoneWandererv2"
+    },
+    "Fallout_FalloutFallout3MoiraBrown": {
+        "geometry": "geometry.Fallout.Fallout3MoiraBrown"
+    },
+    "Fallout_FalloutFallout3StarPaladinCross": {
+        "geometry": "geometry.Fallout.Fallout3StarPaladinCross"
+    },
+    "Fallout_FalloutFallout3ThreeDog": {
+        "geometry": "geometry.Fallout.Fallout3ThreeDog"
+    },
+    "Fallout_FalloutFallout4Bosco": {
+        "geometry": "geometry.Fallout.Fallout4Bosco"
+    },
+    "Fallout_FalloutFallout4Cait": {
+        "geometry": "geometry.Fallout.Fallout4Cait"
+    },
+    "Fallout_FalloutFallout4Hancock": {
+        "geometry": "geometry.Fallout.Fallout4Hancock"
+    },
+    "Fallout_FalloutFallout4JanglestheMoonMonkey": {
+        "geometry": "geometry.Fallout.Fallout4JanglestheMoonMonkey"
+    },
+    "Fallout_FalloutFallout4Kellogg": {
+        "geometry": "geometry.Fallout.Fallout4Kellogg"
+    },
+    "Fallout_FalloutFallout4NickValentine": {
+        "geometry": "geometry.Fallout.Fallout4NickValentine"
+    },
+    "Fallout_FalloutFallout4PaladinDanse": {
+        "geometry": "geometry.Fallout.Fallout4PaladinDanse"
+    },
+    "Fallout_FalloutFallout4Piper": {
+        "geometry": "geometry.Fallout.Fallout4Piper"
+    },
+    "Fallout_FalloutFallout4PrestonGarvey": {
+        "geometry": "geometry.Fallout.Fallout4PrestonGarvey"
+    },
+    "Fallout_FalloutFallout4SilverShroud": {
+        "geometry": "geometry.Fallout.Fallout4SilverShroud"
+    },
+    "Fallout_FalloutFallout4SoleSurvivor": {
+        "geometry": "geometry.Fallout.Fallout4SoleSurvivor"
+    },
+    "Fallout_FalloutFallout4SoleSurvivorv2": {
+        "geometry": "geometry.Fallout.Fallout4SoleSurvivorv2"
+    },
+    "Fallout_FalloutFallout4TheMechanist": {
+        "geometry": "geometry.Fallout.Fallout4TheMechanist"
+    },
+    "Fallout_FalloutFallout4TinkerTom": {
+        "geometry": "geometry.Fallout.Fallout4TinkerTom"
+    },
+    "Fallout_FalloutFalloutGrognaktheBarbarian": {
+        "geometry": "geometry.Fallout.FalloutGrognaktheBarbarian"
+    },
+    "Fallout_FalloutFalloutGrognaktheBarbarianv2": {
+        "geometry": "geometry.Fallout.FalloutGrognaktheBarbarianv2"
+    },
+    "Fallout_FalloutFalloutRaider": {
+        "geometry": "geometry.Fallout.FalloutRaider"
+    },
+    "Fallout_FalloutFalloutRaiderv2": {
+        "geometry": "geometry.Fallout.FalloutRaiderv2"
+    },
+    "Fallout_FalloutFalloutSuperMutant": {
+        "geometry": "geometry.Fallout.FalloutSuperMutant"
+    },
+    "ChineseMythology_ChineseMythologyTangDynastyEmperorTaizong": {
+        "geometry": "geometry.ChineseMythology.TangDynastyEmperorTaizong"
+    },
+    "ChineseMythology_ChineseMythologyLegendaryEmpressEmpressWuZetian": {
+        "geometry": "geometry.ChineseMythology.LegendaryEmpressEmpressWuZetian"
+    },
+    "ChineseMythology_ChineseMythologyBronzeStatueGuardianLion": {
+        "geometry": "geometry.ChineseMythology.BronzeStatueGuardianLion"
+    },
+    "ChineseMythology_ChineseMythologyChineseOperaChing": {
+        "geometry": "geometry.ChineseMythology.ChineseOperaChing"
+    },
+    "ChineseMythology_ChineseMythologyChineseOperaTan": {
+        "geometry": "geometry.ChineseMythology.ChineseOperaTan"
+    },
+    "ChineseMythology_ChineseMythologyClayStatueTerracottaWarrior": {
+        "geometry": "geometry.ChineseMythology.ClayStatueTerracottaWarrior"
+    },
+    "ChineseMythology_ChineseMythologyDemonBanditGoldenHorn": {
+        "geometry": "geometry.ChineseMythology.DemonBanditGoldenHorn"
+    },
+    "ChineseMythology_ChineseMythologyDemonBanditSilverHorn": {
+        "geometry": "geometry.ChineseMythology.DemonBanditSilverHorn"
+    },
+    "ChineseMythology_ChineseMythologyDragonDancerSuitChineseDragonHead": {
+        "geometry": "geometry.ChineseMythology.DragonDancerSuitChineseDragonHead"
+    },
+    "ChineseMythology_ChineseMythologyDragonDancerSuitChineseDragonTail": {
+        "geometry": "geometry.ChineseMythology.DragonDancerSuitChineseDragonTail"
+    },
+    "ChineseMythology_ChineseMythologyDragonMotherGoddessLongmu": {
+        "geometry": "geometry.ChineseMythology.DragonMotherGoddessLongmu"
+    },
+    "ChineseMythology_ChineseMythologyEasternSymbolAzureDragon": {
+        "geometry": "geometry.ChineseMythology.EasternSymbolAzureDragon"
+    },
+    "ChineseMythology_ChineseMythologyFishWarriorRiverDemon": {
+        "geometry": "geometry.ChineseMythology.FishWarriorRiverDemon"
+    },
+    "ChineseMythology_ChineseMythologyHeavensGatekeeperHeavenlyKingLiJing": {
+        "geometry": "geometry.ChineseMythology.HeavensGatekeeperHeavenlyKingLiJing"
+    },
+    "ChineseMythology_ChineseMythologyMalevolentImmortalFoxSpiritDaji": {
+        "geometry": "geometry.ChineseMythology.MalevolentImmortalFoxSpiritDaji"
+    },
+    "ChineseMythology_ChineseMythologyMoonGoddessChange": {
+        "geometry": "geometry.ChineseMythology.MoonGoddessChange"
+    },
+    "ChineseMythology_ChineseMythologyMoonSpiritJadeRabbit": {
+        "geometry": "geometry.ChineseMythology.MoonSpiritJadeRabbit"
+    },
+    "ChineseMythology_ChineseMythologyNorthernSymbolBlackTurtle": {
+        "geometry": "geometry.ChineseMythology.NorthernSymbolBlackTurtle"
+    },
+    "ChineseMythology_ChineseMythologyOneHornedDemonRhinocerosKing": {
+        "geometry": "geometry.ChineseMythology.OneHornedDemonRhinocerosKing"
+    },
+    "ChineseMythology_ChineseMythologyRebellionLeaderPrincessZhaoofPingyang": {
+        "geometry": "geometry.ChineseMythology.RebellionLeaderPrincessZhaoofPingyang"
+    },
+    "ChineseMythology_ChineseMythologySnakeCelestialGoddessNuwa": {
+        "geometry": "geometry.ChineseMythology.SnakeCelestialGoddessNuwa"
+    },
+    "ChineseMythology_ChineseMythologySouthernSymbolVermillionBird": {
+        "geometry": "geometry.ChineseMythology.SouthernSymbolVermillionBird"
+    },
+    "ChineseMythology_ChineseMythologySunWukongsMasterElderSubhuti": {
+        "geometry": "geometry.ChineseMythology.SunWukongsMasterElderSubhuti"
+    },
+    "ChineseMythology_ChineseMythologyTheLotusPrincePrinceNezha": {
+        "geometry": "geometry.ChineseMythology.TheLotusPrincePrinceNezha"
+    },
+    "ChineseMythology_ChineseMythologyUnderworldKingYanWang": {
+        "geometry": "geometry.ChineseMythology.UnderworldKingYanWang"
+    },
+    "ChineseMythology_ChineseMythologyWesternSymbolWhiteTiger": {
+        "geometry": "geometry.ChineseMythology.WesternSymbolWhiteTiger"
+    },
+    "PowerRangers_PowerRangersRedRanger": {
+        "geometry": "geometry.PowerRangers.RedRanger"
+    },
+    "PowerRangers_PowerRangersYellowRanger": {
+        "geometry": "geometry.PowerRangers.YellowRanger"
+    },
+    "PowerRangers_PowerRangersMegazord": {
+        "geometry": "geometry.PowerRangers.Megazord"
+    },
+    "PowerRangers_PowerRangersRitaRepulsa": {
+        "geometry": "geometry.PowerRangers.RitaRepulsa"
+    },
+    "PowerRangers_PowerRangersWhiteRanger": {
+        "geometry": "geometry.PowerRangers.WhiteRanger"
+    },
+    "PowerRangers_PowerRangersBlackRanger": {
+        "geometry": "geometry.PowerRangers.BlackRanger"
+    },
+    "PowerRangers_PowerRangersBlueRanger": {
+        "geometry": "geometry.PowerRangers.BlueRanger"
+    },
+    "PowerRangers_PowerRangersPinkRanger": {
+        "geometry": "geometry.PowerRangers.PinkRanger"
+    },
+    "PowerRangers_PowerRangersGreenRanger": {
+        "geometry": "geometry.PowerRangers.GreenRanger"
+    },
+    "PowerRangers_PowerRangersRedRangerDragonShield": {
+        "geometry": "geometry.PowerRangers.RedRangerDragonShield"
+    },
+    "PowerRangers_PowerRangersBlackRangerDragonShield": {
+        "geometry": "geometry.PowerRangers.BlackRangerDragonShield"
+    },
+    "PowerRangers_PowerRangersAlpha5": {
+        "geometry": "geometry.PowerRangers.Alpha5"
+    },
+    "PowerRangers_PowerRangersBulk": {
+        "geometry": "geometry.PowerRangers.Bulk"
+    },
+    "PowerRangers_PowerRangersSkull": {
+        "geometry": "geometry.PowerRangers.Skull"
+    },
+    "PowerRangers_PowerRangersGoldar": {
+        "geometry": "geometry.PowerRangers.Goldar"
+    },
+    "PowerRangers_PowerRangersLordZedd": {
+        "geometry": "geometry.PowerRangers.LordZedd"
+    },
+    "PowerRangers_PowerRangersScorpina": {
+        "geometry": "geometry.PowerRangers.Scorpina"
+    },
+    "PowerRangers_PowerRangersRitoRevolto": {
+        "geometry": "geometry.PowerRangers.RitoRevolto"
+    },
+    "PowerRangers_PowerRangersNinjor": {
+        "geometry": "geometry.PowerRangers.Ninjor"
+    },
+    "PowerRangers_PowerRangersPutty": {
+        "geometry": "geometry.PowerRangers.Putty"
+    },
+    "BiomeSettlers03_BiomeSettlers03EndEngineer": {
+        "geometry": "geometry.BiomeSettlers03.EndEngineer"
+    },
+    "BiomeSettlers03_BiomeSettlers03OceanArcher": {
+        "geometry": "geometry.BiomeSettlers03.OceanArcher"
+    },
+    "BiomeSettlers03_BiomeSettlers03FarlandArcher": {
+        "geometry": "geometry.BiomeSettlers03.FarlandArcher"
+    },
+    "BiomeSettlers03_BiomeSettlers03FarlandBrawler": {
+        "geometry": "geometry.BiomeSettlers03.FarlandBrawler"
+    },
+    "BiomeSettlers03_BiomeSettlers03FarlandBrewer": {
+        "geometry": "geometry.BiomeSettlers03.FarlandBrewer"
+    },
+    "BiomeSettlers03_BiomeSettlers03FarlandEngineer": {
+        "geometry": "geometry.BiomeSettlers03.FarlandEngineer"
+    },
+    "BiomeSettlers03_BiomeSettlers03FarlandGriefer": {
+        "geometry": "geometry.BiomeSettlers03.FarlandGriefer"
+    },
+    "BiomeSettlers03_BiomeSettlers03FarlandHunter": {
+        "geometry": "geometry.BiomeSettlers03.FarlandHunter"
+    },
+    "BiomeSettlers03_BiomeSettlers03FarlandMiner": {
+        "geometry": "geometry.BiomeSettlers03.FarlandMiner"
+    },
+    "BiomeSettlers03_BiomeSettlers03FarlandTamer": {
+        "geometry": "geometry.BiomeSettlers03.FarlandTamer"
+    },
+    "BiomeSettlers03_BiomeSettlers03FarlandZealot": {
+        "geometry": "geometry.BiomeSettlers03.FarlandZealot"
+    },
+    "BiomeSettlers03_BiomeSettlers03EndArcher": {
+        "geometry": "geometry.BiomeSettlers03.EndArcher"
+    },
+    "BiomeSettlers03_BiomeSettlers03EndBrawler": {
+        "geometry": "geometry.BiomeSettlers03.EndBrawler"
+    },
+    "BiomeSettlers03_BiomeSettlers03EndBrewer": {
+        "geometry": "geometry.BiomeSettlers03.EndBrewer"
+    },
+    "BiomeSettlers03_BiomeSettlers03EndGriefer": {
+        "geometry": "geometry.BiomeSettlers03.EndGriefer"
+    },
+    "BiomeSettlers03_BiomeSettlers03EndHunter": {
+        "geometry": "geometry.BiomeSettlers03.EndHunter"
+    },
+    "BiomeSettlers03_BiomeSettlers03EndTamer": {
+        "geometry": "geometry.BiomeSettlers03.EndTamer"
+    },
+    "BiomeSettlers03_BiomeSettlers03EndZealot": {
+        "geometry": "geometry.BiomeSettlers03.EndZealot"
+    },
+    "BiomeSettlers03_BiomeSettlers03OceanBrawler": {
+        "geometry": "geometry.BiomeSettlers03.OceanBrawler"
+    },
+    "BiomeSettlers03_BiomeSettlers03OceanBrewer": {
+        "geometry": "geometry.BiomeSettlers03.OceanBrewer"
+    },
+    "BiomeSettlers03_BiomeSettlers03OceanEngineer": {
+        "geometry": "geometry.BiomeSettlers03.OceanEngineer"
+    },
+    "BiomeSettlers03_BiomeSettlers03OceanGriefer": {
+        "geometry": "geometry.BiomeSettlers03.OceanGriefer"
+    },
+    "BiomeSettlers03_BiomeSettlers03OceanHunter": {
+        "geometry": "geometry.BiomeSettlers03.OceanHunter"
+    },
+    "BiomeSettlers03_BiomeSettlers03OceanTamer": {
+        "geometry": "geometry.BiomeSettlers03.OceanTamer"
+    },
+    "BiomeSettlers03_BiomeSettlers03OceanZealot": {
+        "geometry": "geometry.BiomeSettlers03.OceanZealot"
+    },
+    "FestiveMashup2016_FestiveMashup2016SnowhohomanSweater": {
+        "geometry": "geometry.FestiveMashup.SnowhohomanSweater"
+    },
+    "FestiveMashup2016_FestiveMashup2016CringleCreeperCardigan": {
+        "geometry": "geometry.FestiveMashup.CringleCreeperCardigan"
+    },
+    "FestiveMashup2016_FestiveMashup2016MistletoesTheBigfoot": {
+        "geometry": "geometry.FestiveMashup.MistletoesTheBigfoot"
+    },
+    "FestiveMashup2016_FestiveMashup2016MrsCoolClaus": {
+        "geometry": "geometry.FestiveMashup.MrsCoolClaus"
+    },
+    "FestiveMashup2016_FestiveMashup2016CoolClaus": {
+        "geometry": "geometry.FestiveMashup.CoolClaus"
+    },
+    "FestiveMashup2016_FestiveMashup2016Comet": {
+        "geometry": "geometry.FestiveMashup.Comet"
+    },
+    "FestiveMashup2016_FestiveMashup2016Cupid": {
+        "geometry": "geometry.FestiveMashup.Cupid"
+    },
+    "FestiveMashup2016_FestiveMashup2016Dancer": {
+        "geometry": "geometry.FestiveMashup.Dancer"
+    },
+    "FestiveMashup2016_FestiveMashup2016Dasher": {
+        "geometry": "geometry.FestiveMashup.Dasher"
+    },
+    "FestiveMashup2016_FestiveMashup2016Donner": {
+        "geometry": "geometry.FestiveMashup.Donner"
+    },
+    "FestiveMashup2016_FestiveMashup2016Blitzen": {
+        "geometry": "geometry.FestiveMashup.Blitzen"
+    },
+    "FestiveMashup2016_FestiveMashup2016Prancer": {
+        "geometry": "geometry.FestiveMashup.Prancer"
+    },
+    "FestiveMashup2016_FestiveMashup2016Vixen": {
+        "geometry": "geometry.FestiveMashup.Vixen"
+    },
+    "FestiveMashup2016_FestiveMashup2016Dishevelf": {
+        "geometry": "geometry.FestiveMashup.Dishevelf"
+    },
+    "FestiveMashup2016_FestiveMashup2016ChrisCringle": {
+        "geometry": "geometry.FestiveMashup.ChrisCringle"
+    },
+    "FestiveMashup2016_FestiveMashup2016Krampus": {
+        "geometry": "geometry.FestiveMashup.Krampus"
+    },
+    "FestiveMashup2016_FestiveMashup2016Noelf": {
+        "geometry": "geometry.FestiveMashup.Noelf"
+    },
+    "FestiveMashup2016_FestiveMashup2016Tinself": {
+        "geometry": "geometry.FestiveMashup.Tinself"
+    },
+    "FestiveMashup2016_FestiveMashup2016Toastmistress": {
+        "geometry": "geometry.FestiveMashup.Toastmistress"
+    },
+    "FestiveMashup2016_FestiveMashup2016Toastmaster": {
+        "geometry": "geometry.FestiveMashup.Toastmaster"
+    },
+    "FestiveMashup2016_FestiveMashup2016YuletideYeti": {
+        "geometry": "geometry.FestiveMashup.YuletideYeti"
+    },
+    "CampfireTales_CampfireTalesRancidAnne": {
+        "geometry": "geometry.CampfireTales.RancidAnne"
+    },
+    "CampfireTales_CampfireTalesOlDiggy": {
+        "geometry": "geometry.CampfireTales.OlDiggy"
+    },
+    "CampfireTales_CampfireTalesBedlam": {
+        "geometry": "geometry.CampfireTales.Bedlam"
+    },
+    "CampfireTales_CampfireTalesCrisp": {
+        "geometry": "geometry.CampfireTales.Crisp"
+    },
+    "CampfireTales_CampfireTalesTheEnderall": {
+        "geometry": "geometry.CampfireTales.TheEnderall"
+    },
+    "CampfireTales_CampfireTalesFarlander": {
+        "geometry": "geometry.CampfireTales.Farlander"
+    },
+    "CampfireTales_CampfireTalesTheHeadlessHaunter": {
+        "geometry": "geometry.CampfireTales.TheHeadlessHaunter"
+    },
+    "CampfireTales_CampfireTalesTheLapisLady": {
+        "geometry": "geometry.CampfireTales.TheLapisLady"
+    },
+    "CampfireTales_CampfireTalesLumberingJack": {
+        "geometry": "geometry.CampfireTales.LumberingJack"
+    },
+    "CampfireTales_CampfireTalesTheArisenRose": {
+        "geometry": "geometry.CampfireTales.TheArisenRose"
+    },
+    "CampfireTales_CampfireTalesTheSeaSwallowedCaptain": {
+        "geometry": "geometry.CampfireTales.TheSeaSwallowedCaptain"
+    },
+    "CampfireTales_CampfireTalesTheBlocksquatch": {
+        "geometry": "geometry.CampfireTales.TheBlocksquatch"
+    },
+    "CampfireTales_CampfireTalesTheUnshorn": {
+        "geometry": "geometry.CampfireTales.TheUnshorn"
+    },
+    "CampfireTales_CampfireTalesSilksnatcher": {
+        "geometry": "geometry.CampfireTales.Silksnatcher"
+    },
+    "CampfireTales_CampfireTalesCropsy": {
+        "geometry": "geometry.CampfireTales.Cropsy"
+    },
+    "CampfireTales_CampfireTalesTheWellWisher": {
+        "geometry": "geometry.CampfireTales.TheWellWisher"
+    },
+    "Minecon_MineconAlexCape2016": {
+        "geometry": "geometry.humanoid.customSlim",
+        "cape": "Minecon2016Cape"
+    },
+    "Minecon_MineconSteveCape2016": {
+        "geometry": "geometry.humanoid.custom",
+        "cape": "Minecon2016Cape"
+    },
+    "Minecon_MineconAlexCape2015": {
+        "geometry": "geometry.humanoid.customSlim",
+        "cape": "Minecon2015Cape"
+    },
+    "Minecon_MineconSteveCape2015": {
+        "geometry": "geometry.humanoid.custom",
+        "cape": "Minecon2015Cape"
+    },
+    "Minecon_MineconAlexCape2013": {
+        "geometry": "geometry.humanoid.customSlim",
+        "cape": "Minecon2013Cape"
+    },
+    "Minecon_MineconSteveCape2013": {
+        "geometry": "geometry.humanoid.custom",
+        "cape": "Minecon2013Cape"
+    },
+    "Minecon_MineconAlexCape2012": {
+        "geometry": "geometry.humanoid.customSlim",
+        "cape": "Minecon2012Cape"
+    },
+    "Minecon_MineconSteveCape2012": {
+        "geometry": "geometry.humanoid.custom",
+        "cape": "Minecon2012Cape"
+    },
+    "Minecon_MineconAlexCape2011": {
+        "geometry": "geometry.humanoid.customSlim",
+        "cape": "Minecon2011Cape"
+    },
+    "Minecon_MineconSteveCape2011": {
+        "geometry": "geometry.humanoid.custom",
+        "cape": "Minecon2011Cape"
+    },
+    "Minecon_MineconOceanInventor": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "Minecon_MineconForestPVP": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "Minecon_MineconIceExplorer": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "Minecon_MineconMesaCrafter": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "Villains_VillainsStrongholdMonarch": {
+        "geometry": "geometry.Villains.stronghold_monarch"
+    },
+    "Villains_VillainsStrongholdSeer": {
+        "geometry": "geometry.Villains.stronghold_seer"
+    },
+    "Villains_VillainsBisector": {
+        "geometry": "geometry.Villains.bisector"
+    },
+    "Villains_VillainsCakeManiac": {
+        "geometry": "geometry.Villains.cake_maniac"
+    },
+    "Villains_VillainsDoorman": {
+        "geometry": "geometry.Villains.doorman"
+    },
+    "Villains_VillainsDungeonSpector": {
+        "geometry": "geometry.Villains.dungeon_spector"
+    },
+    "Villains_VillainsEnchantro": {
+        "geometry": "geometry.Villains.enchantro"
+    },
+    "Villains_VillainsEndergaunt": {
+        "geometry": "geometry.Villains.endergaunt"
+    },
+    "Villains_VillainsEyece ": {
+        "geometry": "geometry.Villains.eyece"
+    },
+    "Villains_VillainsFrankencrafter": {
+        "geometry": "geometry.Villains.frankencrafter"
+    },
+    "Villains_VillainsLavaFiend": {
+        "geometry": "geometry.Villains.lava_fiend"
+    },
+    "Villains_VillainsRedstoneZealot": {
+        "geometry": "geometry.Villains.redstone_zealot"
+    },
+    "Villains_VillainsSilverfishMonger": {
+        "geometry": "geometry.Villains.silverfish_monger"
+    },
+    "Villains_VillainsSlymime": {
+        "geometry": "geometry.Villains.slymime"
+    },
+    "Villains_VillainsSwindler": {
+        "geometry": "geometry.Villains.swindler"
+    },
+    "Villains_VillainsTerrorSpawner": {
+        "geometry": "geometry.Villains.terror_spawner"
+    },
+    "Villains_VillainsPatchkin": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "Biome2_Biome2MushroomTamer": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "Biome2_Biome2MushroomArcher": {
+        "geometry": "geometry.Biome2.mushroom_archer"
+    },
+    "Biome2_Biome2MushroomBrawler": {
+        "geometry": "geometry.Biome2.mushroom_brawler"
+    },
+    "Biome2_Biome2MushroomBrewer": {
+        "geometry": "geometry.Biome2.mushroom_brewer"
+    },
+    "Biome2_Biome2MushroomExplorer": {
+        "geometry": "geometry.Biome2.mushroom_explorer"
+    },
+    "Biome2_Biome2MushroomFarmer": {
+        "geometry": "geometry.Biome2.mushroom_farmer"
+    },
+    "Biome2_Biome2MushroomForager": {
+        "geometry": "geometry.Biome2.mushroom_forager"
+    },
+    "Biome2_Biome2MushroomGriefer": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "Biome2_Biome2MushroomHunter": {
+        "geometry": "geometry.Biome2.mushroom_hunter"
+    },
+    "Biome2_Biome2MushroomMiner": {
+        "geometry": "geometry.Biome2.mushroom_miner"
+    },
+    "Biome2_Biome2MushroomGlutton": {
+        "geometry": "geometry.Biome2.mushroom_shroom_glutton"
+    },
+    "Biome2_Biome2NetherTamer": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "Biome2_Biome2NetherArcher": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "Biome2_Biome2NetherBanished": {
+        "geometry": "geometry.Biome2.nether_banished"
+    },
+    "Biome2_Biome2NetherBrawler": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "Biome2_Biome2NetherBrewer": {
+        "geometry": "geometry.Biome2.nether_brewer"
+    },
+    "Biome2_Biome2NetherEngineer": {
+        "geometry": "geometry.Biome2.nether_engineer"
+    },
+    "Biome2_Biome2NetherExplorer": {
+        "geometry": "geometry.Biome2.nether_explorer"
+    },
+    "Biome2_Biome2NetherExtinguisher": {
+        "geometry": "geometry.Biome2.nether_extinguisher"
+    },
+    "Biome2_Biome2NetherFarmer": {
+        "geometry": "geometry.Biome2.nether_farmer"
+    },
+    "Biome2_Biome2NetherGriefer": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "Biome2_Biome2NetherHunter": {
+        "geometry": "geometry.Biome2.nether_hunter"
+    },
+    "Biome2_Biome2NetherMiner": {
+        "geometry": "geometry.Biome2.nether_miner"
+    },
+    "StoryMode_StoryModeJesseF": {
+        "geometry": "geometry.StoryMode.JesseF"
+    },
+    "StoryMode_StoryModeJesseFA": {
+        "geometry": "geometry.StoryMode.JesseF"
+    },
+    "StoryMode_StoryModeJesseFB": {
+        "geometry": "geometry.StoryMode.JesseF"
+    },
+    "StoryMode_StoryModeJesseM": {
+        "geometry": "geometry.StoryMode.JesseM"
+    },
+    "StoryMode_StoryModeJesseMA": {
+        "geometry": "geometry.StoryMode.JesseM"
+    },
+    "StoryMode_StoryModeJesseMB": {
+        "geometry": "geometry.StoryMode.JesseM"
+    },
+    "StoryMode_StoryModeJesseFArmored": {
+        "geometry": "geometry.StoryMode.JesseFArmored"
+    },
+    "StoryMode_StoryModeJesseFAArmored": {
+        "geometry": "geometry.StoryMode.JesseFAArmored"
+    },
+    "StoryMode_StoryModeJesseFBArmored": {
+        "geometry": "geometry.StoryMode.JesseFBArmored"
+    },
+    "StoryMode_StoryModeJesseMArmored": {
+        "geometry": "geometry.StoryMode.JesseMArmored"
+    },
+    "StoryMode_StoryModeJesseMAArmored": {
+        "geometry": "geometry.StoryMode.JesseMArmored"
+    },
+    "StoryMode_StoryModeJesseMBArmored": {
+        "geometry": "geometry.StoryMode.JesseMArmored"
+    },
+    "StoryMode_StoryModeAxel": {
+        "geometry": "geometry.StoryMode.Axel"
+    },
+    "StoryMode_StoryModeAxelArmored": {
+        "geometry": "geometry.StoryMode.AxelArmored"
+    },
+    "StoryMode_StoryModeEllegaard": {
+        "geometry": "geometry.StoryMode.Ellegaard"
+    },
+    "StoryMode_StoryModeEllegaardArmored": {
+        "geometry": "geometry.StoryMode.EllegaardArmored"
+    },
+    "StoryMode_StoryModeGabriel": {
+        "geometry": "geometry.StoryMode.Gabriel"
+    },
+    "StoryMode_StoryModeIvor": {
+        "geometry": "geometry.StoryMode.Ivor"
+    },
+    "StoryMode_StoryModeLukas": {
+        "geometry": "geometry.StoryMode.Lukas"
+    },
+    "StoryMode_StoryModeMagnus": {
+        "geometry": "geometry.StoryMode.Magnus"
+    },
+    "StoryMode_StoryModeMagnusArmored": {
+        "geometry": "geometry.StoryMode.MagnusArmored"
+    },
+    "StoryMode_StoryModeOlivia": {
+        "geometry": "geometry.StoryMode.Olivia"
+    },
+    "StoryMode_StoryModeOliviaArmored": {
+        "geometry": "geometry.StoryMode.OliviaArmored"
+    },
+    "StoryMode_StoryModePetra": {
+        "geometry": "geometry.StoryMode.Petra"
+    },
+    "StoryMode_StoryModePetraArmored": {
+        "geometry": "geometry.StoryMode.PetraArmored"
+    },
+    "StoryMode_StoryModeSoren": {
+        "geometry": "geometry.StoryMode.Soren"
+    },
+    "StoryMode_StoryModeSorenArmored": {
+        "geometry": "geometry.StoryMode.Soren"
+    },
+    "Redstone_RedstoneArtisan": {
+        "geometry": "geometry.Redstone.artisan_slim"
+    },
+    "Redstone_RedstoneComposer": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "Redstone_RedstoneVanguard": {
+        "geometry": "geometry.Redstone.chemist"
+    },
+    "Redstone_RedstoneDuster": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "Redstone_RedstoneScholar": {
+        "geometry": "geometry.Redstone.scientist"
+    },
+    "Redstone_RedstoneTrapper": {
+        "geometry": "geometry.Redstone.trapper_slim"
+    },
+    "Redstone_RedstoneMiner": {
+        "geometry": "geometry.Redstone.miner"
+    },
+    "Redstone_RedstoneCoder": {
+        "geometry": "geometry.Redstone.programmer"
+    },
+    "Redstone_RedstoneProtector": {
+        "geometry": "geometry.Redstone.golem"
+    },
+    "Redstone_RedstoneProspector": {
+        "geometry": "geometry.Redstone.geologist"
+    },
+    "Redstone_RedstoneArchitect": {
+        "geometry": "geometry.Redstone.architect"
+    },
+    "Redstone_RedstoneRailRider": {
+        "geometry": "geometry.Redstone.railrider"
+    },
+    "Redstone_RedstoneTNTTech": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "Redstone_RedstoneMiser": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "Redstone_RedstoneTinkerer": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "JTTW_JTTWRedBoy": {
+        "geometry": "geometry.JourneyToTheWest.red_boy"
+    },
+    "JTTW_JTTWGuanyin": {
+        "geometry": "geometry.JourneyToTheWest.guanyin"
+    },
+    "JTTW_JTTWBlackwind": {
+        "geometry": "geometry.JourneyToTheWest.blackwind"
+    },
+    "JTTW_JTTWBullDemonKing": {
+        "geometry": "geometry.JourneyToTheWest.bull_demon_king"
+    },
+    "JTTW_JTTWJadeEmperor": {
+        "geometry": "geometry.JourneyToTheWest.jade_emperor"
+    },
+    "JTTW_JTTWBaigujing": {
+        "geometry": "geometry.JourneyToTheWest.baigujing_slim"
+    },
+    "JTTW_JTTWManyEyedDemon": {
+        "geometry": "geometry.JourneyToTheWest.many_eyed_demon_lord"
+    },
+    "JTTW_JTTWScorpionDemon": {
+        "geometry": "geometry.JourneyToTheWest.scorpion_demon_slim"
+    },
+    "JTTW_JTTWLadyEarthFlow": {
+        "geometry": "geometry.JourneyToTheWest.lady_earth_flow"
+    },
+    "JTTW_JTTWMonkeyKing": {
+        "geometry": "geometry.JourneyToTheWest.monkey"
+    },
+    "JTTW_JTTWPrincessIronFan": {
+        "geometry": "geometry.JourneyToTheWest.princess_iron_fan"
+    },
+    "JTTW_JTTWShaWujing": {
+        "geometry": "geometry.JourneyToTheWest.sha_wujing"
+    },
+    "JTTW_JTTWSpiderDemon": {
+        "geometry": "geometry.JourneyToTheWest.spider_demon"
+    },
+    "JTTW_JTTWXuangzang": {
+        "geometry": "geometry.JourneyToTheWest.xuanzang"
+    },
+    "JTTW_JTTWZhuBajie": {
+        "geometry": "geometry.JourneyToTheWest.zhu_bajie"
+    },
+    "Festive_FestiveSweaterSteve": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "Festive_FestiveSweaterAlex": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "Festive_FestiveSanta": {
+        "geometry": "geometry.Festive.santa"
+    },
+    "Festive_FestiveMrsClaus": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "Festive_FestiveRudolph": {
+        "geometry": "geometry.Festive.rudolph"
+    },
+    "Festive_FestiveGreenElf": {
+        "geometry": "geometry.Festive.greenelf"
+    },
+    "Festive_FestiveFatherXMas": {
+        "geometry": "geometry.Festive.father_christmas"
+    },
+    "Festive_FestiveMotherXMas": {
+        "geometry": "geometry.Festive.mother_christmas"
+    },
+    "Festive_FestiveTomte": {
+        "geometry": "geometry.Festive.tomte"
+    },
+    "Festive_FestiveSnowSuit": {
+        "geometry": "geometry.Festive.snowsuit"
+    },
+    "Festive_FestivePajamaKidSlim": {
+        "geometry": "geometry.Festive.pajamakid"
+    },
+    "Festive_FestiveSkiBibsSlim": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "Festive_FestiveParkaSteve": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "Festive_FestiveGingerbreadMan": {
+        "geometry": "geometry.Festive.gingerbreadman"
+    },
+    "Festive_FestiveGingerbreadCreeper": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "PvPWarriors_TundraTamer": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "PvPWarriors_TundraArcher": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PvPWarriors_TundraBrawler": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PvPWarriors_TundraBrewer": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "PvPWarriors_TundraEngineer": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PvPWarriors_TundraGriefer": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "PvPWarriors_TundraHunter": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "PvPWarriors_TundraStray": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PvPWarriors_ForestGriefer": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "PvPWarriors_ForestArcher": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PvPWarriors_ForestBrawler": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PvPWarriors_ForestBrewer": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PvPWarriors_ForestEngineer": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "PvPWarriors_ForestHunter": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "PvPWarriors_ForestTamer": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "PvPWarriors_ForestWoodbeast": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "PvPWarriors_DesertTamer": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "PvPWarriors_DesertArcher": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "PvPWarriors_DesertBrawler": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "PvPWarriors_DesertBrewer": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PvPWarriors_DesertEngineer": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PvPWarriors_DesertGriefer": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PvPWarriors_DesertHunter": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "PvPWarriors_DesertHusk": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "Halloween_ZombieCostume": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "Halloween_IronGolemCostume": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "Halloween_CreeperCostume": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "Halloween_CowCostume": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "Halloween_EndermanCostume": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "Halloween_GhastCostume": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "Halloween_MooshroomCostume": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "Halloween_OcelotCostume": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "Halloween_PigCostume": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "Halloween_PinkSheepCostume": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "Halloween_RainbowSheepCostume": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "Halloween_SkeletonCostume": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "Halloween_SnowGolemCostume": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "Halloween_SpiderCostume": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "Halloween_ZombiePigmanCostume": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "CityFolk_Barmaid": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "CityFolk_Barman": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "CityFolk_Baron": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "CityFolk_Baroness": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "CityFolk_Blacksmith": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "CityFolk_Baker": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "CityFolk_Butcher": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "CityFolk_Carpenter": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "CityFolk_Chef": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "CityFolk_HolyMan": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "CityFolk_HolyWoman": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "CityFolk_Jailer": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "CityFolk_King": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "CityFolk_Mage": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "CityFolk_Postman": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "CityFolk_Queen": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "CityFolk_Shoemaker": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "CityFolk_Victorian": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "CityFolk_Watchman": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "CityFolk_WeaponSmith": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TownFolk_Castaway": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TownFolk_Bandit": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "TownFolk_Bard": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TownFolk_Farmer": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TownFolk_Forester": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TownFolk_Gardener": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TownFolk_Mime": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TownFolk_Miner": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TownFolk_Monk": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TownFolk_OldLady": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TownFolk_OldMan": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TownFolk_Peasant": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TownFolk_Rogue": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TownFolk_Shopkeeper": {
+        "geometry": "geometry.humanoid.customSlim"
+    },
+    "TownFolk_StrongMan": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TownFolk_Thief": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TownFolk_TownCrier": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TownFolk_Townswoman": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TownFolk_Vagrant": {
+        "geometry": "geometry.humanoid.custom"
+    },
+    "TownFolk_Witch": {
+        "geometry": "geometry.humanoid.customSlim"
+    }
+}

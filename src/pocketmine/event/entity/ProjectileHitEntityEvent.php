@@ -1,0 +1,47 @@
+<?php
+
+/*
+ *
+ *   _____       _                          _
+ *  / ____|     | |                        (_)
+ * | (___  _   _| |__  _ __ ___   __ _ _ __ _ _ __   ___
+ *  \___ \| | | | '_ \| '_ ` _ \ / _` | '__| | '_ \ / _ \
+ *  ____) | |_| | |_) | | | | | | (_| | |  | | | | |  __/
+ * |_____/ \__,_|_.__/|_| |_| |_|\__,_|_|  |_|_| |_|\___|
+ *
+ * This program is private software. No license required.
+ * Publication of this program is forbidden and will be punished.
+ *
+ * @author SEMENNEJO
+ * @link vk.com/vk.snikers && t.me/semennejo
+ *
+ *
+ */
+
+declare(strict_types=1);
+
+namespace pocketmine\event\entity;
+
+use pocketmine\entity\Entity;
+use pocketmine\entity\projectile\Projectile;
+use pocketmine\math\RayTraceResult;
+
+class ProjectileHitEntityEvent extends ProjectileHitEvent
+{
+	/** @var Entity */
+	private $entityHit;
+
+	public function __construct(Projectile $entity, RayTraceResult $rayTraceResult, Entity $entityHit)
+	{
+		parent::__construct($entity, $rayTraceResult);
+		$this->entityHit = $entityHit;
+	}
+
+	/**
+	 * Returns the Entity struck by the projectile.
+	 */
+	public function getEntityHit() : Entity
+	{
+		return $this->entityHit;
+	}
+}

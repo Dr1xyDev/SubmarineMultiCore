@@ -1,0 +1,16 @@
+[
+    {
+        "ingredient": {
+            "id": 437
+        },
+        "input_item_name": 438,
+        "output_item_name": 373
+    },
+    {
+        "ingredient": {
+            "id": 289
+        },
+        "input_item_name": 373,
+        "output_item_name": 438
+    }
+]
