@@ -10,7 +10,7 @@
   SubmarineTeam / SubTeam
 
 - 🌐 Multiversión soportada:
-  "1.1.0 → 1.21.120"
+  "1.1.0 → 1.26.51"
   (Se pueden agregar más versiones modificando el núcleo)
 
 - 🐘 PHP requerido: "8.3"
