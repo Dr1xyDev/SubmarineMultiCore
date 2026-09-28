@@ -24,9 +24,12 @@ namespace pocketmine\network\mcpe\cache;
 
 use pocketmine\inventory\CraftingManager;
 use pocketmine\inventory\FurnaceType;
+use pocketmine\inventory\RecipeIngredient;
 use pocketmine\inventory\ShapedRecipe;
 use pocketmine\inventory\ShapelessRecipe;
 use pocketmine\inventory\ShapelessRecipeType;
+use pocketmine\inventory\SmithingTransformRecipe;
+use pocketmine\inventory\SmithingTrimRecipe;
 use pocketmine\item\Item;
 use pocketmine\network\mcpe\convert\ItemTranslator;
 use pocketmine\network\mcpe\convert\TypeConverter;
@@ -39,10 +42,12 @@ use pocketmine\network\mcpe\protocol\types\recipe\FurnaceRecipeBlockName;
 use pocketmine\network\mcpe\protocol\types\recipe\IntIdMetaItemDescriptor;
 use pocketmine\network\mcpe\protocol\types\recipe\PotionContainerChangeRecipe as ProtocolPotionContainerChangeRecipe;
 use pocketmine\network\mcpe\protocol\types\recipe\PotionTypeRecipe as ProtocolPotionTypeRecipe;
-use pocketmine\network\mcpe\protocol\types\recipe\RecipeIngredient;
+use pocketmine\network\mcpe\protocol\types\recipe\RecipeIngredient as ProtocolRecipeIngredient;
 use pocketmine\network\mcpe\protocol\types\recipe\RecipeUnlockingRequirement;
 use pocketmine\network\mcpe\protocol\types\recipe\ShapedRecipe as ProtocolShapedRecipe;
 use pocketmine\network\mcpe\protocol\types\recipe\ShapelessRecipe as ProtocolShapelessRecipe;
+use pocketmine\network\mcpe\protocol\types\recipe\SmithingTransformRecipe as ProtocolSmithingTransformRecipe;
+use pocketmine\network\mcpe\protocol\types\recipe\SmithingTrimRecipe as ProtocolSmithingTrimRecipe;
 use pocketmine\timings\Timings;
 use pocketmine\utils\AssumptionFailedError;
 use pocketmine\utils\Binary;
@@ -70,7 +75,8 @@ final class CraftingDataCache{
 	public function getCache(CraftingManager $manager, int $protocolVersion) : CraftingDataPacket{
 		$id = spl_object_id($manager);
 		if(!isset($this->caches[$id][$protocolVersion])){
-			$this->caches[$id][$protocolVersion] = $this->buildCraftingDataCache($manager, $protocolVersion);
+			//recipes only change through the manager, which clears this cache, so the packet is encoded only once
+			$this->caches[$id][$protocolVersion] = $this->buildCraftingDataCache($manager, $protocolVersion)->enableEncodedCache();
 		}
 
 		return $this->caches[$id][$protocolVersion];
@@ -91,28 +97,21 @@ final class CraftingDataCache{
 		$recipesWithTypeIds = [];
 
 		$noUnlockingRequirement = new RecipeUnlockingRequirement(null);
-		foreach($manager->getCraftingRecipeIndex($protocolVersion) as $index => $recipe){
+		foreach ($manager->getCraftingRecipeIndex($protocolVersion) as $index => $recipe) {
 			//the client doesn't like recipes with an ID of 0, so we need to offset them
 			$recipeNetId = $index + self::RECIPE_ID_OFFSET;
-			if($recipe instanceof ShapelessRecipe){
-				$typeTag = match($recipe->getType()){
+			if ($recipe instanceof ShapelessRecipe) {
+				$typeTag = match ($recipe->getType()) {
 					ShapelessRecipeType::CRAFTING => CraftingRecipeBlockName::CRAFTING_TABLE,
 					ShapelessRecipeType::STONECUTTER => CraftingRecipeBlockName::STONECUTTER,
 					ShapelessRecipeType::CARTOGRAPHY => CraftingRecipeBlockName::CARTOGRAPHY_TABLE,
 					ShapelessRecipeType::SMITHING => CraftingRecipeBlockName::SMITHING_TABLE,
 				};
 
-				if (
-					($protocolVersion < ProtocolInfo::PROTOCOL_354 && $typeTag != CraftingRecipeBlockName::CRAFTING_TABLE) ||
-					($protocolVersion < ProtocolInfo::PROTOCOL_407 && $typeTag === CraftingRecipeBlockName::SMITHING_TABLE)
-				) {
-					continue;
-				}
-
 				$recipesWithTypeIds[] = new ProtocolShapelessRecipe(
 					CraftingDataPacket::ENTRY_SHAPELESS,
 					Binary::writeInt($recipeNetId),
-					array_map(fn(Item $ingredient) : RecipeIngredient => $converter->coreItemStackToRecipeIngredient($ingredient, $protocolVersion), $recipe->getIngredientList()),
+					array_map(fn(RecipeIngredient $ingredient) : ProtocolRecipeIngredient => $converter->coreRecipeIngredientToNet($ingredient, $protocolVersion), $recipe->getIngredientList()),
 					array_map(fn(Item $result) : ItemStack => $converter->coreItemStackToNet($result, $protocolVersion), $recipe->getResults()),
 					$nullUUID,
 					$typeTag,
@@ -120,12 +119,12 @@ final class CraftingDataCache{
 					$noUnlockingRequirement,
 					$recipeNetId
 				);
-			}elseif($recipe instanceof ShapedRecipe){
+			} elseif ($recipe instanceof ShapedRecipe) {
 				$inputs = [];
 
-				for($row = 0, $height = $recipe->getHeight(); $row < $height; ++$row){
-					for($column = 0, $width = $recipe->getWidth(); $column < $width; ++$column){
-						$inputs[$row][$column] = $converter->coreItemStackToRecipeIngredient($recipe->getIngredient($column, $row), $protocolVersion);
+				for ($row = 0, $height = $recipe->getHeight(); $row < $height; ++$row) {
+					for ($column = 0, $width = $recipe->getWidth(); $column < $width; ++$column) {
+						$inputs[$row][$column] = $converter->coreRecipeIngredientToNet($recipe->getIngredient($column, $row), $protocolVersion);
 					}
 				}
 
@@ -141,13 +140,41 @@ final class CraftingDataCache{
 					$noUnlockingRequirement,
 					$recipeNetId,
 				);
-			}else{
+			} elseif ($recipe instanceof SmithingTransformRecipe) {
+				$template = $converter->coreRecipeIngredientToNet($recipe->getTemplate(), $protocolVersion);
+				$input = $converter->coreRecipeIngredientToNet($recipe->getInput(), $protocolVersion);
+				$addition = $converter->coreRecipeIngredientToNet($recipe->getAddition(), $protocolVersion);
+				$output = $converter->coreItemStackToNet($recipe->getOutput(), $protocolVersion);
+				$recipesWithTypeIds[] = new ProtocolSmithingTransformRecipe(
+					CraftingDataPacket::ENTRY_SMITHING_TRANSFORM,
+					Binary::writeInt($recipeNetId),
+					$template,
+					$input,
+					$addition,
+					$output,
+					CraftingRecipeBlockName::SMITHING_TABLE,
+					$recipeNetId
+				);
+			} elseif ($recipe instanceof SmithingTrimRecipe) {
+				$template = $converter->coreRecipeIngredientToNet($recipe->getTemplate(), $protocolVersion);
+				$input = $converter->coreRecipeIngredientToNet($recipe->getInput(), $protocolVersion);
+				$addition = $converter->coreRecipeIngredientToNet($recipe->getAddition(), $protocolVersion);
+				$recipesWithTypeIds[] = new ProtocolSmithingTrimRecipe(
+					CraftingDataPacket::ENTRY_SMITHING_TRIM,
+					Binary::writeInt($recipeNetId),
+					$template,
+					$input,
+					$addition,
+					CraftingRecipeBlockName::SMITHING_TABLE,
+					$recipeNetId
+				);
+			} else {
 				//TODO: probably special recipe types
 			}
 		}
 
-		foreach ($manager->getFurnaceRecipes($protocolVersion) as $furnaceTypeName => $recipes){
-			$typeTag = match($furnaceTypeName){
+		foreach ($manager->getFurnaceRecipes($protocolVersion) as $furnaceTypeName => $recipes) {
+			$typeTag = match ($furnaceTypeName) {
 				FurnaceType::FURNACE->name() => FurnaceRecipeBlockName::FURNACE,
 				FurnaceType::BLAST_FURNACE->name() => FurnaceRecipeBlockName::BLAST_FURNACE,
 				FurnaceType::SMOKER->name() => FurnaceRecipeBlockName::SMOKER,
@@ -155,72 +182,84 @@ final class CraftingDataCache{
 				FurnaceType::SOUL_CAMPFIRE->name() => FurnaceRecipeBlockName::SOUL_CAMPFIRE
 			};
 
-			if (
-				($protocolVersion < ProtocolInfo::PROTOCOL_332 && $typeTag !== FurnaceRecipeBlockName::FURNACE) ||
-				($protocolVersion < ProtocolInfo::PROTOCOL_340 && $typeTag === FurnaceRecipeBlockName::CAMPFIRE) ||
-				($protocolVersion < ProtocolInfo::PROTOCOL_407 && $typeTag === FurnaceRecipeBlockName::SOUL_CAMPFIRE)
-			) {
-				continue;
-			}
-
-			foreach ($recipes as $recipe){
-				$input = $converter->coreItemStackToRecipeIngredient($recipe->getInput(), $protocolVersion)->getDescriptor();
-				if(!$input instanceof IntIdMetaItemDescriptor){
-					throw new AssumptionFailedError();
+			foreach ($recipes as $recipe) {
+				if ($protocolVersion >= ProtocolInfo::PROTOCOL_975) {
+					$recipeNetId = ($recipeNetId ?? self::RECIPE_ID_OFFSET) + 1;
+					$recipesWithTypeIds[] = new ProtocolShapelessRecipe(
+						CraftingDataPacket::ENTRY_SHAPELESS,
+						Binary::writeInt($recipeNetId), //TODO: this should probably be changed to something human-readable
+						[$converter->coreRecipeIngredientToNet($recipe->getInput(), $protocolVersion)],
+						[$converter->coreItemStackToNet($recipe->getResult(), $protocolVersion)],
+						$nullUUID,
+						$typeTag,
+						50,
+						$noUnlockingRequirement,
+						$recipeNetId
+					);
+				} else {
+					$input = $converter->coreRecipeIngredientToNet($recipe->getInput(), $protocolVersion)->getDescriptor();
+					if (!$input instanceof IntIdMetaItemDescriptor) {
+						throw new AssumptionFailedError();
+					}
+					$recipesWithTypeIds[] = new ProtocolFurnaceRecipe(
+						CraftingDataPacket::ENTRY_FURNACE_DATA,
+						$input->getId(),
+						$input->getMeta(),
+						$converter->coreItemStackToNet($recipe->getResult(), $protocolVersion),
+						$typeTag
+					);
 				}
-				$recipesWithTypeIds[] = new ProtocolFurnaceRecipe(
-					CraftingDataPacket::ENTRY_FURNACE_DATA,
-					$input->getId(),
-					$input->getMeta(),
-					$converter->coreItemStackToNet($recipe->getResult(), $protocolVersion),
-					$typeTag
-				);
 			}
 		}
 
 		$potionTypeRecipes = [];
 		$potionContainerChangeRecipes = [];
-		if ($protocolVersion >= ProtocolInfo::PROTOCOL_388) {
-			foreach ($manager->getPotionTypeRecipes($protocolVersion) as $recipes) {
-				foreach ($recipes as $recipe) {
-					$input = $converter->coreItemStackToNet($recipe->getInput(), $protocolVersion);
-					$ingredient = $converter->coreItemStackToNet($recipe->getIngredient(), $protocolVersion);
-					$output = $converter->coreItemStackToNet($recipe->getOutput(), $protocolVersion);
-					$potionTypeRecipes[] = new ProtocolPotionTypeRecipe(
-						$input->getId(),
-						$input->getMeta(),
-						$ingredient->getId(),
-						$ingredient->getMeta(),
-						$output->getId(),
-						$output->getMeta()
-					);
+		if ($protocolVersion >= ProtocolInfo::PROTOCOL_407) {
+			foreach ($manager->getPotionTypeRecipes($protocolVersion) as $recipe) {
+				$input = $converter->coreRecipeIngredientToNet($recipe->getInput(), $protocolVersion)->getDescriptor();
+				$ingredient = $converter->coreRecipeIngredientToNet($recipe->getIngredient(), $protocolVersion)->getDescriptor();
+				if(!$input instanceof IntIdMetaItemDescriptor || !$ingredient instanceof IntIdMetaItemDescriptor){
+					throw new AssumptionFailedError();
 				}
+				$output = $converter->coreItemStackToNet($recipe->getOutput(), $protocolVersion);
+				$potionTypeRecipes[] = new ProtocolPotionTypeRecipe(
+					$input->getId(),
+					$input->getMeta(),
+					$ingredient->getId(),
+					$ingredient->getMeta(),
+					$output->getId(),
+					$output->getMeta()
+				);
 			}
 
 			if ($protocolVersion >= ProtocolInfo::PROTOCOL_419) {
 				$itemTranslator = ItemTranslator::getInstance($protocolVersion);
-				foreach ($manager->getPotionContainerChangeRecipes($protocolVersion) as $recipes) {
-					foreach ($recipes as $recipe) {
-						$input = $itemTranslator->toNetworkId($recipe->getInputItemId(), 0);
-						$ingredient = $itemTranslator->toNetworkId($recipe->getIngredient()->getId(), 0);
-						$output = $itemTranslator->toNetworkId($recipe->getOutputItemId(), 0);
-						$potionContainerChangeRecipes[] = new ProtocolPotionContainerChangeRecipe(
-							$input[0],
-							$ingredient[0],
-							$output[0]
-						);
-
+				foreach ($manager->getPotionContainerChangeRecipes($protocolVersion) as $recipe) {
+					$ingredient = $converter->coreRecipeIngredientToNet($recipe->getIngredient(), $protocolVersion)->getDescriptor();
+					if(!$ingredient instanceof IntIdMetaItemDescriptor){
+						throw new AssumptionFailedError();
 					}
+
+					$input = $itemTranslator->toNetworkId($recipe->getInputItemId(), 0);
+					$output = $itemTranslator->toNetworkId($recipe->getOutputItemId(), 0);
+					$potionContainerChangeRecipes[] = new ProtocolPotionContainerChangeRecipe(
+						$input[0],
+						$ingredient->getId(),
+						$output[0]
+					);
 				}
 			} else {
-				foreach ($manager->getPotionContainerChangeRecipes($protocolVersion) as $recipes) {
-					foreach ($recipes as $recipe) {
-						$potionContainerChangeRecipes[] = new ProtocolPotionContainerChangeRecipe(
-							$recipe->getInputItemId(),
-							$recipe->getIngredient()->getId(),
-							$recipe->getOutputItemId()
-						);
+				foreach ($manager->getPotionContainerChangeRecipes($protocolVersion) as $recipe) {
+					$ingredient = $converter->coreRecipeIngredientToNet($recipe->getIngredient(), $protocolVersion)->getDescriptor();
+					if(!$ingredient instanceof IntIdMetaItemDescriptor){
+						throw new AssumptionFailedError();
 					}
+
+					$potionContainerChangeRecipes[] = new ProtocolPotionContainerChangeRecipe(
+						$recipe->getInputItemId(),
+						$ingredient->getId(),
+						$recipe->getOutputItemId()
+					);
 				}
 			}
 		}

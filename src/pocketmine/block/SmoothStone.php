@@ -25,7 +25,6 @@ namespace pocketmine\block;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
 use pocketmine\item\TieredTool;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 class SmoothStone extends Solid
 {
@@ -64,14 +63,5 @@ class SmoothStone extends Solid
 	public function isAffectedBySilkTouch() : bool
 	{
 		return true;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_332) {
-			return BlockFactory::get(BlockIds::STONE);
-		}
-
-		return null;
 	}
 }

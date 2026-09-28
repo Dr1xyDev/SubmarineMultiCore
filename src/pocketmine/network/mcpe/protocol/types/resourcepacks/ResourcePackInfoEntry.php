@@ -92,9 +92,9 @@ class ResourcePackInfoEntry
 		return $this->cdnUrl;
 	}
 
-	public function write(int $playerProtocol, NetworkBinaryStream $out) : void
+	public function write(NetworkBinaryStream $out) : void
 	{
-		if ($playerProtocol >= ProtocolInfo::PROTOCOL_766) {
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_766) {
 			$out->putUUID(UUID::fromString($this->packId));
 		} else {
 			$out->putString($this->packId);
@@ -102,29 +102,25 @@ class ResourcePackInfoEntry
 		$out->putString($this->version);
 		$out->putLLong($this->sizeBytes);
 		$out->putString($this->encryptionKey);
-		if ($playerProtocol >= ProtocolInfo::PROTOCOL_137) {
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_407) {
 			$out->putString($this->subPackName);
-			if ($playerProtocol >= ProtocolInfo::PROTOCOL_282) {
-				$out->putString($this->contentId);
-				if ($playerProtocol >= ProtocolInfo::PROTOCOL_332) {
-					$out->putBool($this->hasScripts);
-					if ($playerProtocol >= ProtocolInfo::PROTOCOL_422) {
-						$out->putBool($this->isAddonPack);
-						if ($playerProtocol >= ProtocolInfo::PROTOCOL_712) {
-							$out->putBool($this->isRtxCapable);
-							if ($playerProtocol >= ProtocolInfo::PROTOCOL_748) {
-								$out->putString($this->cdnUrl);
-							}
-						}
+			$out->putString($this->contentId);
+			$out->putBool($this->hasScripts);
+			if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_422) {
+				$out->putBool($this->isAddonPack);
+				if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
+					$out->putBool($this->isRtxCapable);
+					if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_748) {
+						$out->putString($this->cdnUrl);
 					}
 				}
 			}
 		}
 	}
 
-	public static function read(int $playerProtocol, NetworkBinaryStream $in) : self
+	public static function read(NetworkBinaryStream $in) : self
 	{
-		if ($playerProtocol >= ProtocolInfo::PROTOCOL_766) {
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_766) {
 			$uuid = $in->getUUID()->toString();
 		} else {
 			$uuid = $in->getString();
@@ -132,20 +128,16 @@ class ResourcePackInfoEntry
 		$version = $in->getString();
 		$sizeBytes = $in->getLLong();
 		$encryptionKey = $in->getString();
-		if ($playerProtocol >= ProtocolInfo::PROTOCOL_137) {
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_407) {
 			$subPackName = $in->getString();
-			if ($playerProtocol >= ProtocolInfo::PROTOCOL_282) {
-				$contentId = $in->getString();
-				if ($playerProtocol >= ProtocolInfo::PROTOCOL_332) {
-					$hasScripts = $in->getBool();
-					if ($playerProtocol >= ProtocolInfo::PROTOCOL_422) {
-						$isAddonPack = $in->getBool();
-						if ($playerProtocol >= ProtocolInfo::PROTOCOL_712) {
-							$rtxCapable = $in->getBool();
-							if ($playerProtocol >= ProtocolInfo::PROTOCOL_748) {
-								$cdnUrl = $in->getString();
-							}
-						}
+			$contentId = $in->getString();
+			$hasScripts = $in->getBool();
+			if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_422) {
+				$isAddonPack = $in->getBool();
+				if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
+					$rtxCapable = $in->getBool();
+					if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_748) {
+						$cdnUrl = $in->getString();
 					}
 				}
 			}

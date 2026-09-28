@@ -22,15 +22,22 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\event\block\BlockGrowEvent;
-use pocketmine\item\Fertilizer;
+use pocketmine\block\utils\BlockEventHelper;
+use pocketmine\block\utils\StaticSupportTrait;
 use pocketmine\item\Item;
 use pocketmine\math\Facing;
 use pocketmine\math\Vector3;
 use pocketmine\Player;
+use pocketmine\utils\Random;
 
-class Sugarcane extends Flowable
+class Sugarcane extends Flowable implements Growable
 {
+	use StaticSupportTrait {
+		onNearbyBlockChange as onSupportBlockChange;
+	}
+
+	public const MAX_AGE = 15;
+
 	protected $id = self::SUGARCANE_BLOCK;
 
 	protected $itemId = Item::SUGARCANE;
@@ -50,40 +57,64 @@ class Sugarcane extends Flowable
 		return 0;
 	}
 
-	public function onActivate(Item $item, Player $player = null) : bool
-	{
-		if ($item instanceof Fertilizer) {
-			if ($this->getSide(Facing::DOWN)->getId() !== self::SUGARCANE_BLOCK) {
-				for ($y = 1; $y < 3; ++$y) {
-					$b = $this->getLevel()->getBlockAt($this->x, $this->y + $y, $this->z);
-					if ($b->getId() === self::AIR) {
-						$ev = new BlockGrowEvent($b, BlockFactory::get(Block::SUGARCANE_BLOCK));
-						$ev->call();
-						if ($ev->isCancelled()) {
-							break;
-						}
-						$this->getLevel()->setBlock($b, $ev->getNewState(), true);
-					} else {
-						break;
-					}
-				}
-				$this->meta = 0;
-				$this->getLevel()->setBlock($this, $this, true);
-			}
-
-			$item->count--;
-
-			return true;
-		}
-
-		return false;
+	protected function canBeSupportedAt(Block $block) : bool{
+		$supportBlock = $block->getSide(Facing::DOWN);
+		return $supportBlock->isSameType($this) ||
+			$supportBlock instanceof Grass ||
+			$supportBlock instanceof Dirt ||
+			$supportBlock instanceof Mycelium ||
+			$supportBlock instanceof Podzol ||
+			$supportBlock instanceof Mud ||
+			$supportBlock instanceof Sand;
 	}
 
-	public function onNearbyBlockChange() : void
-	{
-		$down = $this->getSide(Facing::DOWN);
-		if ($down->isTransparent() && $down->getId() !== self::SUGARCANE_BLOCK) {
-			$this->getLevel()->useBreakOn($this);
+	public function canGrow(Random $random, ?Player $player = null) : bool {
+		$current = $this;
+		$height = 1;
+
+		$down = $current->getSide(Facing::DOWN);
+		while($down->isSameType($this)){
+			$height++;
+			$down = $down->getSide(Facing::DOWN);
+		}
+
+		$up = $current->getSide(Facing::UP);
+		while($up->isSameType($this)){
+			$height++;
+			$current = $up;
+			$up = $current->getSide(Facing::UP);
+		}
+
+		return $height < 3 && $current->getSide(Facing::UP)->getId() === BlockIds::AIR;
+	}
+
+	public function canUseBonemeal(Random $random, ?Player $player = null) : bool {
+		return true;
+	}
+
+	public function grow(Random $random, ?Player $player = null) : void{
+		$current = $this;
+
+		while (($up = $current->getSide(Facing::UP))->isSameType($this)) {
+			$current = $up;
+		}
+
+		$height = 0;
+		$scan = $current;
+		while ($scan->isSameType($this)) {
+			$height++;
+			$scan = $scan->getSide(Facing::DOWN);
+		}
+
+		while ($height < 3) {
+			$up = $current->getSide(Facing::UP);
+			if ($up->getId() === BlockIds::AIR) {
+				BlockEventHelper::grow($up, BlockFactory::get(BlockIds::SUGARCANE_BLOCK), $player);
+				$current = $up;
+				$height++;
+			} else {
+				break;
+			}
 		}
 	}
 
@@ -92,45 +123,68 @@ class Sugarcane extends Flowable
 		return true;
 	}
 
-	public function onRandomTick() : void
-	{
-		if ($this->getSide(Facing::DOWN)->getId() !== self::SUGARCANE_BLOCK) {
-			if ($this->meta === 0x0F) {
-				for ($y = 1; $y < 3; ++$y) {
-					$b = $this->getLevel()->getBlockAt($this->x, $this->y + $y, $this->z);
-					if ($b->getId() === self::AIR) {
-						$this->getLevel()->setBlock($b, BlockFactory::get(Block::SUGARCANE_BLOCK), true);
-						break;
-					}
+	public function onRandomTick() : void{
+		$down = $this->getSide(Facing::DOWN);
+		if(!$down->isSameType($this)){
+			if(!$this->hasNearbyWater($down)){
+				$this->level->useBreakOn($this, createParticles: true);
+				return;
+			}
+
+			if($this->meta === self::MAX_AGE){
+				$current = $this;
+				while(($up = $current->getSide(Facing::UP))->isSameType($this)){
+					$current = $up;
+				}
+
+				$height = 0;
+				$scan = $current;
+				while($scan->isSameType($this)){
+					$height++;
+					$scan = $scan->getSide(Facing::DOWN);
+				}
+
+				if($height < 3 && $current->getSide(Facing::UP)->getId() === BlockIds::AIR){
+					BlockEventHelper::grow($current->getSide(Facing::UP), BlockFactory::get(BlockIds::SUGARCANE_BLOCK), null);
 				}
 				$this->meta = 0;
-				$this->getLevel()->setBlock($this, $this, true);
-			} else {
+			}else{
 				++$this->meta;
-				$this->getLevel()->setBlock($this, $this, true);
 			}
+
+			$this->level->setBlock($this, $this);
 		}
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool
 	{
-		$down = $this->getSide(Facing::DOWN);
-		if ($down->getId() === self::SUGARCANE_BLOCK) {
-			$this->getLevel()->setBlock($blockReplace, BlockFactory::get(Block::SUGARCANE_BLOCK), true);
+		$down = $blockReplace->getSide(Facing::DOWN);
+		if($down->isSameType($this)){
+			return parent::place($item, $blockReplace, $blockClicked, $face, $clickVector, $player);
+		}
 
-			return true;
-		} elseif ($down->getId() === self::GRASS || $down->getId() === self::DIRT || $down->getId() === self::SAND) {
-			$block0 = $down->getSide(Facing::NORTH);
-			$block1 = $down->getSide(Facing::SOUTH);
-			$block2 = $down->getSide(Facing::WEST);
-			$block3 = $down->getSide(Facing::EAST);
-			if (($block0 instanceof Water) || ($block1 instanceof Water) || ($block2 instanceof Water) || ($block3 instanceof Water)) {
-				$this->getLevel()->setBlock($blockReplace, BlockFactory::get(Block::SUGARCANE_BLOCK), true);
-
-				return true;
-			}
+		if($this->canBeSupportedAt($blockReplace) && $this->hasNearbyWater($down)){
+			return parent::place($item, $blockReplace, $blockClicked, $face, $clickVector, $player);
 		}
 
 		return false;
+	}
+
+	private function hasNearbyWater(Block $down) : bool{
+		foreach($down->getHorizontalSides() as $sideBlock){
+			if($sideBlock instanceof Water || $sideBlock instanceof FrostedIce){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public function onNearbyBlockChange() : void{
+		$down = $this->getSide(Facing::DOWN);
+		if(!$down->isSameType($this) && !$this->hasNearbyWater($down)){
+			$this->level->useBreakOn($this, createParticles: true);
+		}else{
+			$this->onSupportBlockChange();
+		}
 	}
 }

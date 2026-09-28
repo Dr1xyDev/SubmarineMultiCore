@@ -52,7 +52,7 @@ class RemoveVolumeEntityPacket extends DataPacket
 	protected function decodePayload() : void
 	{
 		$this->entityNetId = $this->getUnsignedVarInt();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_503) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_503) {
 			$this->dimension = $this->getVarInt();
 		}
 	}
@@ -60,7 +60,7 @@ class RemoveVolumeEntityPacket extends DataPacket
 	protected function encodePayload() : void
 	{
 		$this->putUnsignedVarInt($this->entityNetId);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_503) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_503) {
 			$this->putVarInt($this->dimension);
 		}
 	}

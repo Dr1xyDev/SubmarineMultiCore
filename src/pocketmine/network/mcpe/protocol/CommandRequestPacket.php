@@ -29,25 +29,24 @@ class CommandRequestPacket extends DataPacket
 {
 	public const NETWORK_ID = ProtocolInfo::COMMAND_REQUEST_PACKET;
 
-	/** @var string */
-	public $command;
-	/** @var int */
-	public $playerUniqueId;
-	/** @var CommandOriginData */
-	public $originData;
-	/** @var bool */
-	public $isInternal;
-	/** @var int */
-	public $version;
+	public string $command;
+	public int $playerUniqueId = 0;
+	public CommandOriginData $originData;
+	public bool $isInternal;
+	public string $version;
 
 	protected function decodePayload() : void
 	{
 		$this->command = $this->getString();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_141) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->originData = $this->getCommandOriginData();
 			$this->isInternal = $this->getBool();
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_567) {
-				$this->version = $this->getVarInt();
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_567) {
+				if ($this->protocol >= ProtocolInfo::PROTOCOL_897) {
+					$this->version = $this->getString();
+				} else {
+					$this->version = (string) $this->getVarInt();
+				}
 			}
 		} else {
 			$this->playerUniqueId = $this->getEntityUniqueId();
@@ -57,11 +56,15 @@ class CommandRequestPacket extends DataPacket
 	protected function encodePayload() : void
 	{
 		$this->putString($this->command);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_141) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->putCommandOriginData($this->originData);
 			$this->putBool($this->isInternal);
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_567) {
-				$this->putVarInt($this->version);
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_567) {
+				if ($this->protocol >= ProtocolInfo::PROTOCOL_897) {
+					$this->putString($this->version);
+				} else {
+					$this->putVarInt((int) $this->version);
+				}
 			}
 		} else {
 			$this->putEntityUniqueId($this->playerUniqueId);

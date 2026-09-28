@@ -32,7 +32,7 @@ abstract class AbstractHorseInventory extends BaseInventory
 	/** @var AbstractHorse */
 	protected $holder;
 
-	public function __construct(AbstractHorse $holder, array $items = [], int $size = null, string $title = null)
+	public function __construct(AbstractHorse $holder, array $items = [], ?int $size = null, ?string $title = null)
 	{
 		$this->holder = $holder;
 		parent::__construct($items, $size, $title);

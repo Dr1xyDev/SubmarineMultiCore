@@ -82,9 +82,20 @@ class Skeleton extends Monster implements RangedAttackerMob, Smite
 
 	public function getDrops() : array
 	{
-		return [
-			ItemFactory::get(Item::BONE, 0, rand(0, 2)), ItemFactory::get(Item::ARROW, 0, rand(0, 2))
-		];
+		$looting = $this->getLootingLevel();
+		$drops = [];
+
+		$bones = rand(0, 2 + $looting);
+		if ($bones > 0) {
+			$drops[] = ItemFactory::get(Item::BONE, 0, $bones);
+		}
+
+		$arrows = rand(0, 2 + $looting);
+		if ($arrows > 0) {
+			$drops[] = ItemFactory::get(Item::ARROW, 0, $arrows);
+		}
+
+		return $drops;
 	}
 
 	public function getXpDropAmount() : int
@@ -103,7 +114,7 @@ class Skeleton extends Monster implements RangedAttackerMob, Smite
 		$this->behaviorPool->setBehavior(6, new LookAtPlayerBehavior($this, 8.0));
 		$this->behaviorPool->setBehavior(7, new RandomLookAroundBehavior($this));
 
-		$this->targetBehaviorPool->setBehavior(0, new NearestAttackableTargetBehavior($this, Player::class, true));
+		$this->targetBehaviorPool->setBehavior(0, new NearestAttackableTargetBehavior($this, Player::class));
 		//$this->targetBehaviorPool->setBehavior(2, new NearestAttackableTargetBehavior($this, IronGolem::class, false));
 	}
 

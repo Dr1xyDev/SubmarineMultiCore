@@ -25,6 +25,7 @@ namespace pocketmine\network\mcpe\protocol\types\camera;
 use pocketmine\math\Vector2;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\NetworkBinaryStream;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use function count;
 
 final class CameraSplineInstruction{
@@ -32,9 +33,9 @@ final class CameraSplineInstruction{
 	/**
 	 * @see CameraSetInstructionEaseType
 	 *
-	 * @param Vector3[]              $curve
-	 * @param Vector2[]              $progressKeyFrames
-	 * @param CameraRotationOption[] $rotationOptions
+	 * @param Vector3[]                        $curve
+	 * @param Vector2[]|CameraProgressOption[] $progressKeyFrames
+	 * @param CameraRotationOption[]           $rotationOptions
 	 */
 	public function __construct(
 		private float $totalTime,
@@ -42,6 +43,8 @@ final class CameraSplineInstruction{
 		private array $curve,
 		private array $progressKeyFrames,
 		private array $rotationOptions,
+		private string $splineIdentifier = "",
+		private bool $loadFromJson = false,
 	){}
 
 	public function getTotalTime() : float{ return $this->totalTime; }
@@ -57,7 +60,7 @@ final class CameraSplineInstruction{
 	public function getCurve() : array{ return $this->curve; }
 
 	/**
-	 * @return Vector2[]
+	 * @return Vector2[]|CameraProgressOption[]
 	 */
 	public function getProgressKeyFrames() : array{ return $this->progressKeyFrames; }
 
@@ -66,26 +69,41 @@ final class CameraSplineInstruction{
 	 */
 	public function getRotationOptions() : array{ return $this->rotationOptions; }
 
+	/** 1.26.10+ */
+	public function getSplineIdentifier() : string{ return $this->splineIdentifier; }
+
+	/** 1.26.10+ */
+	public function isLoadFromJson() : bool{ return $this->loadFromJson; }
+
 	public static function read(NetworkBinaryStream $in) : self{
 		$totalTime = $in->getLFloat();
 		$easeType = $in->getByte();
 
 		$curve = [];
-		for($i = 0; $i < $in->getUnsignedVarInt(); ++$i){
+		for($i = 0, $count = $in->getUnsignedVarInt(); $i < $count; ++$i){
 			$curve[] = $in->getVector3();
 		}
 
 		$progressKeyFrames = [];
-		for($i = 0; $i < $in->getUnsignedVarInt(); ++$i){
-			$progressKeyFrames[] = $in->getVector2();
+		for($i = 0, $count = $in->getUnsignedVarInt(); $i < $count; ++$i){
+			if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_924) {
+				$progressKeyFrames[] = CameraProgressOption::read($in);
+			} else {
+				$progressKeyFrames[] = $in->getVector2();
+			}
 		}
 
 		$rotationOptions = [];
-		for($i = 0; $i < $in->getUnsignedVarInt(); ++$i){
+		for($i = 0, $count = $in->getUnsignedVarInt(); $i < $count; ++$i){
 			$rotationOptions[] = CameraRotationOption::read($in);
 		}
 
-		return new self($totalTime, $easeType, $curve, $progressKeyFrames, $rotationOptions);
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_944) {
+			$splineIdentifier = $in->getString();
+			$loadFromJson = $in->getBool();
+		}
+
+		return new self($totalTime, $easeType, $curve, $progressKeyFrames, $rotationOptions, $splineIdentifier ?? "", $loadFromJson ?? false);
 	}
 
 	public function write(NetworkBinaryStream $out) : void{
@@ -99,12 +117,21 @@ final class CameraSplineInstruction{
 
 		$out->putUnsignedVarInt(count($this->progressKeyFrames));
 		foreach($this->progressKeyFrames as $keyFrame){
-			$out->putVector2($keyFrame);
+			if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_924) {
+				$keyFrame->write($out);
+			} else {
+				$out->putVector2($keyFrame);
+			}
 		}
 
 		$out->putUnsignedVarInt(count($this->rotationOptions));
 		foreach($this->rotationOptions as $option){
 			$option->write($out);
+		}
+
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_944) {
+			$out->putString($this->splineIdentifier);
+			$out->putBool($this->loadFromJson);
 		}
 	}
 }

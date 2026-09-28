@@ -22,6 +22,9 @@ declare(strict_types=1);
 
 namespace pocketmine\level;
 
+use pocketmine\level\format\Chunk;
+use pocketmine\math\Vector3;
+
 /**
  * If you want to keep chunks loaded and receive notifications on a specific area,
  * extend this class and register it into Level. This will also tick chunks.
@@ -34,24 +37,37 @@ namespace pocketmine\level;
  */
 interface ChunkLoader
 {
-	/**
-	 * @return Position
-	 */
-	public function getPosition();
+
+	public function getX() : float|int;
+
+	public function getY() : float|int;
+
+	public function getZ() : float|int;
 
 	/**
-	 * @return float
+	 * This method will be called when a Chunk is replaced by a new one
 	 */
-	public function getX();
+	public function onChunkChanged(Chunk $chunk) : void;
 
 	/**
-	 * @return float
+	 * This method will be called when a registered chunk is loaded
 	 */
-	public function getZ();
+	public function onChunkLoaded(Chunk $chunk) : void;
 
 	/**
-	 * @return Level
+	 * This method will be called when a registered chunk is unloaded
 	 */
-	public function getLevel();
+	public function onChunkUnloaded(Chunk $chunk) : void;
+
+	/**
+	 * This method will be called when a registered chunk is populated
+	 * Usually it'll be sent with another call to onChunkChanged()
+	 */
+	public function onChunkPopulated(Chunk $chunk) : void;
+
+	/**
+	 * This method will be called when a block changes in a registered chunk
+	 */
+	public function onBlockChanged(Vector3 $block) : void;
 
 }

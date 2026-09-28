@@ -43,6 +43,10 @@ class DiamondHelmet extends Armor
 		return 364;
 	}
 
+	public function getEnchantAbility() : int{
+		return 10;
+	}
+
 	public function getArmorSlot() : int
 	{
 		return ArmorSlot::SLOT_HELMET;

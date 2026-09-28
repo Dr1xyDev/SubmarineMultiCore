@@ -36,7 +36,7 @@ class SmallFireball extends Projectile
 	public float $height = 0.3125;
 	public float $width = 0.3125;
 
-	protected $damage = 5.0;
+	protected float $damage = 5.0;
 	protected $life = 0;
 
 	public function getName() : string

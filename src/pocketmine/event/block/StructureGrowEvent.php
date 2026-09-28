@@ -34,10 +34,10 @@ class StructureGrowEvent extends BlockEvent implements Cancellable
 	/** @var Block[] */
 	private $newStates;
 
-	/** @var Player */
+	/** @var ?Player */
 	private $player;
 
-	public function __construct(Block $block, array $newStates, Player $player)
+	public function __construct(Block $block, array $newStates, ?Player $player)
 	{
 		parent::__construct($block);
 		$this->newStates = $newStates;
@@ -54,7 +54,7 @@ class StructureGrowEvent extends BlockEvent implements Cancellable
 		$this->newStates = $blocks;
 	}
 
-	public function getPlayer() : Player
+	public function getPlayer() : ?Player
 	{
 		return $this->player;
 	}

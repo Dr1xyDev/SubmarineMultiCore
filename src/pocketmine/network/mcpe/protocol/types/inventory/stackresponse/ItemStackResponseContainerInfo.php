@@ -49,22 +49,22 @@ final class ItemStackResponseContainerInfo
 		return $this->slots;
 	}
 
-	public static function read(NetworkBinaryStream $in, int $playerProtocol) : self
+	public static function read(NetworkBinaryStream $in) : self
 	{
-		$containerName = FullContainerName::read($in, $playerProtocol);
+		$containerName = FullContainerName::read($in);
 		$slots = [];
 		for ($i = 0, $len = $in->getUnsignedVarInt(); $i < $len; ++$i) {
-			$slots[] = ItemStackResponseSlotInfo::read($in, $playerProtocol);
+			$slots[] = ItemStackResponseSlotInfo::read($in);
 		}
 		return new self($containerName, $slots);
 	}
 
-	public function write(NetworkBinaryStream $out, int $playerProtocol) : void
+	public function write(NetworkBinaryStream $out) : void
 	{
-		$this->containerName->write($out, $playerProtocol);
+		$this->containerName->write($out);
 		$out->putUnsignedVarInt(count($this->slots));
 		foreach ($this->slots as $slot) {
-			$slot->write($out, $playerProtocol);
+			$slot->write($out);
 		}
 	}
 }

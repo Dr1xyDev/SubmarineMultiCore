@@ -27,6 +27,7 @@ use pocketmine\snooze\SleeperNotifier;
 use pocketmine\thread\Thread;
 use pocketmine\thread\ThreadException;
 use pocketmine\utils\Utils;
+use Throwable;
 
 use function extension_loaded;
 use function fclose;
@@ -160,7 +161,12 @@ class CommandReader extends Thread
 
 					// no break
 				case self::TYPE_PIPED:
-					if (($raw = fgets($stdin)) === false) { //broken pipe or EOF
+					try{
+						$raw = fgets($stdin);
+					}catch(Throwable $e){
+						$raw = false;
+					}
+					if ($raw === false) { //broken pipe or EOF
 						$this->initStdin();
 						$this->synchronized(function () {
 							$this->wait(200000);

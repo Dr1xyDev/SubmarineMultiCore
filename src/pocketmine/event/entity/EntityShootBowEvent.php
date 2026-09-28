@@ -41,16 +41,13 @@ class EntityShootBowEvent extends EntityEvent implements Cancellable
 	private $projectile;
 	/** @var float */
 	private $force;
-	/** @var float */
-	private $inaccuracy;
 
-	public function __construct(Living $shooter, Item $bow, Projectile $projectile, float $force, float $inaccuracy)
+	public function __construct(Living $shooter, Item $bow, Projectile $projectile, float $force)
 	{
 		$this->entity = $shooter;
 		$this->bow = $bow;
 		$this->projectile = $projectile;
 		$this->force = $force;
-		$this->inaccuracy = $inaccuracy;
 	}
 
 	/**
@@ -94,15 +91,5 @@ class EntityShootBowEvent extends EntityEvent implements Cancellable
 	public function setForce(float $force) : void
 	{
 		$this->force = $force;
-	}
-
-	public function getInaccuracy() : float
-	{
-		return $this->inaccuracy;
-	}
-
-	public function setInaccuracy(float $inaccuracy) : void
-	{
-		$this->inaccuracy = $inaccuracy;
 	}
 }

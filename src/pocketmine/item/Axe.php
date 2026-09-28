@@ -107,7 +107,7 @@ class Axe extends TieredTool
 	{
 		if ($playerProtocol < ProtocolInfo::PROTOCOL_407) {
 			if ($this->getId() === ItemIds::NETHERITE_AXE) {
-				return new TranslatedItemData(ItemIds::DIAMOND_AXE, $this->getDamage());
+				return new TranslatedItemData(ItemIds::DIAMOND_AXE, $this->getDamage(), $this->getName());
 			}
 		}
 		return parent::getItemProtocol($playerProtocol);

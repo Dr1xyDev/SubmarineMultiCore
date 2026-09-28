@@ -43,6 +43,10 @@ class LeatherBoots extends Armor
 		return 66;
 	}
 
+	public function getEnchantAbility() : int{
+		return 15;
+	}
+
 	public function getArmorSlot() : int
 	{
 		return ArmorSlot::SLOT_BOOTS;

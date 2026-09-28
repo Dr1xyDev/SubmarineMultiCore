@@ -88,7 +88,7 @@ class BanEntry
 		return $this->expirationDate;
 	}
 
-	public function setExpires(DateTime $date = null)
+	public function setExpires(?DateTime $date = null)
 	{
 		if ($date !== null) {
 			self::validateDate($date);
@@ -163,7 +163,7 @@ class BanEntry
 		if (strlen($str) < 2) {
 			return null;
 		} else {
-			$str = explode("|", trim($str));
+			$str = explode("|", trim($str), 6);
 			$entry = new BanEntry(trim(array_shift($str)));
 			do {
 				if (empty($str)) {

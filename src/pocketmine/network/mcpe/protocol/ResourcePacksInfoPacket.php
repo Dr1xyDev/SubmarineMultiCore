@@ -86,38 +86,38 @@ class ResourcePacksInfoPacket extends DataPacket
 	protected function decodePayload() : void
 	{
 		$this->mustAccept = $this->getBool();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_332) {
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_662) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_662) {
 				$this->hasAddons = $this->getBool();
 			}
 			$this->hasScripts = $this->getBool();
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_448) {
-				if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_766) {
-					if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_818) {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_448) {
+				if ($this->protocol >= ProtocolInfo::PROTOCOL_766) {
+					if ($this->protocol >= ProtocolInfo::PROTOCOL_818) {
 						$this->forceDisableVibrantVisuals = $this->getBool();
 					}
 					$this->worldTemplateId = $this->getUUID();
 					$this->worldTemplateVersion = $this->getString();
 				}
-				if ($this->getProtocol() < ProtocolInfo::PROTOCOL_729) {
+				if ($this->protocol < ProtocolInfo::PROTOCOL_729) {
 					$this->forceServerPacks = $this->getBool();
 				}
 			}
 		}
 
-		if ($this->getProtocol() < ProtocolInfo::PROTOCOL_729) {
+		if ($this->protocol < ProtocolInfo::PROTOCOL_729) {
 			$behaviorPackCount = $this->getLShort();
 			while ($behaviorPackCount-- > 0) {
-				$this->behaviorPackEntries[] = BehaviorPackInfoEntry::read($this->getProtocol(), $this);
+				$this->behaviorPackEntries[] = BehaviorPackInfoEntry::read($this);
 			}
 		}
 
-		$resourcePackCount = $this->getLShort();
+		$resourcePackCount = $this->protocol >= ProtocolInfo::PROTOCOL_2168 ? $this->getUnsignedVarInt() : $this->getLShort();
 		while ($resourcePackCount-- > 0) {
-			$this->resourcePackEntries[] = ResourcePackInfoEntry::read($this->getProtocol(), $this);
+			$this->resourcePackEntries[] = ResourcePackInfoEntry::read($this);
 		}
 
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_618 && $this->getProtocol() < ProtocolInfo::PROTOCOL_748) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_618 && $this->protocol < ProtocolInfo::PROTOCOL_748) {
 			$this->cdnUrls = [];
 			for ($i = 0, $count = $this->getUnsignedVarInt(); $i < $count; $i++) {
 				$packId = $this->getString();
@@ -130,38 +130,42 @@ class ResourcePacksInfoPacket extends DataPacket
 	protected function encodePayload() : void
 	{
 		$this->putBool($this->mustAccept);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_332) {
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_662) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_662) {
 				$this->putBool($this->hasAddons);
 			}
 			$this->putBool($this->hasScripts);
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_448) {
-				if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_766) {
-					if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_818) {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_448) {
+				if ($this->protocol >= ProtocolInfo::PROTOCOL_766) {
+					if ($this->protocol >= ProtocolInfo::PROTOCOL_818) {
 						$this->putBool($this->forceDisableVibrantVisuals);
 					}
 					$this->putUUID($this->worldTemplateId);
 					$this->putString($this->worldTemplateVersion);
 				}
-				if ($this->getProtocol() < ProtocolInfo::PROTOCOL_729) {
+				if ($this->protocol < ProtocolInfo::PROTOCOL_729) {
 					$this->putBool($this->forceServerPacks);
 				}
 			}
 		}
 
-		if ($this->getProtocol() < ProtocolInfo::PROTOCOL_729) {
+		if ($this->protocol < ProtocolInfo::PROTOCOL_729) {
 			$this->putLShort(count($this->behaviorPackEntries));
 			foreach ($this->behaviorPackEntries as $entry) {
-				$entry->write($this->getProtocol(), $this);
+				$entry->write($this);
 			}
 		}
 
-		$this->putLShort(count($this->resourcePackEntries));
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_2168) {
+			$this->putUnsignedVarInt(count($this->resourcePackEntries));
+		} else {
+			$this->putLShort(count($this->resourcePackEntries));
+		}
 		foreach ($this->resourcePackEntries as $entry) {
-			$entry->write($this->getProtocol(), $this);
+			$entry->write($this);
 		}
 
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_618 && $this->getProtocol() < ProtocolInfo::PROTOCOL_748) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_618 && $this->protocol < ProtocolInfo::PROTOCOL_748) {
 			$this->putUnsignedVarInt(count($this->cdnUrls));
 			foreach ($this->cdnUrls as $packId => $cdnUrl) {
 				$this->putString($packId);

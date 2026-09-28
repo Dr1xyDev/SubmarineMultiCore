@@ -23,12 +23,14 @@ declare(strict_types=1);
 namespace pocketmine\level\generator;
 
 use pocketmine\block\BlockFactory;
+use pocketmine\entity\Entity;
+use pocketmine\item\enchantment\Enchantment;
 use pocketmine\item\ItemFactory;
-use pocketmine\level\biome\Biome;
 use pocketmine\level\Level;
 use pocketmine\level\SimpleChunkManager;
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\thread\NonThreadSafeValue;
+use pocketmine\tile\Tile;
 use pocketmine\utils\Random;
 
 class GeneratorRegisterTask extends AsyncTask
@@ -56,10 +58,12 @@ class GeneratorRegisterTask extends AsyncTask
 	{
 		BlockFactory::init();
 		ItemFactory::init();
-		Biome::init();
+		Enchantment::init();
+		Entity::init();
+		Tile::init();
 
 		$manager = new SimpleChunkManager($this->seed, $this->worldHeight);
-		ThreadLocalManagerContext::register(new ThreadLocalManagerContext($manager), $this->levelId);
+		$this->saveToThreadStore("generation.level{$this->levelId}.manager", $manager);
 
 		/**
 		 * @var Generator $generator
@@ -67,6 +71,6 @@ class GeneratorRegisterTask extends AsyncTask
 		 */
 		$generator = new $this->generatorClass($this->settings->deserialize());
 		$generator->init($manager, new Random($manager->getSeed()));
-		ThreadLocalGeneratorContext::register(new ThreadLocalGeneratorContext($generator), $this->levelId);
+		$this->saveToThreadStore("generation.level{$this->levelId}.generator", $generator);
 	}
 }

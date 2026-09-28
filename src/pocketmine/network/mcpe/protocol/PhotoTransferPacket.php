@@ -48,7 +48,7 @@ class PhotoTransferPacket extends DataPacket
 		$this->photoName = $this->getString();
 		$this->photoData = $this->getString();
 		$this->bookId = $this->getString();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_465) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_465) {
 			$this->type = $this->getByte();
 			$this->sourceType = $this->getByte();
 			$this->ownerEntityUniqueId = $this->getLLong(); //...............
@@ -61,7 +61,7 @@ class PhotoTransferPacket extends DataPacket
 		$this->putString($this->photoName);
 		$this->putString($this->photoData);
 		$this->putString($this->bookId);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_465) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_465) {
 			$this->putByte($this->type);
 			$this->putByte($this->sourceType);
 			$this->putLLong($this->ownerEntityUniqueId);

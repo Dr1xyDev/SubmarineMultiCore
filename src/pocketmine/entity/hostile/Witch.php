@@ -80,10 +80,20 @@ class Witch extends Monster implements RangedAttackerMob, Smite
 
 	public function getDrops() : array
 	{
-		return [
-			ItemFactory::get(Item::GLASS_BOTTLE, 0, rand(0, 2)),
-			ItemFactory::get(Item::GLOWSTONE_DUST, 0, rand(0, 2))
-		];
+		$looting = $this->getLootingLevel();
+		$drops = [];
+
+		$glassBottles = rand(0, 2 + $looting);
+		if ($glassBottles > 0) {
+			$drops[] = ItemFactory::get(Item::GLASS_BOTTLE, 0, $glassBottles);
+		}
+
+		$glowstoneDust = rand(0, 2 + $looting);
+		if ($glowstoneDust > 0) {
+			$drops[] = ItemFactory::get(Item::GLOWSTONE_DUST, 0, $glowstoneDust);
+		}
+
+		return $drops;
 	}
 
 	public function getXpDropAmount() : int
@@ -99,7 +109,7 @@ class Witch extends Monster implements RangedAttackerMob, Smite
 		$this->behaviorPool->setBehavior(3, new LookAtPlayerBehavior($this, 8.0));
 		$this->behaviorPool->setBehavior(4, new RandomLookAroundBehavior($this));
 
-		$this->targetBehaviorPool->setBehavior(0, new NearestAttackableTargetBehavior($this, Player::class, true));
+		$this->targetBehaviorPool->setBehavior(0, new NearestAttackableTargetBehavior($this, Player::class));
 		$this->targetBehaviorPool->setBehavior(1, new HurtByTargetBehavior($this));
 	}
 

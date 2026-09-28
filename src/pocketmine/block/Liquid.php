@@ -22,8 +22,8 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
+use pocketmine\block\utils\BlockEventHelper;
 use pocketmine\entity\Entity;
-use pocketmine\event\block\BlockFormEvent;
 use pocketmine\event\block\BlockSpreadEvent;
 use pocketmine\item\Item;
 use pocketmine\level\Level;
@@ -317,8 +317,7 @@ abstract class Liquid extends Transparent
 		}
 	}
 
-	protected function flowIntoBlock(Block $block, int $newFlowDecay) : void
-	{
+	protected function flowIntoBlock(Block $block, int $newFlowDecay) : void{
 		if ($this->canFlowInto($block) && !($block instanceof Liquid)) {
 			$ev = new BlockSpreadEvent($block, $this, BlockFactory::get($this->getId(), $newFlowDecay));
 			$ev->call();
@@ -464,14 +463,11 @@ abstract class Liquid extends Transparent
 
 	}
 
-	protected function liquidCollide(Block $cause, Block $result) : bool
-	{
-		$ev = new BlockFormEvent($this, $result);
-		$ev->call();
-		if (!$ev->isCancelled()) {
-			$this->level->setBlock($this, $ev->getNewState(), true, true);
+	protected function liquidCollide(Block $cause, Block $result) : bool{
+		if(BlockEventHelper::form($this, $result, $cause)){
 			$this->level->addSound(new FizzSound($this->add(0.5, 0.5, 0.5), 2.6 + (Utils::getRandomFloat() - Utils::getRandomFloat()) * 0.8));
 		}
+
 		return true;
 	}
 

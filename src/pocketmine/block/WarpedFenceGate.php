@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class WarpedFenceGate extends FenceGate
 {
 	protected $id = self::WARPED_FENCE_GATE;
@@ -51,14 +49,5 @@ class WarpedFenceGate extends FenceGate
 	public function getFlammability() : int
 	{
 		return 0;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_419) {
-			return BlockFactory::get(BlockIds::FENCE_GATE, $this->meta);
-		}
-
-		return null;
 	}
 }

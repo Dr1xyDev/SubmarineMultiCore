@@ -28,11 +28,38 @@ use pocketmine\item\ItemIds;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\utils\AssumptionFailedError;
 use pocketmine\utils\Filesystem;
+use Symfony\Component\Filesystem\Path;
+use function array_diff;
 use function array_map;
+use function file_exists;
 use function is_array;
 use function json_decode;
+use function scandir;
+use function sort;
+use const pocketmine\BEDROCK_DATA_PATH;
 
 final class CraftingManagerFromDataHelper{
+
+	private static function deserializeIngredient(array $data) : ?RecipeIngredient{
+		if(isset($data["count"]) && $data["count"] !== 1){
+			//every case we've seen so far where this isn't the case, it's been a bug and the count was ignored anyway
+			//e.g. gold blocks crafted from 9 ingots, but each input item individually had a count of 9
+			throw new AssumptionFailedError("Recipe inputs should have a count of exactly 1");
+		}
+		if(isset($data["tag"])){
+			return new TagWildcardRecipeIngredient($data["tag"]);
+		}
+
+		$damage = $data["damage"] ?? null;
+		if($damage === -1){
+			//this could be an unimplemented item, but it doesn't really matter, since the item shouldn't be able to
+			//be obtained anyway - filtering unknown items is only really important for outputs, to prevent players
+			//obtaining them
+			return new MetaWildcardRecipeIngredient($data["id"]);
+		}
+
+		return new ExactRecipeIngredient(Item::jsonDeserialize($data));
+	}
 
 	/**
 	 * @param Item[] $items
@@ -50,119 +77,184 @@ final class CraftingManagerFromDataHelper{
 		return false;
 	}
 
-	public static function make(string $filePath) : CraftingManager{
-		$recipes = json_decode(Filesystem::fileGetContents($filePath), true);
-		if(!is_array($recipes)){
-			throw new AssumptionFailedError("recipes.json root should contain a map of recipe types");
+	private static function loadJsonFile(int $protocolVersion, string $filename) : array{
+		$array = json_decode(Filesystem::resourceGetContents(Path::join(BEDROCK_DATA_PATH . 'recipes/' . $protocolVersion . '/', $filename)), true);
+		if(!is_array($array)){
+			throw new AssumptionFailedError($filename . " root should contain a map of recipe types");
 		}
 
+		return $array;
+	}
+
+	public static function make() : CraftingManager{
 		$result = new CraftingManager();
 
-		$itemDeserializerFunc = \Closure::fromCallable([Item::class, 'jsonDeserialize']);
+		$itemDeserializerOutputFuncFix = function (array $data) {
+			$data["damage"] ??= 0;
+			return Item::jsonDeserialize($data);
+		};
 
-		$protocol = ProtocolInfo::PROTOCOL_110; //TODO: make your own recipes for each protocol
-
-		foreach($recipes["shapeless"] as $recipe){
-			$recipeType = match($recipe["block"]){
-				"crafting_table" => ShapelessRecipeType::CRAFTING(),
-				"stonecutter" => ShapelessRecipeType::STONECUTTER(),
-				"smithing" => ShapelessRecipeType::SMITHING(),
-				"cartography" => ShapelessRecipeType::CARTOGRAPHY(),
-				default => null
-			};
-			if($recipeType === null){
-				continue;
-			}
-			$output = array_map($itemDeserializerFunc, $recipe["output"]);
-			if(self::containsUnknownOutputs($output)){
-				continue;
-			}
-
-			$result->registerShapelessRecipe(new ShapelessRecipe(
-				array_map($itemDeserializerFunc, $recipe["input"]),
-				$output,
-				$recipeType
-			), $protocol);
+		$protocols = [];
+		foreach (array_diff(scandir(BEDROCK_DATA_PATH . 'recipes/'), ["..", "."]) as $protocol) {
+			$protocols[] = (int) $protocol;
 		}
-		foreach($recipes["shaped"] as $recipe){
-			if($recipe["block"] !== "crafting_table"){ //TODO: filter others out for now to avoid breaking economics
-				continue;
-			}
-			$output = array_map($itemDeserializerFunc, $recipe["output"]);
-			if(self::containsUnknownOutputs($output)){
-				continue;
-			}
 
-			$ingredients = array_map($itemDeserializerFunc, $recipe["input"]);
-			/** @var Item[] $ingredients */
-			foreach ($ingredients as $ingredient) {
-				//fix planks > 1.20.50
-				if ($ingredient->getId() === ItemIds::PLANKS && $ingredient->getDamage() === -1) {
-					for ($meta = 0; $meta <= 5; ++$meta) {
-						/** @var Item[] $fixIngredients */
-						$fixIngredients = array_map($itemDeserializerFunc, $recipe["input"]);
-						foreach ($ingredients as $key => $fixIngredient) {
-							if ($fixIngredient->getId() === ItemIds::PLANKS && $fixIngredient->getDamage() === -1) {
-								$fixIngredients[$key]->setDamage($meta);
-							}
-						}
+		sort($protocols);
 
-						$result->registerShapedRecipe(new ShapedRecipe(
-							$recipe["shape"],
-							$fixIngredients,
-							$output
-						), $protocol);
-					}
-
-					continue 2;
+		$protocolRecipes = [];
+		foreach ($protocols as $protocol) {
+			foreach ([
+				"shapeless_crafting",
+				"shaped_crafting",
+				"smelting",
+				"potion_type",
+				"potion_container_change",
+				"smithing",
+				"smithing_trim"
+			] as $recipeType) {
+				if (!Filesystem::resourceExists(BEDROCK_DATA_PATH . 'recipes/' . $protocol . '/' . $recipeType . '.json')) {
+					$protocolRecipes[$recipeType] = $protocolRecipes[$recipeType] ?? ProtocolInfo::PROTOCOL_527;
+				} else {
+					$protocolRecipes[$recipeType] = $protocol;
 				}
 			}
 
-			$result->registerShapedRecipe(new ShapedRecipe(
-				$recipe["shape"],
-				array_map($itemDeserializerFunc, $recipe["input"]),
-				$output
-			), $protocol);
-		}
-		foreach($recipes["smelting"] as $recipe){
-			$furnaceType = match ($recipe["block"]){
-				"furnace" => FurnaceType::FURNACE(),
-				"blast_furnace" => FurnaceType::BLAST_FURNACE(),
-				"smoker" => FurnaceType::SMOKER(),
-				"campfire" => FurnaceType::CAMPFIRE(),
-				"soul_campfire" => FurnaceType::SOUL_CAMPFIRE(),
-				default => null
-			};
-			if($furnaceType === null){
-				continue;
-			}
-			$output = Item::jsonDeserialize($recipe["output"]);
-			if(self::containsUnknownOutputs([$output])){
-				continue;
+			if ($protocolRecipes["shapeless_crafting"] === $protocol) {
+				foreach (self::loadJsonFile($protocol, "shapeless_crafting.json") as $recipe) {
+					$recipeType = match ($recipe["block"]) {
+						"crafting_table" => ShapelessRecipeType::CRAFTING(),
+						"stonecutter" => ShapelessRecipeType::STONECUTTER(),
+						"cartography_table" => ShapelessRecipeType::CARTOGRAPHY(),
+						default => null
+					};
+					if ($recipeType === null) {
+						continue;
+					}
+					$output = array_map($itemDeserializerOutputFuncFix, $recipe["output"]);
+					if (self::containsUnknownOutputs($output)) {
+						continue;
+					}
+
+					$inputs = [];
+					foreach ($recipe["input"] as $inputData) {
+						$input = self::deserializeIngredient($inputData);
+						if ($input === null) { //unknown input item
+							continue 2;
+						}
+						$inputs[] = $input;
+					}
+
+					$result->registerShapelessRecipe(new ShapelessRecipe($inputs, $output, $recipeType), $protocol);
+				}
 			}
 
-			$result->registerFurnaceRecipe(new FurnaceRecipe($output, Item::jsonDeserialize($recipe["input"])), $protocol, $furnaceType);
-		}
-		foreach($recipes["potion_type"] as $recipe){
-			$output = Item::jsonDeserialize($recipe["output"]);
-			if(self::containsUnknownOutputs([$output])){
-				continue;
+			if ($protocolRecipes["shaped_crafting"] === $protocol) {
+				foreach (self::loadJsonFile($protocol, "shaped_crafting.json") as $recipe) {
+					if ($recipe["block"] !== "crafting_table") { //TODO: filter others out for now to avoid breaking economics
+						continue;
+					}
+					$output = array_map($itemDeserializerOutputFuncFix, $recipe["output"]);
+					if (self::containsUnknownOutputs($output)) {
+						continue;
+					}
+
+					$inputs = [];
+					foreach ($recipe["input"] as $symbol => $inputData) {
+						$input = self::deserializeIngredient($inputData);
+						if ($input === null) { //unknown input item
+							continue 2;
+						}
+						$inputs[$symbol] = $input;
+					}
+
+					$result->registerShapedRecipe(new ShapedRecipe($recipe["shape"], $inputs, $output), $protocol);
+				}
 			}
-			$result->registerPotionTypeRecipe(new PotionTypeRecipe(
-				Item::jsonDeserialize($recipe["input"]),
-				Item::jsonDeserialize($recipe["ingredient"]),
-				$output
-			), $protocol);
-		}
-		foreach($recipes["potion_container_change"] as $recipe){
-			if(!ItemFactory::isRegistered($recipe["output_item_id"])){
-				continue;
+
+			if ($protocolRecipes["smelting"] === $protocol) {
+				foreach (self::loadJsonFile($protocol, "smelting.json") as $recipe) {
+					$furnaceType = match ($recipe["block"]) {
+						"furnace" => FurnaceType::FURNACE(),
+						"blast_furnace" => FurnaceType::BLAST_FURNACE(),
+						"smoker" => FurnaceType::SMOKER(),
+						"campfire" => FurnaceType::CAMPFIRE(),
+						"soul_campfire" => FurnaceType::SOUL_CAMPFIRE(),
+						default => null
+					};
+					if ($furnaceType === null) {
+						continue;
+					}
+					$output = $itemDeserializerOutputFuncFix($recipe["output"]);
+					if (self::containsUnknownOutputs([$output])) {
+						continue;
+					}
+					$input = self::deserializeIngredient($recipe["input"]);
+					if ($input === null) {
+						continue;
+					}
+					$result->registerFurnaceRecipe(new FurnaceRecipe($output, $input), $furnaceType, $protocol);
+				}
 			}
-			$result->registerPotionContainerChangeRecipe(new PotionContainerChangeRecipe(
-				$recipe["input_item_id"],
-				Item::jsonDeserialize($recipe["ingredient"]),
-				$recipe["output_item_id"]
-			), $protocol);
+
+			if ($protocol >= ProtocolInfo::PROTOCOL_407) {
+				if ($protocolRecipes["potion_type"] === $protocol) {
+					foreach (self::loadJsonFile($protocol, "potion_type.json") as $recipe) {
+						$output = $itemDeserializerOutputFuncFix($recipe["output"]);
+						if (self::containsUnknownOutputs([$output])) {
+							continue;
+						}
+						$input = self::deserializeIngredient($recipe["input"]);
+						$ingredient = self::deserializeIngredient($recipe["ingredient"]);
+						if ($input === null || $ingredient === null) {
+							continue;
+						}
+						$result->registerPotionTypeRecipe(new PotionTypeRecipe($input, $ingredient, $output), $protocol);
+					}
+				}
+
+				if ($protocolRecipes["potion_container_change"] === $protocol) {
+					foreach (self::loadJsonFile($protocol, "potion_container_change.json") as $recipe) {
+						if (!ItemFactory::isRegistered($recipe["input_item_id"]) || !ItemFactory::isRegistered($recipe["output_item_id"])) {
+							continue;
+						}
+						$ingredient = self::deserializeIngredient($recipe["ingredient"]);
+						if ($ingredient === null) {
+							continue;
+						}
+						$result->registerPotionContainerChangeRecipe(new PotionContainerChangeRecipe($recipe["input_item_id"], $ingredient, $recipe["output_item_id"]), $protocol);
+					}
+				}
+				if ($protocol >= ProtocolInfo::PROTOCOL_567) {
+					if ($protocolRecipes["smithing"] === $protocol) {
+						foreach (self::loadJsonFile($protocol, "smithing.json") as $recipe) {
+							$output = $itemDeserializerOutputFuncFix($recipe["output"]);
+							if (self::containsUnknownOutputs([$output])) {
+								continue;
+							}
+							$addition = self::deserializeIngredient($recipe["addition"]);
+							$input = self::deserializeIngredient($recipe["input"]);
+							$template = isset($recipe["template"]) ? self::deserializeIngredient($recipe["template"]) : new ExactRecipeIngredient(ItemFactory::get(ItemIds::NETHERITE_UPGRADE_SMITHING_TEMPLATE));
+							if ($addition === null || $input === null || $template === null) {
+								continue;
+							}
+							$result->registerSmithingTransformRecipe(new SmithingTransformRecipe($input, $addition, $template, $output), $protocol);
+						}
+					}
+					if ($protocol >= ProtocolInfo::PROTOCOL_582) {
+						if ($protocolRecipes["smithing_trim"] === $protocol) {
+							foreach (self::loadJsonFile($protocol, "smithing_trim.json") as $recipe) {
+								$addition = self::deserializeIngredient($recipe["addition"]);
+								$input = self::deserializeIngredient($recipe["input"]);
+								$template = self::deserializeIngredient($recipe["template"]);
+								if ($addition === null || $input === null || $template === null) {
+									continue;
+								}
+								$result->registerSmithingTrimRecipe(new SmithingTrimRecipe($input, $addition, $template), $protocol);
+							}
+						}
+					}
+				}
+			}
 		}
 
 		return $result;

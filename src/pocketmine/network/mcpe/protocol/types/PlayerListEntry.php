@@ -31,8 +31,6 @@ class PlayerListEntry
 	public UUID $uuid;
 	public int $entityUniqueId;
 	public string $username;
-	public string $thirdPartyName = "";
-	public int $platform = 0;
 	public ?Skin $skin = null;
 	public string $xboxUserId = "";
 	public string $platformChatId = "";
@@ -57,20 +55,16 @@ class PlayerListEntry
 		?Skin $skin,
 		string $xboxUserId = "",
 		string $platformChatId = "",
-		string $thirdPartyName = "",
-		int $platform = 0,
 		int $buildPlatform = -1,
 		bool $isTeacher = false,
 		bool $isHost = false,
 		bool $isSubClient = false,
-		Color $color = null
+		?Color $color = null
 	) : PlayerListEntry {
 		$entry = new PlayerListEntry();
 		$entry->uuid = $uuid;
 		$entry->entityUniqueId = $entityUniqueId;
 		$entry->username = $username;
-		$entry->thirdPartyName = $thirdPartyName;
-		$entry->platform = $platform;
 		$entry->skin = $skin;
 		$entry->xboxUserId = $xboxUserId;
 		$entry->platformChatId = $platformChatId;

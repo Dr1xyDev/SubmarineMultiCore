@@ -38,8 +38,8 @@ class ContainerClosePacket extends DataPacket
 	protected function decodePayload() : void
 	{
 		$this->windowId = $this->getByte();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_419) {
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_685) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_419) {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_685) {
 				$this->windowType = $this->getByte();
 			}
 			$this->server = $this->getBool();
@@ -49,8 +49,8 @@ class ContainerClosePacket extends DataPacket
 	protected function encodePayload() : void
 	{
 		$this->putByte($this->windowId);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_419) {
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_685) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_419) {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_685) {
 				$this->putByte($this->windowType);
 			}
 			$this->putBool($this->server);

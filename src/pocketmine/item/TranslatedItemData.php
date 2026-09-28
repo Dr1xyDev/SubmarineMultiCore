@@ -27,13 +27,15 @@ class TranslatedItemData {
 	public static function fromItem(Item $item) : TranslatedItemData{
 		return new self(
 			$item->getId(),
-			$item->getDamage()
+			$item->getDamage(),
+			$item->getName(),
 		);
 	}
 
 	public function __construct(
 		private int $id,
-		private ?int $meta
+		private ?int $meta,
+		private string $name = "",
 	){}
 
 	public function getId() : int {
@@ -42,5 +44,13 @@ class TranslatedItemData {
 
 	public function getMeta() : ?int {
 		return $this->meta;
+	}
+
+	public function getName() : string {
+		return $this->name;
+	}
+
+	public function hasName() : bool{
+		return $this->name !== "";
 	}
 }

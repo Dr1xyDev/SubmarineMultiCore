@@ -35,13 +35,13 @@ class DropItemPacket extends DataPacket
 	protected function decodePayload() : void
 	{
 		$this->type = $this->getByte();
-		$this->item = $this->getItemStackWithoutStackId($this->getProtocol());
+		$this->item = $this->getItemStackWithoutStackId();
 	}
 
 	protected function encodePayload() : void
 	{
 		$this->putByte($this->type);
-		$this->putItemStackWithoutStackId($this->item, $this->getProtocol());
+		$this->putItemStackWithoutStackId($this->item);
 	}
 
 	public function handle(NetworkSession $session) : bool

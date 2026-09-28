@@ -33,7 +33,7 @@ class EmoteListPacket extends DataPacket
 
 	public int $playerEntityRuntimeId;
 	/** @var UUID[] */
-	public array $emoteIds;
+	public array $emoteIds = [];
 
 	/**
 	 * @param UUID[] $emoteIds

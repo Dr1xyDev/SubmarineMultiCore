@@ -51,13 +51,13 @@ class CompletedUsingItemPacket extends DataPacket
 
 	protected function decodePayload() : void
 	{
-		$this->itemId = $this->getShort();
+		$this->itemId = $this->getSignedLShort();
 		$this->action = $this->getLInt();
 	}
 
 	protected function encodePayload() : void
 	{
-		$this->putShort($this->itemId);
+		$this->putLShort($this->itemId);
 		$this->putLInt($this->action);
 	}
 

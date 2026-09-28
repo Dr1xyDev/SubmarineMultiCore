@@ -75,7 +75,7 @@ class MonsterSpawner extends Transparent
 		return mt_rand(15, 43);
 	}
 
-	public function onActivate(Item $item, Player $player = null) : bool
+	public function onActivate(Item $item, ?Player $player = null) : bool
 	{
 		if ($item instanceof SpawnEgg) {
 			/** @var MobSpawner $tile */
@@ -86,15 +86,18 @@ class MonsterSpawner extends Transparent
 				$item->pop();
 				$player->getInventory()->setItemInHand($item);
 			}
+
+			$this->getLevel()->scheduleDelayedBlockUpdate($this, 1);
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	public function onScheduledUpdate() : void
 	{
 		$level = $this->getLevel();
-		$furnace = $level->getTile($this);
-		if ($furnace instanceof MobSpawner && $furnace->onUpdate()) {
+		$mobSpawner = $level->getTile($this);
+		if ($mobSpawner instanceof MobSpawner && $mobSpawner->onUpdate()) {
 			$level->scheduleDelayedBlockUpdate($this, 1); //TODO: check this
 		}
 	}

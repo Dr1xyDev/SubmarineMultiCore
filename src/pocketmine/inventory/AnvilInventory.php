@@ -22,34 +22,25 @@ declare(strict_types=1);
 
 namespace pocketmine\inventory;
 
-use pocketmine\block\Air;
-use pocketmine\block\Anvil;
-use pocketmine\block\BlockIds;
-use pocketmine\item\Durable;
-use pocketmine\item\EnchantedBook;
-use pocketmine\item\enchantment\Enchantment;
-use pocketmine\item\enchantment\EnchantmentInstance;
+use pocketmine\inventory\transaction\action\SlotChangeAction;
+use pocketmine\inventory\transaction\AnvilTransaction;
+use pocketmine\inventory\transaction\TransactionValidationException;
+use pocketmine\inventory\utils\AnvilHelper;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
-use pocketmine\item\ItemIds;
-use pocketmine\item\TieredTool;
 use pocketmine\level\Position;
-use pocketmine\nbt\tag\ListTag;
-use pocketmine\network\mcpe\protocol\LevelEventPacket;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\types\inventory\UIInventorySlotOffset;
 use pocketmine\network\mcpe\protocol\types\inventory\WindowTypes;
 use pocketmine\Player;
 
 use function count;
-use function intval;
-use function max;
-use function min;
 
 class AnvilInventory extends ContainerInventory implements FakeInventory, FakeResultInventory
 {
-	public const SLOT_INPUT = 0;
-	public const SLOT_SACRIFICE = 1;
-	public const SLOT_OUTPUT = 2;
+	public const int SLOT_INPUT = 0;
+	public const int SLOT_MATERIAL = 1;
+	public const int SLOT_OUTPUT = 2;
 
 	/** @var Position */
 	protected $holder;
@@ -76,241 +67,130 @@ class AnvilInventory extends ContainerInventory implements FakeInventory, FakeRe
 
 	public function getDefaultSize() : int
 	{
-		return 3; //1 input, 1 sacrifice, 1 output
+		return 3; //1 input, 1 material, 1 output
 	}
 
-	public function getResultSlot() : int
-	{
-		return self::SLOT_OUTPUT;
-	}
+	/**
+	 * Legacy anvil handling for the old NetworkInventoryAction transaction protocol (InventoryTransactionPacket),
+	 * called via FakeResultInventory::onResult() from TypeConverter / Player. This is NOT a duplicate of the modern
+	 * path in ItemStackRequestExecutor: clients using ItemStackRequestPacket (CraftRecipeOptional) build their
+	 * AnvilTransaction there instead and never reach this method. Both paths are required for multi-protocol support
+	 * — do not remove this one, or anvils break for clients still on the legacy transaction protocol.
+	 */
+	public function onResult(Player $player, Item $result) : bool{
+		if ($player->getProtocolVersion() >= ProtocolInfo::PROTOCOL_407) {
+			$input = $this->getItem(self::SLOT_INPUT);
+			$material = $this->getItem(self::SLOT_MATERIAL);
 
-	public function onResult(Player $player, Item $result) : bool
-	{
-		$input = $this->getItem(self::SLOT_INPUT);
-		$sacrifice = $this->getItem(self::SLOT_SACRIFICE);
-		$output = clone $input;
-
-		$totalRepairCost = $input->getRepairCost() + $sacrifice->getRepairCost();
-		$levelCostBonus = 0;
-		$materialCost = 1;
-		$renamed = false;
-
-		static $tierIds = [
-			TieredTool::TIER_WOODEN => BlockIds::WOODEN_PLANKS,
-			TieredTool::TIER_STONE => BlockIds::COBBLESTONE,
-			TieredTool::TIER_IRON => ItemIds::IRON_INGOT,
-			TieredTool::TIER_GOLD => ItemIds::GOLD_INGOT,
-			TieredTool::TIER_DIAMOND => ItemIds::DIAMOND
-		];
-
-		if (!$output->isNull()) {
+			$customName = null;
 			if ($result->hasCustomName()) {
-				if ($output->getCustomName() !== $result->getCustomName()) { // renaming
-					$renamed = true;
-					$levelCostBonus++;
+				if ($input->getCustomName() !== $result->getCustomName()) {
+					$customName = $input->getCustomName();
 				}
 			}
 
-			if (!$sacrifice->isNull()) {
-				$enchantedBook = $sacrifice instanceof EnchantedBook && count($sacrifice->getEnchantments()) > 0;
-
-				if ($output instanceof TieredTool && isset($tierIds[$output->getTier()])) {
-					$targetMaterial = ItemFactory::get($tierIds[$output->getTier()]);
-					if ($sacrifice->equals($targetMaterial)) {
-						$d = min($input->getDamage(), (int) $output->getMaxDurability() / 4);
-
-						for ($m2 = 0; $d > 0 && $m2 < $sacrifice->getCount(); $m2++) {
-							$output->setDamage($output->getDamage() - $d);
-							$levelCostBonus++;
-							$d = min($output->getDamage(), (int) $output->getMaxDurability() / 4);
-						}
-
-						$materialCost = $m2;
-					} else {
-						goto sacrifice_is_tool;
-					}
-				} else {
-					sacrifice_is_tool:
-
-					if (!$enchantedBook && (!$output->equals($sacrifice, false, false) || !($output instanceof Durable))) {
-						$this->clear(self::SLOT_OUTPUT);
-
-						return false;
-					}
-
-					if ($output instanceof Durable && !$enchantedBook && $sacrifice instanceof Durable) {
-						$f = ($output->getMaxDurability() - $output->getDamage()) + ($sacrifice->getMaxDurability() - $sacrifice->getDamage()) + intval(($output->getMaxDurability() * 12) / 100);
-						$f2 = max(0, $output->getMaxDurability() - $f);
-
-						if ($f2 < $output->getDamage()) {
-							$output->setDamage($f2);
-							$levelCostBonus += 2;
-						}
-					}
-
-					foreach ($sacrifice->getEnchantments() as $enchantmentInstance) {
-						$enchantment = $enchantmentInstance->getType();
-
-						$l1 = $enchantmentInstance->getLevel();
-						$cel = $output->getEnchantmentLevel($enchantmentInstance->getId());
-
-						if ($l1 === $cel) {
-							$cel++;
-						} else {
-							$cel = max($cel, $l1);
-						}
-
-						$canApply = ($enchantment->canApply($output) || $player->isCreative() || $output instanceof EnchantedBook);
-
-						foreach ($output->getEnchantments() as $enchantmentInstance2) {
-							if ($enchantment->getId() !== $enchantmentInstance2->getId() && !$enchantment->canApplyTogether($enchantmentInstance2->getType())) {
-								$canApply = false;
-								$levelCostBonus++;
-							}
-						}
-
-						if ($canApply) {
-							$cel = min($cel, $enchantment->getMaxLevel());
-
-							$output->addEnchantment(new EnchantmentInstance($enchantment, $cel));
-							$rarityBonus = 0;
-
-							switch ($enchantment->getRarity()) {
-								case Enchantment::RARITY_MYTHIC:
-									$rarityBonus = 8;
-									break;
-								case Enchantment::RARITY_RARE:
-									$rarityBonus = 4;
-									break;
-								case Enchantment::RARITY_UNCOMMON:
-									$rarityBonus = 2;
-									break;
-								case Enchantment::RARITY_COMMON:
-									$rarityBonus = 1;
-									break;
-							}
-
-							if ($enchantedBook) {
-								$rarityBonus = max(1, intval($rarityBonus / 2));
-							}
-
-							$levelCostBonus += $rarityBonus * $cel;
-						}
-					}
-				}
-			}
-
-			$onlyRenamed = $renamed && $levelCostBonus === 1;
-			$levelCost = $totalRepairCost + $levelCostBonus;
-
-			if ($onlyRenamed && $levelCost > 39) {
-				$levelCost = 39;
-			}
-
-			if ($levelCost > 39 && !$player->isCreative()) {
-				$this->clear(self::SLOT_OUTPUT);
-
-				return false;
-			}
-
-			if ((!$onlyRenamed && ($player->isSurvival() && $input->getRepairCost() >= 63)) || $input->getRepairCost() >= 2147483647) {
-				$this->clear(self::SLOT_OUTPUT);
-
-				return false;
-			}
-
-			if (!$onlyRenamed) {
-				$repairCost = $output->getRepairCost();
-
-				if (!$sacrifice->isNull() && $repairCost < $sacrifice->getRepairCost()) {
-					$repairCost = $sacrifice->getRepairCost();
-				}
-
-				$output->setRepairCost($repairCost * 2 + 1);
-			} else {
-				$output->setRepairCost($output->getRepairCost());
-			}
-
-			$this->checkEnchantments($result, $output);
-
-			if ($renamed) {
-				$output->setCustomName($result->getCustomName());
-			}
-
-			if ($output->equalsExact($result)) {
-				if (!$sacrifice->isNull()) {
-					$sacrifice->setCount(max(0, $sacrifice->getCount() - $materialCost));
-
-					$this->setItem(self::SLOT_SACRIFICE, $sacrifice);
-				}
-
-				if (!$player->isCreative()) {
-					$player->addXpLevels(max(-$player->getXpLevel(), -$levelCost));
-				}
-
-				$block = $player->level->getBlock($this->getHolder());
-				if (!$player->isCreative() && $block instanceof Anvil && $player->random->nextFloat() < 0.12) {
-					$direction = $block->getDamage() & 3;
-					$type = $block->getDamage() - $direction;
-
-					if ($type === Anvil::TYPE_NORMAL) {
-						$type = Anvil::TYPE_SLIGHTLY_DAMAGED;
-					} elseif ($type === Anvil::TYPE_SLIGHTLY_DAMAGED) {
-						$type = Anvil::TYPE_VERY_DAMAGED;
-					} else {
-						$type = -1;
-					}
-
-					if ($type !== -1) {
-						$player->level->setBlock($this->getHolder(), new Anvil($direction | $type));
-					} else {
-						$player->level->setBlock($this->getHolder(), new Air());
-
-						$player->level->broadcastLevelEvent($this->getHolder(), LevelEventPacket::EVENT_SOUND_ANVIL_BREAK);
-
-						$player->getInventory()->addItem($output);
-						return true;
-					}
-				}
-
-				$player->level->broadcastLevelEvent($this->getHolder(), LevelEventPacket::EVENT_SOUND_ANVIL_USE);
-
-				$player->getInventory()->addItem($output);
+			$anvilResult = AnvilHelper::calculateResult($input, $material, $customName, $player->isCreative());
+			if ($anvilResult === null) {
 				return true;
 			}
-		}
 
-		return false;
-	}
+			$actions = [
+				new SlotChangeAction($this, self::SLOT_INPUT, $input, ItemFactory::air()),
+				new SlotChangeAction($this, self::SLOT_OUTPUT, $this->getItem(self::SLOT_OUTPUT), $result)
+			];
 
-	private function checkEnchantments(Item $result, Item $output) : void
-	{
-		$map1 = [];
-		$map2 = [];
+			if (!$material->isNull()) {
+				$actions[] = new SlotChangeAction($this, self::SLOT_MATERIAL, $material, ItemFactory::air());
+			}
+		} else {
+			if ($result->isNull()) {
+				return true;
+			}
 
-		foreach ($result->getEnchantments() as $e) {
-			$map1[$e->getId()] = $e->getLevel();
-		}
+			$craftingGild = $player->getCraftingGrid();
+			if ($craftingGild->contains($result)) {
+				return true;
+			}
 
-		foreach ($output->getEnchantments() as $e) {
-			$map2[$e->getId()] = $e->getLevel();
-		}
+			$contents = $craftingGild->getContents();
+			if (count($contents) !== 1 && count($contents) !== 2) {
+				return true;
+			}
 
-		$same = true;
-		foreach ($map1 as $id => $level) {
-			if (isset($map2[$id])) {
-				if ($map2[$id] !== $level) {
-					$same = false;
+			$input = null;
+			$inputSlot = null;
+			$material = ItemFactory::air();
+			$materialSlot = null;
+			foreach ($contents as $slot => $content) {
+				if ($content->isNull()) {
+					continue;
+				}
+
+				if ($input === null) {
+					$input = $content;
+					$inputSlot = $slot;
+				} elseif ($material->isNull()) {
+					$material = $content;
+					$materialSlot = $slot;
+				} else {
 					break;
 				}
-			} else {
-				break;
+			}
+
+			if ($input === null || $inputSlot === null) {
+				return true;
+			}
+
+			$customName = null;
+			if ($result->hasCustomName()) {
+				if ($input->getCustomName() !== $result->getCustomName()) {
+					$customName = $result->getCustomName();
+				}
+			}
+
+			$anvilResult = AnvilHelper::calculateResult($input, $material, $customName, $player->isCreative());
+			if ($anvilResult === null) {
+				$customName = null;
+				if ($result->hasCustomName()) {
+					if ($material->getCustomName() !== $result->getCustomName()) {
+						$customName = $result->getCustomName();
+					}
+				}
+
+				$anvilResult = AnvilHelper::calculateResult($material, $input, $customName, $player->isCreative());
+				if ($anvilResult === null) {
+					return true;
+				}
+			}
+
+			$actions = [
+				new SlotChangeAction($craftingGild, $inputSlot, $input, ItemFactory::air()),
+				new SlotChangeAction($craftingGild, $craftingGild->firstEmpty(), ItemFactory::air(), $result)
+			];
+
+			if ($materialSlot !== null && !$material->isNull()) {
+				$actions[] = new SlotChangeAction($craftingGild, $materialSlot, $material, ItemFactory::air());
 			}
 		}
 
-		if ($same && !empty($map1) && !empty($map2)) {
-			$output->setNamedTagEntry($result->getNamedTagEntry(Item::TAG_ENCH) ?? new ListTag(Item::TAG_ENCH, []));
+		try {
+			$transaction = new AnvilTransaction($player, $anvilResult, $customName);
+			foreach ($actions as $action) {
+				$transaction->addAction($action);
+			}
+
+			if (!$transaction->execute()) {
+				$player->getInventory()->sendContents($player);
+				$this->sendContents($player);
+			}
+		} catch (TransactionValidationException $e) {
+			if ($player->getProtocolVersion() >= ProtocolInfo::PROTOCOL_407) {
+				$player->getInventory()->sendContents($player);
+				$this->sendContents($player);
+			}
 		}
+
+		return true;
 	}
 
 	/**
@@ -330,5 +210,13 @@ class AnvilInventory extends ContainerInventory implements FakeInventory, FakeRe
 			$who->dropItem($item);
 		}
 		$this->clearAll();
+	}
+
+	public function getInput() : Item {
+		return $this->getItem(self::SLOT_INPUT);
+	}
+
+	public function getMaterial() : Item {
+		return $this->getItem(self::SLOT_MATERIAL);
 	}
 }

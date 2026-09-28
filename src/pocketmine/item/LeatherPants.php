@@ -43,6 +43,10 @@ class LeatherPants extends Armor
 		return 76;
 	}
 
+	public function getEnchantAbility() : int{
+		return 15;
+	}
+
 	public function getArmorSlot() : int
 	{
 		return ArmorSlot::SLOT_LEGGINGS;

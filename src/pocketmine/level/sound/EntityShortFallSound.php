@@ -48,7 +48,8 @@ final class EntityShortFallSound extends Sound
 				(AddActorPacket::LEGACY_ID_MAP_BC[$this->entity::NETWORK_ID] ?? ":")), //TODO: bad hack, stuff depends on players having a -1 network ID :(
 			false, //TODO: is isBaby relevant here?
 			false,
-			$this->entity->getId()
+			$this->entity->getId(),
+			null
 		)];
 	}
 }

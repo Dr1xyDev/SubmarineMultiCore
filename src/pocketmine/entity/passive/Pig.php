@@ -97,8 +97,9 @@ class Pig extends Animal
 
 	public function getDrops() : array
 	{
+		$looting = $this->getLootingLevel();
 		$drops = [
-			($this->isOnFire() ? ItemFactory::get(Item::COOKED_PORKCHOP, 0, rand(1, 3)) : ItemFactory::get(Item::RAW_PORKCHOP, 0, rand(1, 3)))
+			($this->isOnFire() ? ItemFactory::get(Item::COOKED_PORKCHOP, 0, rand(1, 3 + $looting)) : ItemFactory::get(Item::RAW_PORKCHOP, 0, rand(1, 3 + $looting)))
 		];
 
 		if ($this->isSaddled()) {

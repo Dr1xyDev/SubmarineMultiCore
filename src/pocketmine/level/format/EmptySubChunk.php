@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace pocketmine\level\format;
 
 use pocketmine\block\Block;
-
 use function str_repeat;
 
 class EmptySubChunk implements SubChunkInterface

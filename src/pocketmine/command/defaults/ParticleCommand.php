@@ -139,7 +139,7 @@ class ParticleCommand extends VanillaCommand
 	/**
 	 * @return Particle|null
 	 */
-	private function getParticle(string $name, Vector3 $pos, float $xd, float $yd, float $zd, int $data = null)
+	private function getParticle(string $name, Vector3 $pos, float $xd, float $yd, float $zd, ?int $data = null)
 	{
 		switch ($name) {
 			case "explode":

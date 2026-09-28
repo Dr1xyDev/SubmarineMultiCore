@@ -28,9 +28,9 @@ class AnvilDamagePacket extends DataPacket
 {
 	public const NETWORK_ID = ProtocolInfo::ANVIL_DAMAGE_PACKET;
 
-	public int $x;
-	public int $y;
-	public int $z;
+	public int $x = 0;
+	public int $y = 0;
+	public int $z = 0;
 	public int $damageAmount;
 
 	public static function create(int $x, int $y, int $z, int $damageAmount) : self
@@ -63,13 +63,19 @@ class AnvilDamagePacket extends DataPacket
 
 	protected function decodePayload() : void
 	{
-		$this->damageAmount = $this->getByte();
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_2168) {
+			$this->damageAmount = 0; //removed in 1.26.40, the server decides the damage
+		} else {
+			$this->damageAmount = $this->getByte();
+		}
 		$this->getBlockPosition($this->x, $this->y, $this->z);
 	}
 
 	protected function encodePayload() : void
 	{
-		$this->putByte($this->damageAmount);
+		if ($this->protocol < ProtocolInfo::PROTOCOL_2168) {
+			$this->putByte($this->damageAmount);
+		}
 		$this->putBlockPosition($this->x, $this->y, $this->z);
 	}
 

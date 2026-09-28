@@ -37,6 +37,7 @@ use function fopen;
 use function ftruncate;
 use function fwrite;
 use function getmypid;
+use function gzdecode;
 use function is_dir;
 use function is_file;
 use function ltrim;
@@ -325,5 +326,33 @@ final class Filesystem
 		} catch (\ErrorException $e) {
 			throw new \RuntimeException("Failed to read file $fileName: " . $e->getMessage(), 0, $e);
 		}
+	}
+
+	/**
+	 * Bundled data files may be shipped gzip-compressed as "<name>.gz" to keep the core small.
+	 * Returns whether the file exists in either form.
+	 */
+	public static function resourceExists(string $fileName) : bool
+	{
+		return is_file($fileName) || is_file($fileName . ".gz");
+	}
+
+	/**
+	 * Reads a bundled data file, transparently decompressing "<name>.gz" when the plain file isn't present.
+	 *
+	 * @throws \RuntimeException
+	 */
+	public static function resourceGetContents(string $fileName) : string
+	{
+		if (is_file($fileName) || !is_file($fileName . ".gz")) {
+			return self::fileGetContents($fileName);
+		}
+
+		$compressed = self::fileGetContents($fileName . ".gz");
+		$data = @gzdecode($compressed);
+		if ($data === false) {
+			throw new \RuntimeException("Failed to decompress file $fileName.gz");
+		}
+		return $data;
 	}
 }

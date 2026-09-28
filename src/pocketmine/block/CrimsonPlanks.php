@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class CrimsonPlanks extends Solid
 {
 	protected $id = self::CRIMSON_PLANKS;
@@ -46,14 +44,5 @@ class CrimsonPlanks extends Solid
 	public function getName() : string
 	{
 		return "Crimson Planks";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_419) {
-			return BlockFactory::get(BlockIds::PLANKS);
-		}
-
-		return null;
 	}
 }

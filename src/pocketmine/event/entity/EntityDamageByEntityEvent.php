@@ -39,7 +39,7 @@ class EntityDamageByEntityEvent extends EntityDamageEvent
 	/**
 	 * @param float[] $modifiers
 	 */
-	public function __construct(Entity $damager, Entity $entity, int $cause, float $damage, array $modifiers = [], float $knockBack = 1.0)
+	public function __construct(Entity $damager, Entity $entity, int $cause, float $damage, array $modifiers = [], float $knockBack = Living::DEFAULT_KNOCKBACK_FORCE)
 	{
 		$this->damagerEntityId = $damager->getId();
 		$this->knockBack = $knockBack;

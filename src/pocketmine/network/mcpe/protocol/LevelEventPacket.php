@@ -175,7 +175,7 @@ class LevelEventPacket extends DataPacket
 	{
 		$evid = $this->getVarInt();
 		if ($evid >= self::EVENT_ADD_PARTICLE_MASK) {
-			$this->evid = self::EVENT_ADD_PARTICLE_MASK | ConstantTranslator::getInstance()->fromNetworkId(Particle::class, $evid % self::EVENT_ADD_PARTICLE_MASK, $this->getProtocol());
+			$this->evid = self::EVENT_ADD_PARTICLE_MASK | ConstantTranslator::getInstance()->fromNetworkId(Particle::class, $evid % self::EVENT_ADD_PARTICLE_MASK, $this->protocol);
 		} else {
 			$this->evid = $evid;
 		}
@@ -187,7 +187,7 @@ class LevelEventPacket extends DataPacket
 	protected function encodePayload() : void
 	{
 		if ($this->evid >= self::EVENT_ADD_PARTICLE_MASK) {
-			$evid = self::EVENT_ADD_PARTICLE_MASK | ConstantTranslator::getInstance()->toNetworkId(Particle::class, $this->evid % self::EVENT_ADD_PARTICLE_MASK, $this->getProtocol(), 0);
+			$evid = self::EVENT_ADD_PARTICLE_MASK | ConstantTranslator::getInstance()->toNetworkId(Particle::class, $this->evid % self::EVENT_ADD_PARTICLE_MASK, $this->protocol, 0);
 		} else {
 			$evid = $this->evid;
 		}

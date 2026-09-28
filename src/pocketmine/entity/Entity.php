@@ -76,6 +76,7 @@ use pocketmine\entity\projectile\Snowball;
 use pocketmine\entity\projectile\SplashPotion;
 use pocketmine\entity\vehicle\Boat;
 use pocketmine\entity\vehicle\Minecart;
+use pocketmine\entity\vehicle\MinecartChest;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\entity\EntityDespawnEvent;
 use pocketmine\event\entity\EntityDismountEvent;
@@ -87,9 +88,12 @@ use pocketmine\event\entity\EntityRegainHealthEvent;
 use pocketmine\event\entity\EntitySpawnEvent;
 use pocketmine\event\entity\EntityTeleportEvent;
 use pocketmine\item\Item;
+use pocketmine\level\ChunkManager;
 use pocketmine\level\format\Chunk;
 use pocketmine\level\Level;
 use pocketmine\level\Location;
+use pocketmine\level\portal\PortalManager;
+use pocketmine\level\portal\PortalTravel;
 use pocketmine\level\Position;
 use pocketmine\level\sound\PlaySound;
 use pocketmine\level\sound\Sound;
@@ -212,6 +216,7 @@ abstract class Entity extends Location implements EntityIds, EntityMetadataPrope
 		Entity::registerEntity(MagmaCube::class, false, ['MagmaCube', 'minecraft:magma_cube']);
 		Entity::registerEntity(Boat::class, false, ['Boat', 'minecraft:boat']);
 		Entity::registerEntity(Minecart::class, false, ['Minecart', 'minecraft:minecart']);
+		Entity::registerEntity(MinecartChest::class, false, ['MinecartChest', 'minecraft:chest_minecart']);
 		Entity::registerEntity(Horse::class, false, ['Horse', 'minecraft:horse']);
 		Entity::registerEntity(FireworksRocket::class, false, ['FireworksRocket', 'minecraft:fireworks_rocket']);
 		Entity::registerEntity(Blaze::class, false, ['Blaze', 'minecraft:blaze']);
@@ -253,7 +258,7 @@ abstract class Entity extends Location implements EntityIds, EntityMetadataPrope
 	 * @param int|string $type
 	 * @param mixed      ...$args
 	 */
-	public static function createEntity($type, Level $level, CompoundTag $nbt, ...$args) : ?Entity
+	public static function createEntity($type, ChunkManager $level, CompoundTag $nbt, ...$args) : ?Entity
 	{
 		if (isset(self::$knownEntities[$type])) {
 			$class = self::$knownEntities[$type];
@@ -412,6 +417,9 @@ abstract class Entity extends Location implements EntityIds, EntityMetadataPrope
 	protected bool $inPortal = false;
 	protected int $timeUntilPortal = 0;
 	protected int $portalCounter = 0;
+	protected ?PortalTravel $portalTravel = null;
+	/** Destination of a level change in progress, so the new dimension can be told where the entity arrives */
+	protected ?Vector3 $levelSwitchTarget = null;
 
 	public ?float $headYaw = null;
 	public float $lastHeadYaw = 0;
@@ -425,11 +433,13 @@ abstract class Entity extends Location implements EntityIds, EntityMetadataPrope
 
 	protected bool $isKilled = false;
 
-	public function __construct(Level $level, CompoundTag $nbt)
+	public function __construct(ChunkManager $level, CompoundTag $nbt)
 	{
 		$this->random = new Random(intval(microtime(true) * 1000));
 		$this->constructed = true;
-		$this->timings = Timings::getEntityTimings($this);
+		if ($level instanceof Level) {
+			$this->timings = Timings::getEntityTimings($this);
+		}
 
 		if ($this->eyeHeight === null) {
 			$this->eyeHeight = $this->height * 0.85;
@@ -437,22 +447,26 @@ abstract class Entity extends Location implements EntityIds, EntityMetadataPrope
 
 		$this->id = Entity::$entityCount++;
 		$this->namedtag = $nbt;
-		$this->server = $level->getServer();
+		if ($level instanceof Level) {
+			$this->server = $level->getServer();
+		}
 
 		/** @var float[] $pos */
 		$pos = $this->namedtag->getListTag("Pos")->getAllValues();
 		/** @var float[] $rotation */
 		$rotation = $this->namedtag->getListTag("Rotation")->getAllValues();
 
-		parent::__construct($pos[0], $pos[1], $pos[2], $rotation[0], $rotation[1], $level);
+		parent::__construct($pos[0], $pos[1], $pos[2], $rotation[0], $rotation[1], $level instanceof Level ? $level : null);
 		assert(!is_nan($this->x) && !is_infinite($this->x) && !is_nan($this->y) && !is_infinite($this->y) && !is_nan($this->z) && !is_infinite($this->z));
 
 		$this->boundingBox = new AxisAlignedBB(0, 0, 0, 0, 0, 0);
 		$this->recalculateBoundingBox();
 
-		$this->chunk = $this->level->getChunkAtPosition($this, false);
-		if ($this->chunk === null) {
-			throw new InvalidStateException("Cannot create entities in unloaded chunks");
+		if ($level instanceof Level) {
+			$this->chunk = $this->level->getChunkAtPosition($this, false);
+			if ($this->chunk === null) {
+				throw new InvalidStateException("Cannot create entities in unloaded chunks");
+			}
 		}
 
 		$this->motion = new Vector3(0, 0, 0);
@@ -496,14 +510,19 @@ abstract class Entity extends Location implements EntityIds, EntityMetadataPrope
 		$this->initEntity();
 		$this->propertyManager->clearDirtyProperties(); //Prevents resending properties that were set during construction
 
-		$this->chunk->addEntity($this);
-		$this->level->addEntity($this);
+		$level->addEntity($this);
+		if ($level instanceof Level) {
+			$this->chunk->addEntity($this);
 
-		$this->lastUpdate = $this->server->getTick();
-		(new EntitySpawnEvent($this))->call();
+			$this->lastUpdate = $this->server->getTick();
+			(new EntitySpawnEvent($this))->call();
 
-		$this->scheduleUpdate();
+			$this->scheduleUpdate();
+		}
+	}
 
+	public function getName() : string{
+		return (new ReflectionClass($this))->getShortName();
 	}
 
 	public function getNameTag() : string
@@ -634,6 +653,27 @@ abstract class Entity extends Location implements EntityIds, EntityMetadataPrope
 	public function setInPortal(bool $inPortal) : void
 	{
 		$this->inPortal = $inPortal;
+	}
+
+	/**
+	 * Returns whether the entity recently used a portal and can't use one again yet
+	 */
+	public function hasPortalCooldown() : bool
+	{
+		return $this->timeUntilPortal > 0;
+	}
+
+	public function resetPortalCooldown() : void
+	{
+		$this->timeUntilPortal = $this->getPortalCooldown();
+	}
+
+	/**
+	 * Returns the dimension change waiting for the terrain of the destination, if any
+	 */
+	public function getPortalTravel() : ?PortalTravel
+	{
+		return $this->portalTravel;
 	}
 
 	public function getBoundingBox() : AxisAlignedBB
@@ -823,8 +863,7 @@ abstract class Entity extends Location implements EntityIds, EntityMetadataPrope
 	/**
 	 * Returns the entity ID of the owning entity, or null if the entity doesn't have an owner.
 	 */
-	public function getOwningEntityId() : ?int
-	{
+	public function getOwningEntityId() : ?int{
 		return $this->propertyManager->getLong(self::DATA_OWNER_EID);
 	}
 
@@ -1023,6 +1062,15 @@ abstract class Entity extends Location implements EntityIds, EntityMetadataPrope
 
 	public function attack(EntityDamageEvent $source) : void
 	{
+		if($this->isFireProof() && (
+				$source->getCause() === EntityDamageEvent::CAUSE_FIRE ||
+				$source->getCause() === EntityDamageEvent::CAUSE_FIRE_TICK ||
+				$source->getCause() === EntityDamageEvent::CAUSE_LAVA
+			)
+		){
+			$source->setCancelled();
+		}
+
 		$source->call();
 		if ($source->isCancelled()) {
 			return;
@@ -1169,16 +1217,19 @@ abstract class Entity extends Location implements EntityIds, EntityMetadataPrope
 			$this->resetFallDistance();
 		}
 
-		if ($this->inPortal) {
-			if ($this->server->isAllowNether()) {
-				if (!$this->isRiding() && $this->portalCounter++ > $this->getMaxInPortalTime()) {
-					$this->portalCounter = $this->getMaxInPortalTime();
-					$this->timeUntilPortal = $this->getPortalCooldown();
+		if ($this->portalTravel !== null) {
+			$this->tickPortalTravel();
+		} elseif ($this->inPortal) {
+			if ($this->timeUntilPortal > 0) {
+				//entities have to leave the portal they arrived in before they can use a portal again
+				$this->timeUntilPortal = $this->getPortalCooldown();
+			} elseif ($this->server->isAllowNether() && !$this->isRiding() && $this->portalCounter++ >= $this->getMaxInPortalTime()) {
+				$this->portalCounter = 0;
+				$this->timeUntilPortal = $this->getPortalCooldown();
 
-					$this->travelToDimension($this->level->getDimension() === DimensionIds::NETHER ? DimensionIds::OVERWORLD : DimensionIds::NETHER);
+				$this->travelToDimension($this->level->getDimension() === DimensionIds::NETHER ? DimensionIds::OVERWORLD : DimensionIds::NETHER);
 
-					$this->inPortal = false;
-				}
+				$this->inPortal = false;
 			}
 		} else {
 			if ($this->portalCounter > 0) {
@@ -1208,17 +1259,39 @@ abstract class Entity extends Location implements EntityIds, EntityMetadataPrope
 		return 300;
 	}
 
-	public function travelToDimension(int $dimensionId) : void
-	{
-		if ($dimensionId === DimensionIds::NETHER) {
-			$targetLevel = $this->server->getNetherLevel();
-		} elseif ($dimensionId === DimensionIds::THE_END) {
-			$targetLevel = $this->server->getTheEndLevel();
-		} else {
-			$targetLevel = $this->server->getDefaultLevel();
+	/**
+	 * Moves the entity to another dimension like a portal does: through a nether portal the coordinates are
+	 * scaled 1:8 and the entity arrives in a linked (or newly built) portal, the end is entered on its obsidian
+	 * platform and leaving the end leads back to the spawn point.
+	 * The terrain of the destination may have to be generated first, so the teleport can happen some ticks later.
+	 */
+	public function travelToDimension(int $dimensionId) : void{
+		if ($this->portalTravel !== null || $this->closed) {
+			return;
 		}
+		$this->portalTravel = PortalManager::startTravel($this, $dimensionId);
+		if ($this->portalTravel !== null) {
+			$this->tickPortalTravel();
+		}
+	}
 
-		$this->teleport($targetLevel->getSafeSpawn()); // TODO: more work for spawn points
+	protected function tickPortalTravel() : void
+	{
+		$travel = $this->portalTravel;
+		if ($travel === null) {
+			return;
+		}
+		if ($travel->isCancelled()) {
+			$this->portalTravel = null;
+			return;
+		}
+		$destination = $travel->tick();
+		if ($destination === null) {
+			return;
+		}
+		$this->portalTravel = null;
+		$this->timeUntilPortal = $this->getPortalCooldown();
+		$this->teleport($destination);
 	}
 
 	public function isOnFire() : bool
@@ -1246,10 +1319,19 @@ abstract class Entity extends Location implements EntityIds, EntityMetadataPrope
 	 */
 	public function setFireTicks(int $fireTicks) : void
 	{
-		if ($fireTicks < 0 || $fireTicks > 0x7fff) {
-			throw new InvalidArgumentException("Fire ticks must be in range 0 ... " . 0x7fff . ", got $fireTicks");
+		if($fireTicks < 0){
+			throw new InvalidArgumentException("Fire ticks cannot be negative");
 		}
-		$this->fireTicks = $fireTicks;
+
+		//Since the max value is not externally obvious or intuitive, many plugins use this without being aware that
+		//reasonably large values are not accepted. We even have such usages within PM itself. It doesn't make sense
+		//to force all those calls to be aware of this limitation, as it's not a functional limit but a limitation of
+		//the Mojang save format. Truncating this to the max acceptable value is the next best thing we can do.
+		$fireTicks = min($fireTicks, INT16_MAX);
+
+		if(!$this->isFireProof()) {
+			$this->fireTicks = $fireTicks;
+		}
 	}
 
 	public function extinguish() : void
@@ -1265,11 +1347,12 @@ abstract class Entity extends Location implements EntityIds, EntityMetadataPrope
 
 	protected function doOnFireTick(int $tickDiff = 1) : bool
 	{
-		if ($this->isFireProof() && $this->fireTicks > 1) {
-			$this->fireTicks = 1;
-		} else {
-			$this->fireTicks -= $tickDiff;
+		if($this->isFireProof() && $this->isOnFire()){
+			$this->extinguish();
+			return false;
 		}
+
+		$this->fireTicks -= $tickDiff;
 
 		if (($this->fireTicks % 20 === 0) || $tickDiff > 20) {
 			$this->dealFireDamage();
@@ -1340,9 +1423,8 @@ abstract class Entity extends Location implements EntityIds, EntityMetadataPrope
 		}
 	}
 
-	public function getOffsetPosition(Vector3 $vector3) : Vector3
-	{
-		return $vector3->add(0, $this->baseOffset, 0);
+	public function getOffsetPosition(Vector3 $vector3) : Vector3{
+		return new Vector3($vector3->x, $vector3->y + $this->baseOffset, $vector3->z);
 	}
 
 	protected function broadcastMovement(bool $teleport = false) : void
@@ -1384,10 +1466,9 @@ abstract class Entity extends Location implements EntityIds, EntityMetadataPrope
 			if (!($entity instanceof Player && $entity->isSpectator())) {
 				$d0 = $entity->x - $this->x;
 				$d1 = $entity->z - $this->z;
-				$d2 = abs(max($d0, $d1));
+				$d2 = sqrt($d0 * $d0 + $d1 * $d1);
 
 				if ($d2 > 0) {
-					$d2 = sqrt($d2);
 					$d0 /= $d2;
 					$d1 /= $d2;
 					$d3 = min(1, 1 / $d2);
@@ -1636,7 +1717,11 @@ abstract class Entity extends Location implements EntityIds, EntityMetadataPrope
 		if ($this->closed) {
 			throw new InvalidStateException("Cannot schedule update on garbage entity " . get_class($this));
 		}
-		$this->level->updateEntities[$this->id] = $this;
+		$this->level->scheduleEntityUpdate($this);
+	}
+
+	public function shouldAlwaysUpdate() : bool{
+		return false;
 	}
 
 	public function onNearbyBlockChange() : void
@@ -1922,7 +2007,9 @@ abstract class Entity extends Location implements EntityIds, EntityMetadataPrope
 
 	public function onCollideWithPlayer(Player $player) : void
 	{
-
+		if ($this->canBePushed() && $this->distanceSquared($player) <= 0.08){
+			$player->applyEntityCollision($this);
+		}
 	}
 
 	public function onCollideWithEntity(Entity $entity) : void
@@ -2012,8 +2099,7 @@ abstract class Entity extends Location implements EntityIds, EntityMetadataPrope
 		return true;
 	}
 
-	public function move(float $dx, float $dy, float $dz) : void
-	{
+	public function move(float $dx, float $dy, float $dz) : void{
 		$this->blocksAround = null;
 
 		if ($dx == 0 && $dz == 0 && $dy == 0) {
@@ -2238,8 +2324,13 @@ abstract class Entity extends Location implements EntityIds, EntityMetadataPrope
 		}
 
 		if ($pos instanceof Position && $pos->level !== null && $pos->level !== $this->level) {
-			if (!$this->switchLevel($pos->getLevel())) {
-				return false;
+			$this->levelSwitchTarget = $pos->asVector3();
+			try {
+				if (!$this->switchLevel($pos->getLevel())) {
+					return false;
+				}
+			} finally {
+				$this->levelSwitchTarget = null;
 			}
 		}
 
@@ -2358,12 +2449,12 @@ abstract class Entity extends Location implements EntityIds, EntityMetadataPrope
 		$this->motion->z += $z;
 	}
 
-	public function playSound(string $sound, float $volume = 1.0, float $pitch = 1.0, array $targets = null) : void
+	public function playSound(string $sound, float $volume = 1.0, float $pitch = 1.0, ?array $targets = null) : void
 	{
 		$this->level->addSound(new PlaySound($this, $sound, $volume, $pitch), $targets ?? null);
 	}
 
-	public function stopSound(string $sound, bool $stopAll = false, array $targets = null) : void
+	public function stopSound(string $sound, bool $stopAll = false, ?array $targets = null) : void
 	{
 		$pk = new StopSoundPacket();
 		$pk->soundName = $sound;
@@ -2677,12 +2768,12 @@ abstract class Entity extends Location implements EntityIds, EntityMetadataPrope
 	{
 		$this->server->broadcastPacket(
 			$targets ?? $this->getViewers(),
-			ActorEventPacket::create($this->id, $eventId, $eventData ?? 0)
+			ActorEventPacket::create($this->id, $eventId, $eventData ?? 0, null)
 		);
 	}
 
-	public function broadcastAnimation(int $animationId, ?array $targets = null) : void{
-		$this->server->broadcastPacket($players ?? $this->getViewers(), AnimatePacket::create($this->id, $animationId));
+	public function broadcastAnimation(int $animationId, int $data, ?array $targets = null) : void{
+		$this->server->broadcastPacket($targets ?? $this->getViewers(), AnimatePacket::create($this->id, $animationId, $data));
 	}
 
 	/**

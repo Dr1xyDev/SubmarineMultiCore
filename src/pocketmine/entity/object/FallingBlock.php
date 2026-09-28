@@ -26,7 +26,9 @@ use pocketmine\block\Block;
 use pocketmine\block\BlockFactory;
 use pocketmine\block\Fallable;
 use pocketmine\entity\Entity;
+use pocketmine\entity\Living;
 use pocketmine\event\entity\EntityBlockChangeEvent;
+use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
@@ -34,17 +36,19 @@ use pocketmine\level\Position;
 use pocketmine\level\sound\BlockBreakSound;
 use pocketmine\nbt\tag\ByteTag;
 use pocketmine\nbt\tag\IntTag;
-use pocketmine\network\mcpe\convert\RuntimeBlockMapping;
+use pocketmine\network\mcpe\convert\block\BlockProtocolConvertor;
+use pocketmine\network\mcpe\convert\block\RuntimeBlockMapping;
 use pocketmine\network\mcpe\protocol\AddActorPacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\SetActorDataPacket;
 use pocketmine\network\mcpe\protocol\types\entity\PropertySyncData;
 use pocketmine\Player;
 use UnexpectedValueException;
-
 use function abs;
 use function get_class;
 use function is_array;
+use function min;
+use function round;
 
 class FallingBlock extends Entity
 {
@@ -114,6 +118,8 @@ class FallingBlock extends Entity
 		$hasUpdate = parent::entityBaseTick($tickDiff);
 
 		if (!$this->isFlaggedForDespawn()) {
+			$level = $this->getLevel();
+
 			$pos = Position::fromObject($this->add(-$this->width / 2, $this->height, -$this->width / 2)->floor(), $this->getLevel());
 
 			$this->block->position($pos);
@@ -126,23 +132,46 @@ class FallingBlock extends Entity
 			if ($this->onGround || $blockTarget !== null) {
 				$this->flagForDespawn();
 
-				$block = $this->level->getBlock($pos);
-				if (($block->isTransparent() && !$block->canBeReplaced()) || ($this->onGround && abs($this->y - $this->getFloorY()) > 0.001)) {
-					//FIXME: anvils are supposed to destroy torches
-					$this->level->dropItem($this, ItemFactory::get($this->getBlock(), $this->getDamage()));
-					$this->level->addSound(new BlockBreakSound($pos->add(0.5, 0.5, 0.5), $blockTarget));
-				} else {
-					$ev = new EntityBlockChangeEvent($this, $block, $blockTarget ?? $this->block);
+				$blockResult = $blockTarget ?? $this->block;
+				$block = $level->getBlock($pos);
+				if(!$block->canBeReplaced() || !$level->isInWorld($pos->getFloorX(), $pos->getFloorY(), $pos->getFloorZ()) || ($this->onGround && abs($this->y - $this->getFloorY()) > 0.001)){
+					$level->dropItem($this, $this->block->asItem());
+					$level->addSound(new BlockBreakSound($pos->add(0.5, 0.5, 0.5), $blockResult));
+				}else{
+					$ev = new EntityBlockChangeEvent($this, $block, $blockResult);
 					$ev->call();
-					if (!$ev->isCancelled()) {
-						$this->level->setBlock($pos, $ev->getTo(), true);
+					if(!$ev->isCancelled()){
+						$b = $ev->getTo();
+						$level->setBlock($pos, $b);
+						if($this->onGround && $b instanceof Fallable && ($sound = $b->getLandSound($pos->add(0.5, 0.5, 0.5))) !== null){
+							$level->addSound($sound);
+						}
 					}
 				}
+
 				$hasUpdate = true;
 			}
 		}
 
 		return $hasUpdate;
+	}
+
+	public function fall(float $fallDistance) : void{
+		if($this->block instanceof Fallable){
+			$damagePerBlock = $this->block->getFallDamagePerBlock();
+			if($damagePerBlock > 0 && ($fallenBlocks = round($this->fallDistance) - 1) > 0){
+				$damage = min($fallenBlocks * $damagePerBlock, $this->block->getMaxFallDamage());
+				foreach($this->level->getCollidingEntities($this->getBoundingBox()) as $entity){
+					if($entity instanceof Living){
+						$ev = new EntityDamageByEntityEvent($this, $entity, EntityDamageEvent::CAUSE_FALLING_BLOCK, $damage);
+						$entity->attack($ev);
+					}
+				}
+			}
+			if(!$this->block->onHitGround($this, $fallDistance)){
+				$this->flagForDespawn();
+			}
+		}
 	}
 
 	public function getBlock() : int
@@ -170,8 +199,16 @@ class FallingBlock extends Entity
 	public function sendSpawnPacket(Player $player) : void
 	{
 		$metadata = $this->propertyManager->getAll();
-		if ($player->getProtocolVersion() >= ProtocolInfo::PROTOCOL_223 && isset($metadata[self::DATA_VARIANT])) {
-			$metadata[self::DATA_VARIANT][1] = RuntimeBlockMapping::getInstance($player->getProtocolVersion())->toRuntimeId($this->block->getFullId());
+
+		if (isset($metadata[self::DATA_VARIANT])) {
+			$block = BlockProtocolConvertor::getInstance()->get($this->block, $player->getProtocolVersion()) ?? $this->block;
+			if ($player->getProtocolVersion() >= ProtocolInfo::PROTOCOL_407) {
+				$variant = RuntimeBlockMapping::getInstance($player->getProtocolVersion())->toRuntimeId($block->getFullId());
+			} else {
+				$variant = $block->getId() | ($block->getDamage() << 8);
+			}
+
+			$metadata[self::DATA_VARIANT][1] = $variant;
 		}
 
 		$player->sendDataPacket(AddActorPacket::create(
@@ -213,8 +250,15 @@ class FallingBlock extends Entity
 		}
 
 		foreach ($protocolPlayers as $protocolVersion => $targets) {
-			if (isset($pk->metadata[self::DATA_VARIANT]) && $protocolVersion >= ProtocolInfo::PROTOCOL_223) {
-				$pk->metadata[self::DATA_VARIANT][1] = RuntimeBlockMapping::getInstance($protocolVersion)->toRuntimeId($this->block->getFullId());
+			if (isset($pk->metadata[self::DATA_VARIANT])) {
+				$block = BlockProtocolConvertor::getInstance()->get($this->block, $protocolVersion) ?? $this->block;
+				if ($protocolVersion >= ProtocolInfo::PROTOCOL_407) {
+					$variant = RuntimeBlockMapping::getInstance($protocolVersion)->toRuntimeId($block->getFullId());
+				} else {
+					$variant = $block->getId() | ($block->getDamage() << 8);
+				}
+
+				$pk->metadata[self::DATA_VARIANT][1] = $variant;
 			}
 
 			foreach ($targets as $target) {

@@ -30,6 +30,7 @@ use BadMethodCallException;
 use InvalidStateException;
 use pocketmine\block\Block;
 use pocketmine\item\Item;
+use pocketmine\level\ChunkManager;
 use pocketmine\level\Level;
 use pocketmine\level\Position;
 use pocketmine\math\Vector3;
@@ -58,10 +59,13 @@ abstract class Tile extends Position
 	public const BREWING_STAND = "BrewingStand";
 	public const CAULDRON = "Cauldron";
 	public const CHEST = "Chest";
+	public const DECORATED_POT = "Decorated Pot";
 	public const ENCHANT_TABLE = "EnchantTable";
 	public const ENDER_CHEST = "EnderChest";
 	public const FLOWER_POT = "FlowerPot";
 	public const FURNACE = "Furnace";
+	public const BLAST_FURNACE = "BlastFurnace";
+	public const SMOKER = "Smoker";
 	public const ITEM_FRAME = "ItemFrame";
 	public const MOB_SPAWNER = "MobSpawner";
 	public const SIGN = "Sign";
@@ -70,7 +74,9 @@ abstract class Tile extends Position
 	public const HOPPER = "Hopper";
 	public const NOTE_BLOCK = "NoteBlock";
 	public const JUKEBOX = "Jukebox";
+	public const LECTERN = "Lectern";
 	public const SHULKER_BOX = "ShulkerBox";
+	public const CAMPFIRE = "Campfire";
 
 	/** @var int */
 	public static $tileCount = 1;
@@ -97,27 +103,32 @@ abstract class Tile extends Position
 		self::registerTile(Bed::class, [self::BED, "minecraft:bed"]);
 		self::registerTile(BrewingStand::class, [self::BREWING_STAND, "minecraft:brewing_stand"]);
 		self::registerTile(Chest::class, [self::CHEST, "minecraft:chest"]);
+		self::registerTile(DecoratedPot::class, [self::DECORATED_POT, "minecraft:decorated_pot"]);
 		self::registerTile(EnchantTable::class, [self::ENCHANT_TABLE, "minecraft:enchanting_table"]);
 		self::registerTile(EnderChest::class, [self::ENDER_CHEST, "minecraft:ender_chest"]);
 		self::registerTile(FlowerPot::class, [self::FLOWER_POT, "minecraft:flower_pot"]);
 		self::registerTile(Furnace::class, [self::FURNACE, "minecraft:furnace"]);
+		self::registerTile(BlastFurnace::class, [self::BLAST_FURNACE, "minecraft:blast_furnace"]);
+		self::registerTile(Smoker::class, [self::SMOKER, "minecraft:smoker"]);
 		self::registerTile(ItemFrame::class, [self::ITEM_FRAME]); //this is an entity in PC
 		self::registerTile(Sign::class, [self::SIGN, "minecraft:sign"]);
 		self::registerTile(Skull::class, [self::SKULL, "minecraft:skull"]);
 		self::registerTile(NoteBlock::class, [self::NOTE_BLOCK, "minecraft:noteblock"]);
 		self::registerTile(Jukebox::class, [self::JUKEBOX, "minecraft:jukebox"]);
+		self::registerTile(Lectern::class, [self::LECTERN, "minecraft:lectern"]);
 		self::registerTile(MobSpawner::class, [self::MOB_SPAWNER, "minecraft:mob_spawner"]);
 		self::registerTile(ShulkerBox::class, [self::SHULKER_BOX, "minecraft:shulker_box"]);
 		self::registerTile(Hopper::class, [self::HOPPER, "minecraft:hopper"]);
 		self::registerTile(Beacon::class, [self::BEACON, "minecraft:beacon"]);
 		self::registerTile(Cauldron::class, [self::CAULDRON, "minecraft:cauldron"]);
+		self::registerTile(Campfire::class, [self::CAMPFIRE, "minecraft:campfire"]);
 	}
 
 	/**
 	 * @param string $type
 	 * @param mixed  ...$args
 	 */
-	public static function createTile($type, Level $level, CompoundTag $nbt, ...$args) : ?Tile
+	public static function createTile($type, ChunkManager $level, CompoundTag $nbt, ...$args) : ?Tile
 	{
 		if (isset(self::$knownTiles[$type])) {
 			$class = self::$knownTiles[$type];
@@ -168,17 +179,19 @@ abstract class Tile extends Position
 		return self::$saveNames[static::class];
 	}
 
-	public function __construct(Level $level, CompoundTag $nbt)
+	public function __construct(ChunkManager $level, CompoundTag $nbt)
 	{
-		$this->timings = Timings::getTileEntityTimings($this);
+		if ($level instanceof Level) {
+			$this->timings = Timings::getTileEntityTimings($this);
+		}
 
 		$this->name = "";
 		$this->id = Tile::$tileCount++;
 
-		parent::__construct($nbt->getInt(self::TAG_X), $nbt->getInt(self::TAG_Y), $nbt->getInt(self::TAG_Z), $level);
+		parent::__construct($nbt->getInt(self::TAG_X), $nbt->getInt(self::TAG_Y), $nbt->getInt(self::TAG_Z), ($level instanceof Level) ? $level : null);
 		$this->readSaveData($nbt);
 
-		$this->getLevel()->addTile($this);
+		$level->addTile($this);
 	}
 
 	public function getId() : int

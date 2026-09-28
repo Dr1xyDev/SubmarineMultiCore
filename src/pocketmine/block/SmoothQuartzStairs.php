@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace pocketmine\block;
 
 use pocketmine\item\TieredTool;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 class SmoothQuartzStairs extends Stair
 {
@@ -57,13 +56,5 @@ class SmoothQuartzStairs extends Stair
 	public function getName() : string
 	{
 		return "Smooth Quartz Stairs";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_332) {
-			return BlockFactory::get(BlockIds::QUARTZ_STAIRS, $this->meta);
-		}
-
-		return null;
 	}
 }

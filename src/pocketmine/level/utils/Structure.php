@@ -35,7 +35,6 @@ use pocketmine\nbt\tag\IntTag;
 use pocketmine\nbt\tag\ListTag;
 use pocketmine\nbt\tag\StringTag;
 use UnexpectedValueException;
-
 use function file_get_contents;
 use function is_file;
 

@@ -37,87 +37,41 @@ final class BiomeDefinitionChunkGenData
 		private ?BiomeConsolidatedFeaturesData $consolidatedFeatures,
 		private ?BiomeMountainParamsData $mountainParams,
 		private ?BiomeSurfaceMaterialAdjustmentData $surfaceMaterialAdjustment,
-		private ?BiomeSurfaceMaterialData $surfaceMaterial,
-		private bool $defaultOverworldSurface,
-		private bool $swampSurface,
-		private bool $frozenOceanSurface,
-		private bool $theEndSurface,
-		private ?BiomeMesaSurfaceData $mesaSurface,
-		private ?BiomeCappedSurfaceData $cappedSurface,
 		private ?BiomeOverworldGenRulesData $overworldGenRules,
 		private ?BiomeMultinoiseGenRulesData $multinoiseGenRules,
 		private ?BiomeLegacyWorldGenRulesData $legacyWorldGenRules,
-		private ?array $replacementsData
+		private ?array $replacementsData,
+		private ?int $villageType,
+		private ?BiomeSurfaceBuilderData $surfaceBuilderData,
+		private ?BiomeSurfaceBuilderData $subSurfaceBuilderData
 	) {
 	}
 
-	public function getClimate() : ?BiomeClimateData
-	{
+	public function getClimate() : ?BiomeClimateData{
 		return $this->climate;
 	}
 
-	public function getConsolidatedFeatures() : ?BiomeConsolidatedFeaturesData
-	{
+	public function getConsolidatedFeatures() : ?BiomeConsolidatedFeaturesData{
 		return $this->consolidatedFeatures;
 	}
 
-	public function getMountainParams() : ?BiomeMountainParamsData
-	{
+	public function getMountainParams() : ?BiomeMountainParamsData{
 		return $this->mountainParams;
 	}
 
-	public function getSurfaceMaterialAdjustment() : ?BiomeSurfaceMaterialAdjustmentData
-	{
+	public function getSurfaceMaterialAdjustment() : ?BiomeSurfaceMaterialAdjustmentData{
 		return $this->surfaceMaterialAdjustment;
 	}
 
-	public function getSurfaceMaterial() : ?BiomeSurfaceMaterialData
-	{
-		return $this->surfaceMaterial;
-	}
-
-	public function hasDefaultOverworldSurface() : bool
-	{
-		return $this->defaultOverworldSurface;
-	}
-
-	public function hasSwampSurface() : bool
-	{
-		return $this->swampSurface;
-	}
-
-	public function hasFrozenOceanSurface() : bool
-	{
-		return $this->frozenOceanSurface;
-	}
-
-	public function hasTheEndSurface() : bool
-	{
-		return $this->theEndSurface;
-	}
-
-	public function getMesaSurface() : ?BiomeMesaSurfaceData
-	{
-		return $this->mesaSurface;
-	}
-
-	public function getCappedSurface() : ?BiomeCappedSurfaceData
-	{
-		return $this->cappedSurface;
-	}
-
-	public function getOverworldGenRules() : ?BiomeOverworldGenRulesData
-	{
+	public function getOverworldGenRules() : ?BiomeOverworldGenRulesData{
 		return $this->overworldGenRules;
 	}
 
-	public function getMultinoiseGenRules() : ?BiomeMultinoiseGenRulesData
-	{
+	public function getMultinoiseGenRules() : ?BiomeMultinoiseGenRulesData{
 		return $this->multinoiseGenRules;
 	}
 
-	public function getLegacyWorldGenRules() : ?BiomeLegacyWorldGenRulesData
-	{
+	public function getLegacyWorldGenRules() : ?BiomeLegacyWorldGenRulesData{
 		return $this->legacyWorldGenRules;
 	}
 
@@ -126,33 +80,41 @@ final class BiomeDefinitionChunkGenData
 	 */
 	public function getReplacementsData() : ?array{ return $this->replacementsData; }
 
-	public static function read(NetworkBinaryStream $in, int $protocolVersion) : self
+	public function getVillageType() : ?int{ return $this->villageType; }
+
+	public function getSurfaceBuilderData() : ?BiomeSurfaceBuilderData{ return $this->surfaceBuilderData; }
+
+	public function getSubSurfaceBuilderData() : ?BiomeSurfaceBuilderData{ return $this->subSurfaceBuilderData; }
+
+	public static function read(NetworkBinaryStream $in) : self
 	{
-		$climate = $in->readOptional(fn () => BiomeClimateData::read($in, $protocolVersion));
-		$consolidatedFeatures = $in->readOptional(fn () => BiomeConsolidatedFeaturesData::read($in));
-		$mountainParams = $in->readOptional(fn () => BiomeMountainParamsData::read($in));
-		$surfaceMaterialAdjustment = $in->readOptional(fn () => BiomeSurfaceMaterialAdjustmentData::read($in));
-		$surfaceMaterial = $in->readOptional(fn () => BiomeSurfaceMaterialData::read($in));
-		if ($protocolVersion >= ProtocolInfo::PROTOCOL_844) {
-			$defaultOverworldSurface = $in->getBool();
+		$climate = $in->getOptional(fn () => BiomeClimateData::read($in));
+		$consolidatedFeatures = $in->getOptional(fn () => BiomeConsolidatedFeaturesData::read($in));
+		$mountainParams = $in->getOptional(fn () => BiomeMountainParamsData::read($in));
+		$surfaceMaterialAdjustment = $in->getOptional(fn () => BiomeSurfaceMaterialAdjustmentData::read($in));
+		if ($in->getProtocol() < ProtocolInfo::PROTOCOL_975) {
+			$surfaceBuilderData = BiomeSurfaceBuilderData::read($in);
 		}
 
-		$swampSurface = $in->getBool();
-		$frozenOceanSurface = $in->getBool();
-		$theEndSurface = $in->getBool();
-		$mesaSurface = $in->readOptional(fn () => BiomeMesaSurfaceData::read($in));
-		$cappedSurface = $in->readOptional(fn () => BiomeCappedSurfaceData::read($in));
-		$overworldGenRules = $in->readOptional(fn () => BiomeOverworldGenRulesData::read($in));
-		$multinoiseGenRules = $in->readOptional(fn () => BiomeMultinoiseGenRulesData::read($in));
-		$legacyWorldGenRules = $in->readOptional(fn () => BiomeLegacyWorldGenRulesData::read($in));
-		if ($protocolVersion >= ProtocolInfo::PROTOCOL_859) {
-			$replacementsData = $in->readOptional(function (NetworkBinaryStream $in) : array {
+		$overworldGenRules = $in->getOptional(fn () => BiomeOverworldGenRulesData::read($in));
+		$multinoiseGenRules = $in->getOptional(fn () => BiomeMultinoiseGenRulesData::read($in));
+		$legacyWorldGenRules = $in->getOptional(fn () => BiomeLegacyWorldGenRulesData::read($in));
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_859) {
+			$replacementsData = $in->getOptional(function () use ($in) : array {
 				$result = [];
-				for ($i = 0; $i < $in->getUnsignedVarInt(); ++$i) {
+				for ($i = 0, $count = $in->getUnsignedVarInt(); $i < $count; ++$i) {
 					$result[] = BiomeReplacementData::read($in);
 				}
 				return $result;
 			});
+
+			if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_924) {
+				$villageType = $in->getOptional($in->getByte(...));
+				if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_975) {
+					$surfaceBuilderData = $in->getOptional(fn() => BiomeSurfaceBuilderData::read($in));
+					$subSurfaceBuilderData = $in->getOptional(fn() => BiomeSurfaceBuilderData::read($in));
+				}
+			}
 		}
 
 		return new self(
@@ -160,46 +122,44 @@ final class BiomeDefinitionChunkGenData
 			$consolidatedFeatures,
 			$mountainParams,
 			$surfaceMaterialAdjustment,
-			$surfaceMaterial,
-			$defaultOverworldSurface ?? false,
-			$swampSurface,
-			$frozenOceanSurface,
-			$theEndSurface,
-			$mesaSurface,
-			$cappedSurface,
 			$overworldGenRules,
 			$multinoiseGenRules,
 			$legacyWorldGenRules,
-			$replacementsData ?? null
+			$replacementsData ?? null,
+			$villageType ?? null,
+			$surfaceBuilderData ?? null,
+			$subSurfaceBuilderData ?? null
 		);
 	}
 
-	public function write(NetworkBinaryStream $out, int $protocolVersion) : void
+	public function write(NetworkBinaryStream $out) : void
 	{
-		$out->writeOptional($this->climate, fn (BiomeClimateData $climate) => $climate->write($out, $protocolVersion));
-		$out->writeOptional($this->consolidatedFeatures, fn (BiomeConsolidatedFeaturesData $consolidatedFeatures) => $consolidatedFeatures->write($out));
-		$out->writeOptional($this->mountainParams, fn (BiomeMountainParamsData $mountainParams) => $mountainParams->write($out));
-		$out->writeOptional($this->surfaceMaterialAdjustment, fn (BiomeSurfaceMaterialAdjustmentData $surfaceMaterialAdjustment) => $surfaceMaterialAdjustment->write($out));
-		$out->writeOptional($this->surfaceMaterial, fn (BiomeSurfaceMaterialData $surfaceMaterial) => $surfaceMaterial->write($out));
-		if ($protocolVersion >= ProtocolInfo::PROTOCOL_844) {
-			$out->putBool($this->defaultOverworldSurface);
+		$out->putOptional($this->climate, fn (BiomeClimateData $climate) => $climate->write($out));
+		$out->putOptional($this->consolidatedFeatures, fn (BiomeConsolidatedFeaturesData $consolidatedFeatures) => $consolidatedFeatures->write($out));
+		$out->putOptional($this->mountainParams, fn (BiomeMountainParamsData $mountainParams) => $mountainParams->write($out));
+		$out->putOptional($this->surfaceMaterialAdjustment, fn (BiomeSurfaceMaterialAdjustmentData $surfaceMaterialAdjustment) => $surfaceMaterialAdjustment->write($out));
+		if ($out->getProtocol() < ProtocolInfo::PROTOCOL_975) {
+			($this->surfaceBuilderData ?? new BiomeSurfaceBuilderData(null, true, true, true, true, null, null, null))->write($out);
 		}
 
-		$out->putBool($this->swampSurface);
-		$out->putBool($this->frozenOceanSurface);
-		$out->putBool($this->theEndSurface);
-		$out->writeOptional($this->mesaSurface, fn (BiomeMesaSurfaceData $mesaSurface) => $mesaSurface->write($out));
-		$out->writeOptional($this->cappedSurface, fn (BiomeCappedSurfaceData $cappedSurface) => $cappedSurface->write($out));
-		$out->writeOptional($this->overworldGenRules, fn (BiomeOverworldGenRulesData $overworldGenRules) => $overworldGenRules->write($out));
-		$out->writeOptional($this->multinoiseGenRules, fn (BiomeMultinoiseGenRulesData $multinoiseGenRules) => $multinoiseGenRules->write($out));
-		$out->writeOptional($this->legacyWorldGenRules, fn (BiomeLegacyWorldGenRulesData $legacyWorldGenRules) => $legacyWorldGenRules->write($out));
-		if ($protocolVersion >= ProtocolInfo::PROTOCOL_859) {
-			$out->writeOptional($this->replacementsData, function(NetworkBinaryStream $out, array $v) : void{
+		$out->putOptional($this->overworldGenRules, fn (BiomeOverworldGenRulesData $overworldGenRules) => $overworldGenRules->write($out));
+		$out->putOptional($this->multinoiseGenRules, fn (BiomeMultinoiseGenRulesData $multinoiseGenRules) => $multinoiseGenRules->write($out));
+		$out->putOptional($this->legacyWorldGenRules, fn (BiomeLegacyWorldGenRulesData $legacyWorldGenRules) => $legacyWorldGenRules->write($out));
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_859) {
+			$out->putOptional($this->replacementsData, function(array $v) use ($out) : void{
 				$out->putUnsignedVarInt(count($v));
 				foreach($v as $item){
 					$item->write($out);
 				}
 			});
+
+			if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_924) {
+				$out->putOptional($this->villageType, $out->putByte(...));
+				if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_975) {
+					$out->putOptional($this->surfaceBuilderData, fn(BiomeSurfaceBuilderData $v) => $v->write($out));
+					$out->putOptional($this->subSurfaceBuilderData, fn(BiomeSurfaceBuilderData $v) => $v->write($out));
+				}
+			}
 		}
 	}
 }

@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class WarpedSlab extends WoodenSlab
 {
 	protected $id = self::WARPED_SLAB;
@@ -61,14 +59,5 @@ class WarpedSlab extends WoodenSlab
 	public function getFlammability() : int
 	{
 		return 0;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_419) {
-			return BlockFactory::get(BlockIds::WOODEN_SLAB, ($this->isTop() ? 0x08 : 0));
-		}
-
-		return null;
 	}
 }

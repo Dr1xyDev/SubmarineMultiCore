@@ -42,7 +42,7 @@ class ModalFormResponsePacket extends DataPacket
 	protected function decodePayload() : void
 	{
 		$this->formId = $this->getUnsignedVarInt();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_544) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_544) {
 			$this->formData = $this->getBool() ? $this->getString() : null;
 			$this->cancelReason = $this->getBool() ? $this->getByte() : null;
 		} else {
@@ -53,7 +53,7 @@ class ModalFormResponsePacket extends DataPacket
 	protected function encodePayload() : void
 	{
 		$this->putUnsignedVarInt($this->formId);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_544) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_544) {
 			if ($this->formData !== null) {
 				$this->putBool(true);
 				$this->putString($this->formData);

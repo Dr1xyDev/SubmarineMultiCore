@@ -51,7 +51,7 @@ abstract class Task
 		return Utils::getNiceClassName($this);
 	}
 
-	final public function setHandler(TaskHandler $taskHandler = null)
+	final public function setHandler(?TaskHandler $taskHandler = null)
 	{
 		if ($this->taskHandler === null || $taskHandler === null) {
 			$this->taskHandler = $taskHandler;

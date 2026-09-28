@@ -25,12 +25,16 @@ namespace pocketmine\block;
 use InvalidArgumentException;
 use pocketmine\item\Item;
 use pocketmine\level\Position;
+use pocketmine\math\Vector3;
+use pocketmine\network\mcpe\convert\block\RuntimeBlockMapping;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use RuntimeException;
 use SplFixedArray;
 
 use function array_fill;
 use function array_filter;
 use function min;
+use function str_contains;
 
 /**
  * Manages block registration and instance creation
@@ -106,7 +110,7 @@ class BlockFactory
 			self::registerBlock(new GoldOre());
 			self::registerBlock(new IronOre());
 			self::registerBlock(new CoalOre());
-			self::registerBlock(new Log());
+			self::registerBlock(new Log(BlockIds::LOG, 0, "Log"));
 			self::registerBlock(new Leaves());
 			self::registerBlock(new Sponge());
 			self::registerBlock(new Glass());
@@ -124,7 +128,7 @@ class BlockFactory
 			//TODO: PISTON
 			//TODO: PISTONARMCOLLISION
 			self::registerBlock(new Wool());
-			self::registerBlock(new Element(Block::ELEMENT_0, 0, "???"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_0, 0, "???"));
 			self::registerBlock(new Dandelion());
 			self::registerBlock(new Flower());
 			self::registerBlock(new BrownMushroom());
@@ -141,7 +145,7 @@ class BlockFactory
 			self::registerBlock(new Torch());
 			self::registerBlock(new Fire());
 			self::registerBlock(new MonsterSpawner());
-			self::registerBlock(new WoodenStairs(Block::OAK_STAIRS, 0, "Oak Stairs"));
+			self::registerBlock(new WoodenStairs(BlockIds::OAK_STAIRS, 0, "Oak Stairs"));
 			self::registerBlock(new Chest());
 			//TODO: REDSTONE_WIRE
 			self::registerBlock(new DiamondOre());
@@ -151,21 +155,21 @@ class BlockFactory
 			self::registerBlock(new Farmland());
 			self::registerBlock(new Furnace());
 			self::registerBlock(new BurningFurnace());
-			self::registerBlock(new SignPost(Block::SIGN_POST, 0, "Oak Sign Post", Item::SIGN, Block::WALL_SIGN));
-			self::registerBlock(new WoodenDoor(Block::OAK_DOOR_BLOCK, 0, "Oak Door", Item::OAK_DOOR));
+			self::registerBlock(new SignPost(BlockIds::SIGN_POST, 0, "Oak Sign Post", Item::SIGN, BlockIds::WALL_SIGN));
+			self::registerBlock(new WoodenDoor(BlockIds::OAK_DOOR_BLOCK, 0, "Oak Door", Item::OAK_DOOR));
 			self::registerBlock(new Ladder());
 			self::registerBlock(new Rail());
 			self::registerBlock(new CobblestoneStairs());
-			self::registerBlock(new WallSign(Block::WALL_SIGN, 0, "Oak Sign Post", Item::SIGN, Block::WALL_SIGN));
+			self::registerBlock(new WallSign(BlockIds::WALL_SIGN, 0, "Oak Sign Post", Item::SIGN, BlockIds::WALL_SIGN));
 			self::registerBlock(new Lever());
-			self::registerBlock(new StonePressurePlate(Block::STONE_PRESSURE_PLATE, 0, "Stone Pressure Plate"));
+			self::registerBlock(new StonePressurePlate(BlockIds::STONE_PRESSURE_PLATE, 0, "Stone Pressure Plate"));
 			self::registerBlock(new IronDoor());
-			self::registerBlock(new WoodenPressurePlate(Block::WOODEN_PRESSURE_PLATE, 0, "Wooden Pressure Plate"));
+			self::registerBlock(new WoodenPressurePlate(BlockIds::WOODEN_PRESSURE_PLATE, 0, "Wooden Pressure Plate"));
 			self::registerBlock(new RedstoneOre());
 			self::registerBlock(new GlowingRedstoneOre());
 			self::registerBlock(new RedstoneTorchUnlit());
 			self::registerBlock(new RedstoneTorch());
-			self::registerBlock(new StoneButton(Block::STONE_BUTTON, 0, "Stone Button"));
+			self::registerBlock(new StoneButton(BlockIds::STONE_BUTTON, 0, "Stone Button"));
 			self::registerBlock(new SnowLayer());
 			self::registerBlock(new Ice());
 			self::registerBlock(new Snow());
@@ -184,7 +188,7 @@ class BlockFactory
 			//TODO: REPEATER_BLOCK
 			//TODO: POWERED_REPEATER
 			self::registerBlock(new InvisibleBedrock());
-			self::registerBlock(new WoodenTrapdoor(Block::WOODEN_TRAPDOOR, 0, "Wooden Trapdoor"));
+			self::registerBlock(new WoodenTrapdoor(BlockIds::WOODEN_TRAPDOOR, 0, "Wooden Trapdoor"));
 			self::registerBlock(new InfestedStone());
 			self::registerBlock(new StoneBricks());
 			self::registerBlock(new BrownMushroomBlock());
@@ -195,12 +199,12 @@ class BlockFactory
 			self::registerBlock(new PumpkinStem());
 			self::registerBlock(new MelonStem());
 			self::registerBlock(new Vine());
-			self::registerBlock(new FenceGate(Block::OAK_FENCE_GATE, 0, "Oak Fence Gate"));
+			self::registerBlock(new FenceGate(BlockIds::OAK_FENCE_GATE, 0, "Oak Fence Gate"));
 			self::registerBlock(new BrickStairs());
 			self::registerBlock(new StoneBrickStairs());
 			self::registerBlock(new Mycelium());
 			self::registerBlock(new WaterLily());
-			self::registerBlock(new NetherBrick(Block::NETHER_BRICK_BLOCK, 0, "Nether Bricks"));
+			self::registerBlock(new NetherBrick(BlockIds::NETHER_BRICK_BLOCK, 0, "Nether Bricks"));
 			self::registerBlock(new NetherBrickFence());
 			self::registerBlock(new NetherBrickStairs());
 			self::registerBlock(new NetherWartPlant());
@@ -222,16 +226,16 @@ class BlockFactory
 			self::registerBlock(new TripwireHook());
 			self::registerBlock(new Tripwire());
 			self::registerBlock(new Emerald());
-			self::registerBlock(new WoodenStairs(Block::SPRUCE_STAIRS, 0, "Spruce Stairs"));
-			self::registerBlock(new WoodenStairs(Block::BIRCH_STAIRS, 0, "Birch Stairs"));
-			self::registerBlock(new WoodenStairs(Block::JUNGLE_STAIRS, 0, "Jungle Stairs"));
-			//TODO: COMMAND_BLOCK
+			self::registerBlock(new WoodenStairs(BlockIds::SPRUCE_STAIRS, 0, "Spruce Stairs"));
+			self::registerBlock(new WoodenStairs(BlockIds::BIRCH_STAIRS, 0, "Birch Stairs"));
+			self::registerBlock(new WoodenStairs(BlockIds::JUNGLE_STAIRS, 0, "Jungle Stairs"));
+			self::registerBlock(new CommandBlock());
 			self::registerBlock(new Beacon());
-			self::registerBlock(new CobblestoneWall());
+			self::registerBlock(new BrickWall(BlockIds::COBBLESTONE_WALL, 0, "Cobblestone Wall"));
 			self::registerBlock(new FlowerPot());
 			self::registerBlock(new Carrot());
 			self::registerBlock(new Potato());
-			self::registerBlock(new WoodenButton(Block::WOODEN_BUTTON, 0, "Wooden Button"));
+			self::registerBlock(new WoodenButton(BlockIds::WOODEN_BUTTON, 0, "Wooden Button"));
 			self::registerBlock(new Skull());
 			self::registerBlock(new Anvil());
 			self::registerBlock(new TrappedChest());
@@ -250,11 +254,11 @@ class BlockFactory
 			self::registerBlock(new StainedHardenedClay());
 			self::registerBlock(new StainedGlassPane());
 			self::registerBlock(new Leaves2());
-			self::registerBlock(new Log2());
-			self::registerBlock(new WoodenStairs(Block::ACACIA_STAIRS, 0, "Acacia Stairs"));
-			self::registerBlock(new WoodenStairs(Block::DARK_OAK_STAIRS, 0, "Dark Oak Stairs"));
+			self::registerBlock(new Log2(BlockIds::LOG2, 0, "Log2"));
+			self::registerBlock(new WoodenStairs(BlockIds::ACACIA_STAIRS, 0, "Acacia Stairs"));
+			self::registerBlock(new WoodenStairs(BlockIds::DARK_OAK_STAIRS, 0, "Dark Oak Stairs"));
 			self::registerBlock(new Slime());
-			self::registerBlock(new IronTrapdoor(Block::IRON_TRAPDOOR, 0, "Iron Trapdoor"));
+			self::registerBlock(new IronTrapdoor(BlockIds::IRON_TRAPDOOR, 0, "Iron Trapdoor"));
 			self::registerBlock(new Prismarine());
 			self::registerBlock(new SeaLantern());
 			self::registerBlock(new HayBale());
@@ -270,24 +274,24 @@ class BlockFactory
 			self::registerBlock(new RedSandstoneStairs());
 			self::registerBlock(new DoubleStoneSlab2());
 			self::registerBlock(new StoneSlab2());
-			self::registerBlock(new FenceGate(Block::SPRUCE_FENCE_GATE, 0, "Spruce Fence Gate"));
-			self::registerBlock(new FenceGate(Block::BIRCH_FENCE_GATE, 0, "Birch Fence Gate"));
-			self::registerBlock(new FenceGate(Block::JUNGLE_FENCE_GATE, 0, "Jungle Fence Gate"));
-			self::registerBlock(new FenceGate(Block::DARK_OAK_FENCE_GATE, 0, "Dark Oak Fence Gate"));
-			self::registerBlock(new FenceGate(Block::ACACIA_FENCE_GATE, 0, "Acacia Fence Gate"));
-			//TODO: REPEATING_COMMAND_BLOCK
-			//TODO: CHAIN_COMMAND_BLOCK
+			self::registerBlock(new FenceGate(BlockIds::SPRUCE_FENCE_GATE, 0, "Spruce Fence Gate"));
+			self::registerBlock(new FenceGate(BlockIds::BIRCH_FENCE_GATE, 0, "Birch Fence Gate"));
+			self::registerBlock(new FenceGate(BlockIds::JUNGLE_FENCE_GATE, 0, "Jungle Fence Gate"));
+			self::registerBlock(new FenceGate(BlockIds::DARK_OAK_FENCE_GATE, 0, "Dark Oak Fence Gate"));
+			self::registerBlock(new FenceGate(BlockIds::ACACIA_FENCE_GATE, 0, "Acacia Fence Gate"));
+			self::registerBlock(new RepeatingCommandBlock());
+			self::registerBlock(new ChainCommandBlock());
 			//TODO: HARD_GRASS_PANE
 			//TODO: HARD_STAINED_GLASS_PANE
 			//TODO: CHEMICAL_HEAT
-			self::registerBlock(new WoodenDoor(Block::SPRUCE_DOOR_BLOCK, 0, "Spruce Door", Item::SPRUCE_DOOR));
-			self::registerBlock(new WoodenDoor(Block::BIRCH_DOOR_BLOCK, 0, "Birch Door", Item::BIRCH_DOOR));
-			self::registerBlock(new WoodenDoor(Block::JUNGLE_DOOR_BLOCK, 0, "Jungle Door", Item::JUNGLE_DOOR));
-			self::registerBlock(new WoodenDoor(Block::ACACIA_DOOR_BLOCK, 0, "Acacia Door", Item::ACACIA_DOOR));
-			self::registerBlock(new WoodenDoor(Block::DARK_OAK_DOOR_BLOCK, 0, "Dark Oak Door", Item::DARK_OAK_DOOR));
+			self::registerBlock(new WoodenDoor(BlockIds::SPRUCE_DOOR_BLOCK, 0, "Spruce Door", Item::SPRUCE_DOOR));
+			self::registerBlock(new WoodenDoor(BlockIds::BIRCH_DOOR_BLOCK, 0, "Birch Door", Item::BIRCH_DOOR));
+			self::registerBlock(new WoodenDoor(BlockIds::JUNGLE_DOOR_BLOCK, 0, "Jungle Door", Item::JUNGLE_DOOR));
+			self::registerBlock(new WoodenDoor(BlockIds::ACACIA_DOOR_BLOCK, 0, "Acacia Door", Item::ACACIA_DOOR));
+			self::registerBlock(new WoodenDoor(BlockIds::DARK_OAK_DOOR_BLOCK, 0, "Dark Oak Door", Item::DARK_OAK_DOOR));
 			self::registerBlock(new GrassPath());
 			self::registerBlock(new ItemFrame());
-			//TODO: CHORUS_FLOWER
+			self::registerBlock(new ChorusFlower());
 			self::registerBlock(new Purpur());
 			//TODO: COLORED_TORCH_RG
 			self::registerBlock(new PurpurStairs());
@@ -301,31 +305,31 @@ class BlockFactory
 			//TODO: BORDER_BLOCK
 			self::registerBlock(new Magma());
 			self::registerBlock(new NetherWartBlock());
-			self::registerBlock(new NetherBrick(Block::RED_NETHER_BRICK, 0, "Red Nether Bricks"));
+			self::registerBlock(new NetherBrick(BlockIds::RED_NETHER_BRICK, 0, "Red Nether Bricks"));
 			self::registerBlock(new BoneBlock());
 			self::registerBlock(new ShulkerBox());
-			self::registerBlock(new GlazedTerracotta(Block::PURPLE_GLAZED_TERRACOTTA, 0, "Purple Glazed Terracotta"));
-			self::registerBlock(new GlazedTerracotta(Block::WHITE_GLAZED_TERRACOTTA, 0, "White Glazed Terracotta"));
-			self::registerBlock(new GlazedTerracotta(Block::ORANGE_GLAZED_TERRACOTTA, 0, "Orange Glazed Terracotta"));
-			self::registerBlock(new GlazedTerracotta(Block::MAGENTA_GLAZED_TERRACOTTA, 0, "Magenta Glazed Terracotta"));
-			self::registerBlock(new GlazedTerracotta(Block::LIGHT_BLUE_GLAZED_TERRACOTTA, 0, "Light Blue Glazed Terracotta"));
-			self::registerBlock(new GlazedTerracotta(Block::YELLOW_GLAZED_TERRACOTTA, 0, "Yellow Glazed Terracotta"));
-			self::registerBlock(new GlazedTerracotta(Block::LIME_GLAZED_TERRACOTTA, 0, "Lime Glazed Terracotta"));
-			self::registerBlock(new GlazedTerracotta(Block::PINK_GLAZED_TERRACOTTA, 0, "Pink Glazed Terracotta"));
-			self::registerBlock(new GlazedTerracotta(Block::GRAY_GLAZED_TERRACOTTA, 0, "Grey Glazed Terracotta"));
-			self::registerBlock(new GlazedTerracotta(Block::SILVER_GLAZED_TERRACOTTA, 0, "Light Grey Glazed Terracotta"));
-			self::registerBlock(new GlazedTerracotta(Block::CYAN_GLAZED_TERRACOTTA, 0, "Cyan Glazed Terracotta"));
+			self::registerBlock(new GlazedTerracotta(BlockIds::PURPLE_GLAZED_TERRACOTTA, 0, "Purple Glazed Terracotta"));
+			self::registerBlock(new GlazedTerracotta(BlockIds::WHITE_GLAZED_TERRACOTTA, 0, "White Glazed Terracotta"));
+			self::registerBlock(new GlazedTerracotta(BlockIds::ORANGE_GLAZED_TERRACOTTA, 0, "Orange Glazed Terracotta"));
+			self::registerBlock(new GlazedTerracotta(BlockIds::MAGENTA_GLAZED_TERRACOTTA, 0, "Magenta Glazed Terracotta"));
+			self::registerBlock(new GlazedTerracotta(BlockIds::LIGHT_BLUE_GLAZED_TERRACOTTA, 0, "Light Blue Glazed Terracotta"));
+			self::registerBlock(new GlazedTerracotta(BlockIds::YELLOW_GLAZED_TERRACOTTA, 0, "Yellow Glazed Terracotta"));
+			self::registerBlock(new GlazedTerracotta(BlockIds::LIME_GLAZED_TERRACOTTA, 0, "Lime Glazed Terracotta"));
+			self::registerBlock(new GlazedTerracotta(BlockIds::PINK_GLAZED_TERRACOTTA, 0, "Pink Glazed Terracotta"));
+			self::registerBlock(new GlazedTerracotta(BlockIds::GRAY_GLAZED_TERRACOTTA, 0, "Grey Glazed Terracotta"));
+			self::registerBlock(new GlazedTerracotta(BlockIds::SILVER_GLAZED_TERRACOTTA, 0, "Light Grey Glazed Terracotta"));
+			self::registerBlock(new GlazedTerracotta(BlockIds::CYAN_GLAZED_TERRACOTTA, 0, "Cyan Glazed Terracotta"));
 
-			self::registerBlock(new GlazedTerracotta(Block::BLUE_GLAZED_TERRACOTTA, 0, "Blue Glazed Terracotta"));
-			self::registerBlock(new GlazedTerracotta(Block::BROWN_GLAZED_TERRACOTTA, 0, "Brown Glazed Terracotta"));
-			self::registerBlock(new GlazedTerracotta(Block::GREEN_GLAZED_TERRACOTTA, 0, "Green Glazed Terracotta"));
-			self::registerBlock(new GlazedTerracotta(Block::RED_GLAZED_TERRACOTTA, 0, "Red Glazed Terracotta"));
-			self::registerBlock(new GlazedTerracotta(Block::BLACK_GLAZED_TERRACOTTA, 0, "Black Glazed Terracotta"));
+			self::registerBlock(new GlazedTerracotta(BlockIds::BLUE_GLAZED_TERRACOTTA, 0, "Blue Glazed Terracotta"));
+			self::registerBlock(new GlazedTerracotta(BlockIds::BROWN_GLAZED_TERRACOTTA, 0, "Brown Glazed Terracotta"));
+			self::registerBlock(new GlazedTerracotta(BlockIds::GREEN_GLAZED_TERRACOTTA, 0, "Green Glazed Terracotta"));
+			self::registerBlock(new GlazedTerracotta(BlockIds::RED_GLAZED_TERRACOTTA, 0, "Red Glazed Terracotta"));
+			self::registerBlock(new GlazedTerracotta(BlockIds::BLACK_GLAZED_TERRACOTTA, 0, "Black Glazed Terracotta"));
 			self::registerBlock(new Concrete());
 			self::registerBlock(new ConcretePowder());
 			//TODO: CHEMISTRY_TABLE
 			//TODO: UNDERWATER_TORCH
-			//TODO: CHORUS_PLANT
+			self::registerBlock(new ChorusPlant());
 			self::registerBlock(new StainedGlass());
 			//TODO: CAMERA
 			self::registerBlock(new Podzol());
@@ -333,143 +337,143 @@ class BlockFactory
 			self::registerBlock(new Stonecutter());
 			self::registerBlock(new GlowingObsidian());
 			self::registerBlock(new NetherReactor());
-			self::registerBlock(new InfoUpdate(Block::INFO_UPDATE, 0, "update!"));
-			self::registerBlock(new InfoUpdate(Block::INFO_UPDATE2, 0, "ate!upd"));
+			self::registerBlock(new InfoUpdate(BlockIds::INFO_UPDATE, 0, "update!"));
+			self::registerBlock(new InfoUpdate(BlockIds::INFO_UPDATE2, 0, "ate!upd"));
 			//TODO: MOVINGBLOCK
 			//TODO: OBSERVER
 			//TODO: STRUCTURE_BLOCK
 			//TODO: HARD_GLASS
 			//TODO: HARD_STAINED_GLASS
-			self::registerBlock(new Reserved6(Block::RESERVED6, 0, "reserved6"));
+			self::registerBlock(new Reserved6(BlockIds::RESERVED6, 0, "reserved6"));
 
 			self::registerBlock(new PrismarineStairs());
 			self::registerBlock(new DarkPrismarineStairs());
 			self::registerBlock(new PrismarineBricksStairs());
-			self::registerBlock(new StrippedLog(Block::STRIPPED_SPRUCE_LOG, 0, "Spruce"));
-			self::registerBlock(new StrippedLog(Block::STRIPPED_BIRCH_LOG, 0, "Birch"));
-			self::registerBlock(new StrippedLog(Block::STRIPPED_JUNGLE_LOG, 0, "Jungle"));
-			self::registerBlock(new StrippedLog(Block::STRIPPED_ACACIA_LOG, 0, "Acacia"));
-			self::registerBlock(new StrippedLog(Block::STRIPPED_DARK_OAK_LOG, 0, "Dark Oak"));
-			self::registerBlock(new StrippedLog(Block::STRIPPED_OAK_LOG, 0, "Oak"));
+			self::registerBlock(new StrippedLog(BlockIds::STRIPPED_SPRUCE_LOG, 0, "Spruce"));
+			self::registerBlock(new StrippedLog(BlockIds::STRIPPED_BIRCH_LOG, 0, "Birch"));
+			self::registerBlock(new StrippedLog(BlockIds::STRIPPED_JUNGLE_LOG, 0, "Jungle"));
+			self::registerBlock(new StrippedLog(BlockIds::STRIPPED_ACACIA_LOG, 0, "Acacia"));
+			self::registerBlock(new StrippedLog(BlockIds::STRIPPED_DARK_OAK_LOG, 0, "Dark Oak"));
+			self::registerBlock(new StrippedLog(BlockIds::STRIPPED_OAK_LOG, 0, "Oak"));
 			self::registerBlock(new BlueIce());
-			self::registerBlock(new Element(Block::ELEMENT_1, 0, "Hydrogen"));
-			self::registerBlock(new Element(Block::ELEMENT_2, 0, "Helium"));
-			self::registerBlock(new Element(Block::ELEMENT_3, 0, "Lithium"));
-			self::registerBlock(new Element(Block::ELEMENT_4, 0, "Beryllium"));
-			self::registerBlock(new Element(Block::ELEMENT_5, 0, "Boron"));
-			self::registerBlock(new Element(Block::ELEMENT_6, 0, "Carbon"));
-			self::registerBlock(new Element(Block::ELEMENT_7, 0, "Nitrogen"));
-			self::registerBlock(new Element(Block::ELEMENT_8, 0, "Oxygen"));
-			self::registerBlock(new Element(Block::ELEMENT_9, 0, "Fluorine"));
-			self::registerBlock(new Element(Block::ELEMENT_10, 0, "Neon"));
-			self::registerBlock(new Element(Block::ELEMENT_11, 0, "Sodium"));
-			self::registerBlock(new Element(Block::ELEMENT_12, 0, "Magnesium"));
-			self::registerBlock(new Element(Block::ELEMENT_13, 0, "Aluminum"));
-			self::registerBlock(new Element(Block::ELEMENT_14, 0, "Silicon"));
-			self::registerBlock(new Element(Block::ELEMENT_15, 0, "Phosphorus"));
-			self::registerBlock(new Element(Block::ELEMENT_16, 0, "Sulfur"));
-			self::registerBlock(new Element(Block::ELEMENT_17, 0, "Chlorine"));
-			self::registerBlock(new Element(Block::ELEMENT_18, 0, "Argon"));
-			self::registerBlock(new Element(Block::ELEMENT_19, 0, "Potassium"));
-			self::registerBlock(new Element(Block::ELEMENT_20, 0, "Calcium"));
-			self::registerBlock(new Element(Block::ELEMENT_21, 0, "Scandium"));
-			self::registerBlock(new Element(Block::ELEMENT_22, 0, "Titanium"));
-			self::registerBlock(new Element(Block::ELEMENT_23, 0, "Vanadium"));
-			self::registerBlock(new Element(Block::ELEMENT_24, 0, "Chromium"));
-			self::registerBlock(new Element(Block::ELEMENT_25, 0, "Manganese"));
-			self::registerBlock(new Element(Block::ELEMENT_26, 0, "Iron"));
-			self::registerBlock(new Element(Block::ELEMENT_27, 0, "Cobalt"));
-			self::registerBlock(new Element(Block::ELEMENT_28, 0, "Nickel"));
-			self::registerBlock(new Element(Block::ELEMENT_29, 0, "Copper"));
-			self::registerBlock(new Element(Block::ELEMENT_30, 0, "Zinc"));
-			self::registerBlock(new Element(Block::ELEMENT_31, 0, "Gallium"));
-			self::registerBlock(new Element(Block::ELEMENT_32, 0, "Germanium"));
-			self::registerBlock(new Element(Block::ELEMENT_33, 0, "Arsenic"));
-			self::registerBlock(new Element(Block::ELEMENT_34, 0, "Selenium"));
-			self::registerBlock(new Element(Block::ELEMENT_35, 0, "Bromine"));
-			self::registerBlock(new Element(Block::ELEMENT_36, 0, "Krypton"));
-			self::registerBlock(new Element(Block::ELEMENT_37, 0, "Rubidium"));
-			self::registerBlock(new Element(Block::ELEMENT_38, 0, "Strontium"));
-			self::registerBlock(new Element(Block::ELEMENT_39, 0, "Yttrium"));
-			self::registerBlock(new Element(Block::ELEMENT_40, 0, "Zirconium"));
-			self::registerBlock(new Element(Block::ELEMENT_41, 0, "Niobium"));
-			self::registerBlock(new Element(Block::ELEMENT_42, 0, "Molybdenum"));
-			self::registerBlock(new Element(Block::ELEMENT_43, 0, "Technetium"));
-			self::registerBlock(new Element(Block::ELEMENT_44, 0, "Ruthenium"));
-			self::registerBlock(new Element(Block::ELEMENT_45, 0, "Rhodium"));
-			self::registerBlock(new Element(Block::ELEMENT_46, 0, "Palladium"));
-			self::registerBlock(new Element(Block::ELEMENT_47, 0, "Silver"));
-			self::registerBlock(new Element(Block::ELEMENT_48, 0, "Cadmium"));
-			self::registerBlock(new Element(Block::ELEMENT_49, 0, "Indium"));
-			self::registerBlock(new Element(Block::ELEMENT_50, 0, "Tin"));
-			self::registerBlock(new Element(Block::ELEMENT_51, 0, "Antimony"));
-			self::registerBlock(new Element(Block::ELEMENT_52, 0, "Tellurium"));
-			self::registerBlock(new Element(Block::ELEMENT_53, 0, "Iodine"));
-			self::registerBlock(new Element(Block::ELEMENT_54, 0, "Xenon"));
-			self::registerBlock(new Element(Block::ELEMENT_55, 0, "Cesium"));
-			self::registerBlock(new Element(Block::ELEMENT_56, 0, "Barium"));
-			self::registerBlock(new Element(Block::ELEMENT_57, 0, "Lanthanum"));
-			self::registerBlock(new Element(Block::ELEMENT_58, 0, "Cerium"));
-			self::registerBlock(new Element(Block::ELEMENT_59, 0, "Praseodymium"));
-			self::registerBlock(new Element(Block::ELEMENT_60, 0, "Neodymium"));
-			self::registerBlock(new Element(Block::ELEMENT_61, 0, "Promethium"));
-			self::registerBlock(new Element(Block::ELEMENT_62, 0, "Samarium"));
-			self::registerBlock(new Element(Block::ELEMENT_63, 0, "Europium"));
-			self::registerBlock(new Element(Block::ELEMENT_64, 0, "Gadolinium"));
-			self::registerBlock(new Element(Block::ELEMENT_65, 0, "Terbium"));
-			self::registerBlock(new Element(Block::ELEMENT_66, 0, "Dysprosium"));
-			self::registerBlock(new Element(Block::ELEMENT_67, 0, "Holmium"));
-			self::registerBlock(new Element(Block::ELEMENT_68, 0, "Erbium"));
-			self::registerBlock(new Element(Block::ELEMENT_69, 0, "Thulium"));
-			self::registerBlock(new Element(Block::ELEMENT_70, 0, "Ytterbium"));
-			self::registerBlock(new Element(Block::ELEMENT_71, 0, "Lutetium"));
-			self::registerBlock(new Element(Block::ELEMENT_72, 0, "Hafnium"));
-			self::registerBlock(new Element(Block::ELEMENT_73, 0, "Tantalum"));
-			self::registerBlock(new Element(Block::ELEMENT_74, 0, "Tungsten"));
-			self::registerBlock(new Element(Block::ELEMENT_75, 0, "Rhenium"));
-			self::registerBlock(new Element(Block::ELEMENT_76, 0, "Osmium"));
-			self::registerBlock(new Element(Block::ELEMENT_77, 0, "Iridium"));
-			self::registerBlock(new Element(Block::ELEMENT_78, 0, "Platinum"));
-			self::registerBlock(new Element(Block::ELEMENT_79, 0, "Gold"));
-			self::registerBlock(new Element(Block::ELEMENT_80, 0, "Mercury"));
-			self::registerBlock(new Element(Block::ELEMENT_81, 0, "Thallium"));
-			self::registerBlock(new Element(Block::ELEMENT_82, 0, "Lead"));
-			self::registerBlock(new Element(Block::ELEMENT_83, 0, "Bismuth"));
-			self::registerBlock(new Element(Block::ELEMENT_84, 0, "Polonium"));
-			self::registerBlock(new Element(Block::ELEMENT_85, 0, "Astatine"));
-			self::registerBlock(new Element(Block::ELEMENT_86, 0, "Radon"));
-			self::registerBlock(new Element(Block::ELEMENT_87, 0, "Francium"));
-			self::registerBlock(new Element(Block::ELEMENT_88, 0, "Radium"));
-			self::registerBlock(new Element(Block::ELEMENT_89, 0, "Actinium"));
-			self::registerBlock(new Element(Block::ELEMENT_90, 0, "Thorium"));
-			self::registerBlock(new Element(Block::ELEMENT_91, 0, "Protactinium"));
-			self::registerBlock(new Element(Block::ELEMENT_92, 0, "Uranium"));
-			self::registerBlock(new Element(Block::ELEMENT_93, 0, "Neptunium"));
-			self::registerBlock(new Element(Block::ELEMENT_94, 0, "Plutonium"));
-			self::registerBlock(new Element(Block::ELEMENT_95, 0, "Americium"));
-			self::registerBlock(new Element(Block::ELEMENT_96, 0, "Curium"));
-			self::registerBlock(new Element(Block::ELEMENT_97, 0, "Berkelium"));
-			self::registerBlock(new Element(Block::ELEMENT_98, 0, "Californium"));
-			self::registerBlock(new Element(Block::ELEMENT_99, 0, "Einsteinium"));
-			self::registerBlock(new Element(Block::ELEMENT_100, 0, "Fermium"));
-			self::registerBlock(new Element(Block::ELEMENT_101, 0, "Mendelevium"));
-			self::registerBlock(new Element(Block::ELEMENT_102, 0, "Nobelium"));
-			self::registerBlock(new Element(Block::ELEMENT_103, 0, "Lawrencium"));
-			self::registerBlock(new Element(Block::ELEMENT_104, 0, "Rutherfordium"));
-			self::registerBlock(new Element(Block::ELEMENT_105, 0, "Dubnium"));
-			self::registerBlock(new Element(Block::ELEMENT_106, 0, "Seaborgium"));
-			self::registerBlock(new Element(Block::ELEMENT_107, 0, "Bohrium"));
-			self::registerBlock(new Element(Block::ELEMENT_108, 0, "Hassium"));
-			self::registerBlock(new Element(Block::ELEMENT_109, 0, "Meitnerium"));
-			self::registerBlock(new Element(Block::ELEMENT_110, 0, "Darmstadtium"));
-			self::registerBlock(new Element(Block::ELEMENT_111, 0, "Roentgenium"));
-			self::registerBlock(new Element(Block::ELEMENT_112, 0, "Copernicium"));
-			self::registerBlock(new Element(Block::ELEMENT_113, 0, "Nihonium"));
-			self::registerBlock(new Element(Block::ELEMENT_114, 0, "Flerovium"));
-			self::registerBlock(new Element(Block::ELEMENT_115, 0, "Moscovium"));
-			self::registerBlock(new Element(Block::ELEMENT_116, 0, "Livermorium"));
-			self::registerBlock(new Element(Block::ELEMENT_117, 0, "Tennessine"));
-			self::registerBlock(new Element(Block::ELEMENT_118, 0, "Oganesson"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_1, 0, "Hydrogen"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_2, 0, "Helium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_3, 0, "Lithium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_4, 0, "Beryllium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_5, 0, "Boron"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_6, 0, "Carbon"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_7, 0, "Nitrogen"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_8, 0, "Oxygen"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_9, 0, "Fluorine"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_10, 0, "Neon"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_11, 0, "Sodium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_12, 0, "Magnesium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_13, 0, "Aluminum"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_14, 0, "Silicon"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_15, 0, "Phosphorus"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_16, 0, "Sulfur"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_17, 0, "Chlorine"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_18, 0, "Argon"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_19, 0, "Potassium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_20, 0, "Calcium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_21, 0, "Scandium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_22, 0, "Titanium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_23, 0, "Vanadium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_24, 0, "Chromium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_25, 0, "Manganese"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_26, 0, "Iron"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_27, 0, "Cobalt"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_28, 0, "Nickel"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_29, 0, "Copper"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_30, 0, "Zinc"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_31, 0, "Gallium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_32, 0, "Germanium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_33, 0, "Arsenic"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_34, 0, "Selenium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_35, 0, "Bromine"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_36, 0, "Krypton"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_37, 0, "Rubidium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_38, 0, "Strontium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_39, 0, "Yttrium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_40, 0, "Zirconium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_41, 0, "Niobium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_42, 0, "Molybdenum"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_43, 0, "Technetium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_44, 0, "Ruthenium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_45, 0, "Rhodium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_46, 0, "Palladium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_47, 0, "Silver"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_48, 0, "Cadmium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_49, 0, "Indium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_50, 0, "Tin"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_51, 0, "Antimony"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_52, 0, "Tellurium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_53, 0, "Iodine"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_54, 0, "Xenon"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_55, 0, "Cesium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_56, 0, "Barium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_57, 0, "Lanthanum"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_58, 0, "Cerium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_59, 0, "Praseodymium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_60, 0, "Neodymium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_61, 0, "Promethium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_62, 0, "Samarium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_63, 0, "Europium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_64, 0, "Gadolinium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_65, 0, "Terbium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_66, 0, "Dysprosium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_67, 0, "Holmium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_68, 0, "Erbium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_69, 0, "Thulium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_70, 0, "Ytterbium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_71, 0, "Lutetium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_72, 0, "Hafnium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_73, 0, "Tantalum"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_74, 0, "Tungsten"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_75, 0, "Rhenium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_76, 0, "Osmium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_77, 0, "Iridium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_78, 0, "Platinum"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_79, 0, "Gold"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_80, 0, "Mercury"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_81, 0, "Thallium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_82, 0, "Lead"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_83, 0, "Bismuth"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_84, 0, "Polonium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_85, 0, "Astatine"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_86, 0, "Radon"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_87, 0, "Francium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_88, 0, "Radium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_89, 0, "Actinium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_90, 0, "Thorium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_91, 0, "Protactinium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_92, 0, "Uranium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_93, 0, "Neptunium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_94, 0, "Plutonium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_95, 0, "Americium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_96, 0, "Curium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_97, 0, "Berkelium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_98, 0, "Californium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_99, 0, "Einsteinium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_100, 0, "Fermium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_101, 0, "Mendelevium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_102, 0, "Nobelium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_103, 0, "Lawrencium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_104, 0, "Rutherfordium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_105, 0, "Dubnium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_106, 0, "Seaborgium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_107, 0, "Bohrium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_108, 0, "Hassium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_109, 0, "Meitnerium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_110, 0, "Darmstadtium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_111, 0, "Roentgenium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_112, 0, "Copernicium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_113, 0, "Nihonium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_114, 0, "Flerovium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_115, 0, "Moscovium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_116, 0, "Livermorium"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_117, 0, "Tennessine"));
+			self::registerBlock(new Element(BlockIds::ELEMENT_118, 0, "Oganesson"));
 			//TODO: SEAGRASS
 			//TODO: CORAL
 			//TODO: CORAL_BLOCK
@@ -480,21 +484,21 @@ class BlockFactory
 			//TODO: CORAL_FAN_HANG3
 			//TODO: KELP
 			//TODO: DRIED_KELP_BLOCK
-			self::registerBlock(new WoodenButton(Block::ACACIA_BUTTON, 0, "Acacia Button"));
-			self::registerBlock(new WoodenButton(Block::BIRCH_BUTTON, 0, "Birch Button"));
-			self::registerBlock(new WoodenButton(Block::DARK_OAK_BUTTON, 0, "Dark Oak Button"));
-			self::registerBlock(new WoodenButton(Block::JUNGLE_BUTTON, 0, "Jungle Button"));
-			self::registerBlock(new WoodenButton(Block::SPRUCE_BUTTON, 0, "Spruce Button"));
-			self::registerBlock(new WoodenTrapdoor(Block::ACACIA_TRAPDOOR, 0, "Acacia Trapdoor"));
-			self::registerBlock(new WoodenTrapdoor(Block::BIRCH_TRAPDOOR, 0, "Birch Trapdoor"));
-			self::registerBlock(new WoodenTrapdoor(Block::DARK_OAK_TRAPDOOR, 0, "Dark Oak Trapdoor"));
-			self::registerBlock(new WoodenTrapdoor(Block::JUNGLE_TRAPDOOR, 0, "Jungle Trapdoor"));
-			self::registerBlock(new WoodenTrapdoor(Block::SPRUCE_TRAPDOOR, 0, "Spruce Trapdoor"));
-			self::registerBlock(new WoodenPressurePlate(Block::ACACIA_PRESSURE_PLATE, 0, "Acacia Pressure Plate"));
-			self::registerBlock(new WoodenPressurePlate(Block::BIRCH_PRESSURE_PLATE, 0, "Birch Pressure Plate"));
-			self::registerBlock(new WoodenPressurePlate(Block::DARK_OAK_PRESSURE_PLATE, 0, "Dark Oak Pressure Plate"));
-			self::registerBlock(new WoodenPressurePlate(Block::JUNGLE_PRESSURE_PLATE, 0, "Jungle Pressure Plate"));
-			self::registerBlock(new WoodenPressurePlate(Block::SPRUCE_PRESSURE_PLATE, 0, "Spruce Pressure Plate"));
+			self::registerBlock(new WoodenButton(BlockIds::ACACIA_BUTTON, 0, "Acacia Button"));
+			self::registerBlock(new WoodenButton(BlockIds::BIRCH_BUTTON, 0, "Birch Button"));
+			self::registerBlock(new WoodenButton(BlockIds::DARK_OAK_BUTTON, 0, "Dark Oak Button"));
+			self::registerBlock(new WoodenButton(BlockIds::JUNGLE_BUTTON, 0, "Jungle Button"));
+			self::registerBlock(new WoodenButton(BlockIds::SPRUCE_BUTTON, 0, "Spruce Button"));
+			self::registerBlock(new WoodenTrapdoor(BlockIds::ACACIA_TRAPDOOR, 0, "Acacia Trapdoor"));
+			self::registerBlock(new WoodenTrapdoor(BlockIds::BIRCH_TRAPDOOR, 0, "Birch Trapdoor"));
+			self::registerBlock(new WoodenTrapdoor(BlockIds::DARK_OAK_TRAPDOOR, 0, "Dark Oak Trapdoor"));
+			self::registerBlock(new WoodenTrapdoor(BlockIds::JUNGLE_TRAPDOOR, 0, "Jungle Trapdoor"));
+			self::registerBlock(new WoodenTrapdoor(BlockIds::SPRUCE_TRAPDOOR, 0, "Spruce Trapdoor"));
+			self::registerBlock(new WoodenPressurePlate(BlockIds::ACACIA_PRESSURE_PLATE, 0, "Acacia Pressure Plate"));
+			self::registerBlock(new WoodenPressurePlate(BlockIds::BIRCH_PRESSURE_PLATE, 0, "Birch Pressure Plate"));
+			self::registerBlock(new WoodenPressurePlate(BlockIds::DARK_OAK_PRESSURE_PLATE, 0, "Dark Oak Pressure Plate"));
+			self::registerBlock(new WoodenPressurePlate(BlockIds::JUNGLE_PRESSURE_PLATE, 0, "Jungle Pressure Plate"));
+			self::registerBlock(new WoodenPressurePlate(BlockIds::SPRUCE_PRESSURE_PLATE, 0, "Spruce Pressure Plate"));
 			self::registerBlock(new CarvedPumpkin());
 			//TODO: SEA_PICKLE
 			//TODO: CONDUIT
@@ -520,39 +524,39 @@ class BlockFactory
 			self::registerBlock(new EndBrickStairs());
 			self::registerBlock(new MossyCobblestoneStairs());
 			self::registerBlock(new NormalStoneStairs());
-			self::registerBlock(new SignPost(Block::SPRUCE_STANDING_SIGN, 0, "Spruce Sign Post", Item::SPRUCE_SIGN, Block::SPRUCE_WALL_SIGN));
-			self::registerBlock(new WallSign(Block::SPRUCE_WALL_SIGN, 0, "Spruce Sign Post", Item::SPRUCE_SIGN, Block::SPRUCE_WALL_SIGN));
+			self::registerBlock(new SignPost(BlockIds::SPRUCE_STANDING_SIGN, 0, "Spruce Sign Post", Item::SPRUCE_SIGN, BlockIds::SPRUCE_WALL_SIGN));
+			self::registerBlock(new WallSign(BlockIds::SPRUCE_WALL_SIGN, 0, "Spruce Sign Post", Item::SPRUCE_SIGN, BlockIds::SPRUCE_WALL_SIGN));
 			self::registerBlock(new SmoothStone());
 			self::registerBlock(new RedNetherBrickStairs());
 			self::registerBlock(new SmoothQuartzStairs());
-			self::registerBlock(new SignPost(Block::BIRCH_STANDING_SIGN, 0, "Birch Sign Post", Item::BIRCH_SIGN, Block::BIRCH_WALL_SIGN));
-			self::registerBlock(new WallSign(Block::BIRCH_WALL_SIGN, 0, "Birch Sign Post", Item::BIRCH_SIGN, Block::BIRCH_WALL_SIGN));
-			self::registerBlock(new SignPost(Block::JUNGLE_STANDING_SIGN, 0, "Jungle Sign Post", Item::JUNGLE_SIGN, Block::JUNGLE_WALL_SIGN));
-			self::registerBlock(new WallSign(Block::JUNGLE_WALL_SIGN, 0, "Jungle Sign Post", Item::JUNGLE_SIGN, Block::JUNGLE_WALL_SIGN));
-			self::registerBlock(new SignPost(Block::ACACIA_STANDING_SIGN, 0, "Acacia Sign Post", Item::ACACIA_SIGN, Block::ACACIA_WALL_SIGN));
-			self::registerBlock(new WallSign(Block::ACACIA_WALL_SIGN, 0, "Acacia Sign Post", Item::ACACIA_SIGN, Block::ACACIA_WALL_SIGN));
-			self::registerBlock(new SignPost(Block::DARKOAK_STANDING_SIGN, 0, "Darkoak Sign Post", Item::DARKOAK_SIGN, Block::DARKOAK_WALL_SIGN));
-			self::registerBlock(new WallSign(Block::DARKOAK_WALL_SIGN, 0, "Darkoak Sign Post", Item::DARKOAK_SIGN, Block::DARKOAK_WALL_SIGN));
-			//TODO: LECTERN
-			//TODO: GRINDSTONE
-			//TODO: BLAST_FURNACE
-			//TODO: STONECUTTER_BLOCK
-			//TODO: SMOKER
-			//TODO: LIT_SMOKER
+			self::registerBlock(new SignPost(BlockIds::BIRCH_STANDING_SIGN, 0, "Birch Sign Post", Item::BIRCH_SIGN, BlockIds::BIRCH_WALL_SIGN));
+			self::registerBlock(new WallSign(BlockIds::BIRCH_WALL_SIGN, 0, "Birch Sign Post", Item::BIRCH_SIGN, BlockIds::BIRCH_WALL_SIGN));
+			self::registerBlock(new SignPost(BlockIds::JUNGLE_STANDING_SIGN, 0, "Jungle Sign Post", Item::JUNGLE_SIGN, BlockIds::JUNGLE_WALL_SIGN));
+			self::registerBlock(new WallSign(BlockIds::JUNGLE_WALL_SIGN, 0, "Jungle Sign Post", Item::JUNGLE_SIGN, BlockIds::JUNGLE_WALL_SIGN));
+			self::registerBlock(new SignPost(BlockIds::ACACIA_STANDING_SIGN, 0, "Acacia Sign Post", Item::ACACIA_SIGN, BlockIds::ACACIA_WALL_SIGN));
+			self::registerBlock(new WallSign(BlockIds::ACACIA_WALL_SIGN, 0, "Acacia Sign Post", Item::ACACIA_SIGN, BlockIds::ACACIA_WALL_SIGN));
+			self::registerBlock(new SignPost(BlockIds::DARKOAK_STANDING_SIGN, 0, "Darkoak Sign Post", Item::DARKOAK_SIGN, BlockIds::DARKOAK_WALL_SIGN));
+			self::registerBlock(new WallSign(BlockIds::DARKOAK_WALL_SIGN, 0, "Darkoak Sign Post", Item::DARKOAK_SIGN, BlockIds::DARKOAK_WALL_SIGN));
+			self::registerBlock(new Lectern());
+			self::registerBlock(new Grindstone());
+			self::registerBlock(new BlastFurnace());
+			self::registerBlock(new StonecutterBlock());
+			self::registerBlock(new Smoker());
+			self::registerBlock(new LitSmoker());
 			//TODO: CARTOGRAPHY_TABLE
 			//TODO: FLETCHING_TABLE
-			//TODO: SMITHING_TABLE
+			self::registerBlock(new SmithingTable());
 			//TODO: BARREL
 			//TODO: LOOM
 			//TODO: BELL
 			//TODO: SWEET_BERRY_BUSH
 			self::registerBlock(new Lantern());
-			//TODO: CAMPFIRE
+			self::registerBlock(new Campfire());
 			//TODO: LAVA_CAULDRON
 			//TODO: JIGSAW
-			self::registerBlock(new Wood());
+			self::registerBlock(new Wood(BlockIds::WOOD, 0, "Wood"));
 			//TODO: COMPOSTER
-			//TODO: LIT_BLAST_FURNACE
+			self::registerBlock(new LitBlastFurnace());
 			//TODO: LIGHT_BLOCK
 			//TODO: WITHER_ROSE
 			//TODO: STICKY_PISTON_ARM_COLLISION
@@ -563,8 +567,8 @@ class BlockFactory
 			//TODO: LODESTONE
 			//TODO: CRIMSON_ROOTS
 			//TODO: WARPED_ROOTS
-			self::registerBlock(new CrimsonStem());
-			self::registerBlock(new WarpedStem());
+			self::registerBlock(new FixLog(BlockIds::CRIMSON_STEM, 0, "Crimson Log"));
+			self::registerBlock(new FixLog(BlockIds::WARPED_STEM, 0, "Warped Log"));
 			//TODO: WARPED_WART_BLOCK
 			//TODO: CRIMSON_FUNGUS
 			//TODO: WARPED_FUNGUS
@@ -578,14 +582,14 @@ class BlockFactory
 			self::registerBlock(new SoulFire());
 			//TODO: NETHER_SPROUTS
 			//TODO: TARGET
-			self::registerBlock(new StrippedCrimsonStem(BlockIds::STRIPPED_CRIMSON_STEM, 0, "Crimson"));
-			self::registerBlock(new StrippedWarpedStem(BlockIds::STRIPPED_WARPED_STEM, 0, "Warped"));
+			self::registerBlock(new StrippedLog(BlockIds::STRIPPED_CRIMSON_STEM, 0, "Stripped Crimson Log"));
+			self::registerBlock(new StrippedLog(BlockIds::STRIPPED_WARPED_STEM, 0, "Stripped Warped Log"));
 			self::registerBlock(new CrimsonPlanks());
 			self::registerBlock(new WarpedPlanks());
 			self::registerBlock(new CrimsonDoor());
 			self::registerBlock(new WarpedDoor());
-			self::registerBlock(new CrimsonTrapdoor());
-			self::registerBlock(new WarpedTrapdoor());
+			self::registerBlock(new WoodenTrapdoor(BlockIds::CRIMSON_TRAPDOOR, 0, "Crimson Trapdoor"));
+			self::registerBlock(new WoodenTrapdoor(BlockIds::WARPED_TRAPDOOR, 0, "Crimson Trapdoor"));
 			self::registerBlock(new CrimsonSignPost());
 			self::registerBlock(new WarpedSignPost());
 			self::registerBlock(new CrimsonWallSign());
@@ -613,8 +617,8 @@ class BlockFactory
 			self::registerBlock(new Blackstone(BlockIds::POLISHED_BLACKSTONE_BRICKS, 0, "Polished Blackstone Bricks"));
 			self::registerBlock(new BlackstoneStairs(BlockIds::POLISHED_BLACKSTONE_BRICK_STAIRS, 0, "Polished Blackstone Brick Stairs"));
 			self::registerBlock(new BlackstoneStairs(BlockIds::BLACKSTONE_STAIRS, 0, "Blackstone Stairs"));
-			//TODO: BLACKSTONE_WALL
-			//TODO: POLISHED_BLACKSTONE_BRICK_WALL
+			self::registerBlock(new StoneWall(BlockIds::BLACKSTONE_WALL, 0, "Blackstone Wall"));
+			self::registerBlock(new StoneWall(BlockIds::POLISHED_BLACKSTONE_BRICK_WALL, 0, "Polished Blackstone Brick Wall"));
 			self::registerBlock(new Blackstone(BlockIds::CHISELED_POLISHED_BLACKSTONE, 0, "Chiseled Polished Blackstone"));
 			self::registerBlock(new Blackstone(BlockIds::CRACKED_POLISHED_BLACKSTONE_BRICKS, 0, "Cracked Chiseled Polished Blackstone"));
 			self::registerBlock(new GildedBlackstone());
@@ -626,18 +630,18 @@ class BlockFactory
 			//TODO: TWISTING_VINES
 			self::registerBlock(new NetherGoldOre());
 			self::registerBlock(new CryingObsidian());
-			//TODO: SOUL_CAMPFIRE
+			self::registerBlock(new SoulCampfire());
 			self::registerBlock(new Blackstone(BlockIds::POLISHED_BLACKSTONE, 0, "Polished Blackstone"));
 			self::registerBlock(new BlackstoneStairs(BlockIds::POLISHED_BLACKSTONE_STAIRS, 0, "Polished Blackstone Stairs"));
 			self::registerBlock(new BlackstoneSlab(BlockIds::POLISHED_BLACKSTONE_SLAB, 0, "Polished Blackstone Slab", BlockIds::POLISHED_BLACKSTONE_DOUBLE_SLAB));
 			self::registerBlock(new BlackstoneDoubleSlab(BlockIds::POLISHED_BLACKSTONE_DOUBLE_SLAB, 0, BlockIds::POLISHED_BLACKSTONE_SLAB));
 			self::registerBlock(new PolishedBlackstonePressurePlate());
 			self::registerBlock(new PolishedBlackstoneButton());
-			//TODO: POLISHED_BLACKSTONE_WALL
-			self::registerBlock(new WarpedHyphae());
-			self::registerBlock(new CrimsonHyphae());
-			self::registerBlock(new StrippedWarpedHyphae());
-			self::registerBlock(new StrippedCrimsonHyphae());
+			self::registerBlock(new StoneWall(BlockIds::POLISHED_BLACKSTONE_WALL, 0, "Polished Blackstone Wall"));
+			self::registerBlock(new FixWood(BlockIds::WARPED_HYPHAE, 0, "Warped Hyphae"));
+			self::registerBlock(new FixWood(BlockIds::CRIMSON_HYPHAE, 0, "Crimson Hyphae"));
+			self::registerBlock(new StrippedWood(BlockIds::STRIPPED_WARPED_HYPHAE, 0, "Stripped Warped Hyphae"));
+			self::registerBlock(new StrippedWood(BlockIds::STRIPPED_CRIMSON_HYPHAE, 0, "Stripped Crimson Hyphae"));
 			self::registerBlock(new ChiseledNetherBricks());
 			self::registerBlock(new CrackedNetherBricks());
 			self::registerBlock(new QuartzBricks());
@@ -691,7 +695,6 @@ class BlockFactory
 			self::registerBlock(new CutCopperStairs(BlockIds::WAXED_CUT_COPPER_STAIRS, 0, "Waxed Copper Stairs"));
 			self::registerBlock(new CutCopperStairs(BlockIds::WAXED_EXPOSED_CUT_COPPER_STAIRS, 0, "Waxed Exposed Cut Copper Stairs"));
 			self::registerBlock(new CutCopperStairs(BlockIds::WAXED_WEATHERED_CUT_COPPER_STAIRS, 0, "Waxed Weathered Cut Copper Stairs"));
-			//TODO: OXIDIZED_DOUBLE_CUT_COPPER_SLAB
 			self::registerBlock(new CutCopperSlab(BlockIds::CUT_COPPER_SLAB, 0, "Cut Copper Slab", BlockIds::DOUBLE_CUT_COPPER_SLAB));
 			self::registerBlock(new CutCopperSlab(BlockIds::EXPOSED_CUT_COPPER_SLAB, 0, "Exposed Cut Copper Slab", BlockIds::EXPOSED_DOUBLE_CUT_COPPER_SLAB));
 			self::registerBlock(new CutCopperSlab(BlockIds::WEATHERED_CUT_COPPER_SLAB, 0, "Weathered Cut Copper Slab", BlockIds::WEATHERED_DOUBLE_CUT_COPPER_SLAB));
@@ -708,40 +711,40 @@ class BlockFactory
 			self::registerBlock(new CutCopperDoubleSlab(BlockIds::WAXED_WEATHERED_DOUBLE_CUT_COPPER_SLAB, 0, BlockIds::WAXED_WEATHERED_CUT_COPPER_SLAB));
 			//TODO: CAVE_VINES_BODY_WITH_BERRIES
 			//TODO: CAVE_VINES_HEAD_WITH_BERRIES
-			//TODO: SMOOTH_BASALT
-			//TODO: DEEPSLATE
-			//TODO: COBBLED_DEEPSLATE
-			//TODO: COBBLED_DEEPSLATE_SLAB
-			//TODO: COBBLED_DEEPSLATE_STAIRS
-			//TODO: COBBLED_DEEPSLATE_WALL
-			//TODO: POLISHED_DEEPSLATE
-			//TODO: POLISHED_DEEPSLATE_SLAB
-			//TODO: POLISHED_DEEPSLATE_STAIRS
-			//TODO: POLISHED_DEEPSLATE_WALL
-			//TODO: DEEPSLATE_TILES
-			//TODO: DEEPSLATE_TILE_SLAB
-			//TODO: DEEPSLATE_TILE_STAIRS
-			//TODO: DEEPSLATE_TILE_WALL
-			//TODO: DEEPSLATE_BRICKS
-			//TODO: DEEPSLATE_BRICK_SLAB
-			//TODO: DEEPSLATE_BRICK_STAIRS
-			//TODO: DEEPSLATE_BRICK_WALL
-			//TODO: CHISELED_DEEPSLATE
-			//TODO: COBBLED_DEEPSLATE_DOUBLE_SLAB
-			//TODO: POLISHED_DEEPSLATE_DOUBLE_SLAB
-			//TODO: DEEPSLATE_TILE_DOUBLE_SLAB
-			//TODO: DEEPSLATE_BRICK_DOUBLE_SLAB
-			//TODO: DEEPSLATE_LAPIS_ORE
-			//TODO: DEEPSLATE_IRON_ORE
-			//TODO: DEEPSLATE_GOLD_ORE
-			//TODO: DEEPSLATE_REDSTONE_ORE
-			//TODO: LIT_DEEPSLATE_REDSTONE_ORE
-			//TODO: DEEPSLATE_DIAMOND_ORE
-			//TODO: DEEPSLATE_COAL_ORE
-			//TODO: DEEPSLATE_EMERALD_ORE
-			//TODO: DEEPSLATE_COPPER_ORE
-			//TODO: CRACKED_DEEPSLATE_TILES
-			//TODO: CRACKED_DEEPSLATE_BRICKS
+			self::registerBlock(new SmoothBasalt());
+			self::registerBlock(new Deepslate());
+			self::registerBlock(new CobbledDeepslate());
+			self::registerBlock(new DeepslateSlab(BlockIds::COBBLED_DEEPSLATE_SLAB, 0, "Cobbled Deepslate Slab", BlockIds::COBBLED_DEEPSLATE_DOUBLE_SLAB));
+			self::registerBlock(new DeepslateStairs(BlockIds::COBBLED_DEEPSLATE_STAIRS, 0, "Cobbled Deepslate Stairs"));
+			self::registerBlock(new DeepslateWall(BlockIds::COBBLED_DEEPSLATE_WALL, 0, "Cobbled Deepslate Wall"));
+			self::registerBlock(new PolishedDeepslate());
+			self::registerBlock(new DeepslateSlab(BlockIds::POLISHED_DEEPSLATE_SLAB, 0, "Polished Deepslate Slab", BlockIds::POLISHED_DEEPSLATE_DOUBLE_SLAB));
+			self::registerBlock(new DeepslateStairs(BlockIds::POLISHED_DEEPSLATE_STAIRS, 0, "Polished Deepslate Stairs"));
+			self::registerBlock(new DeepslateWall(BlockIds::POLISHED_DEEPSLATE_WALL, 0, "Polished Deepslate Wall"));
+			self::registerBlock(new DeepslateTiles(BlockIds::DEEPSLATE_TILES, 0, "Deepslate Tiles"));
+			self::registerBlock(new DeepslateSlab(BlockIds::DEEPSLATE_TILE_SLAB, 0, "Deepslate Tile Slab", BlockIds::DEEPSLATE_TILE_DOUBLE_SLAB));
+			self::registerBlock(new DeepslateStairs(BlockIds::DEEPSLATE_TILE_STAIRS, 0, "Deepslate Tile Stairs"));
+			self::registerBlock(new DeepslateWall(BlockIds::DEEPSLATE_TILE_WALL, 0, "Deepslate Tile Wall"));
+			self::registerBlock(new DeepslateBricks(BlockIds::DEEPSLATE_BRICKS, 0, "Deepslate Bricks"));
+			self::registerBlock(new DeepslateSlab(BlockIds::DEEPSLATE_BRICK_SLAB, 0, "Deepslate Brick Slab", BlockIds::DEEPSLATE_BRICK_DOUBLE_SLAB));
+			self::registerBlock(new DeepslateStairs(BlockIds::DEEPSLATE_BRICK_STAIRS, 0, "Deepslate Brick Stairs"));
+			self::registerBlock(new DeepslateWall(BlockIds::DEEPSLATE_BRICK_WALL, 0, "Deepslate Brick Wall"));
+			self::registerBlock(new ChiseledDeepslate());
+			self::registerBlock(new DeepslateDoubleSlab(BlockIds::COBBLED_DEEPSLATE_DOUBLE_SLAB, 0, BlockIds::COBBLED_DEEPSLATE_SLAB));
+			self::registerBlock(new DeepslateDoubleSlab(BlockIds::POLISHED_DEEPSLATE_DOUBLE_SLAB, 0, BlockIds::POLISHED_DEEPSLATE_SLAB));
+			self::registerBlock(new DeepslateDoubleSlab(BlockIds::DEEPSLATE_TILE_DOUBLE_SLAB, 0, BlockIds::DEEPSLATE_TILE_SLAB));
+			self::registerBlock(new DeepslateDoubleSlab(BlockIds::DEEPSLATE_BRICK_DOUBLE_SLAB, 0, BlockIds::DEEPSLATE_BRICK_SLAB));
+			self::registerBlock(new DeepslateLapisOre());
+			self::registerBlock(new DeepslateIronOre());
+			self::registerBlock(new DeepslateGoldOre());
+			self::registerBlock(new DeepslateRedstoneOre());
+			self::registerBlock(new LitDeepslateRedstoneOre());
+			self::registerBlock(new DeepslateDiamondOre());
+			self::registerBlock(new DeepslateCoalOre());
+			self::registerBlock(new DeepslateEmeraldOre());
+			self::registerBlock(new DeepslateCopperOre());
+			self::registerBlock(new DeepslateTiles(BlockIds::CRACKED_DEEPSLATE_TILES, 0, "Cracked Deepslate Tiles"));
+			self::registerBlock(new DeepslateBricks(BlockIds::CRACKED_DEEPSLATE_BRICKS, 0, "Cracked Deepslate Bricks"));
 			//TODO: GLOW_LICHEN
 			self::registerBlock(new Candle(BlockIds::CANDLE, 0, "Candle", null, BlockIds::CANDLE_CAKE));
 			self::registerBlock(new Candle(BlockIds::WHITE_CANDLE, 0, "White Candle", null, BlockIds::WHITE_CANDLE_CAKE));
@@ -782,12 +785,12 @@ class BlockFactory
 			self::registerBlock(new CutCopperStairs(BlockIds::WAXED_OXIDIZED_CUT_COPPER_STAIRS, 0, "Waxed Oxidized Cut Copper Stairs"));
 			self::registerBlock(new CutCopperSlab(BlockIds::WAXED_OXIDIZED_CUT_COPPER_SLAB, 0, "Waxed Oxidized Cut Copper Slab", BlockIds::WAXED_OXIDIZED_DOUBLE_CUT_COPPER_SLAB));
 			self::registerBlock(new CutCopperDoubleSlab(BlockIds::WAXED_OXIDIZED_DOUBLE_CUT_COPPER_SLAB, 0, BlockIds::WAXED_OXIDIZED_CUT_COPPER_SLAB));
-			//TODO: RAW_IRON_BLOCK
-			//TODO: RAW_COPPER_BLOCK
-			//TODO: RAW_GOLD_BLOCK
+			self::registerBlock(new RawIron()); //end
+			self::registerBlock(new RawCopper());
+			self::registerBlock(new RawGold());
 			//TODO: INFESTED_DEEPSLATE
 			self::registerBlock(new BambooDoor());
-			//TODO: SCULK
+			self::registerBlock(new Sculk());
 			//TODO: SCULK_VEIN
 			//TODO: SCULK_CATALYST
 			//TODO: SCULK_SHRIEKER
@@ -801,32 +804,32 @@ class BlockFactory
 			self::registerBlock(new MangroveLeaves());
 			//TODO: MANGROVE_PROPAGULE
 
-			//TODO: MUD
-			//TODO: MUD_BRICK_DOUBLE_SLAB
-			//TODO: MUD_BRICK_SLAB
-			//TODO: MUD_BRICK_STAIRS
-			//TODO: MUD_BRICK_WALL
-			//TODO: MUD_BRICKS
-			//TODO: PACKED_MUD
-			//TODO: REINFORCED_DEEPSLATE
+			self::registerBlock(new Mud());
+			self::registerBlock(new MudBrickDoubleSlab());
+			self::registerBlock(new MudBrickSlab());
+			self::registerBlock(new MudBrickStairs());
+			self::registerBlock(new MudBrickWall(BlockIds::MUD_BRICK_WALL, 0, "Mud Brick Log"));
+			self::registerBlock(new MudBricks());
+			self::registerBlock(new PackedMud());
+			self::registerBlock(new ReinforcedDeepslate());
 			self::registerBlock(new MangroveDoor());
 			self::registerBlock(new MangroveButton());
 			self::registerBlock(new MangroveDoubleSlab());
 			self::registerBlock(new MangroveFence());
 			self::registerBlock(new MangroveFenceGate());
-			self::registerBlock(new MangroveLog());
+			self::registerBlock(new FixLog(BlockIds::MANGROVE_LOG, 0, "Mangrove Log"));
 			self::registerBlock(new MangrovePlanks());
 			self::registerBlock(new MangrovePressurePlate());
 			//TODO: MANGROVE_ROOTS
 			self::registerBlock(new MangroveSlab());
 			self::registerBlock(new MangroveStairs());
 			self::registerBlock(new MangroveSignPost());
-			//TODO: MANGROVE_TRAPDOOR
+			self::registerBlock(new WoodenTrapdoor(BlockIds::MANGROVE_TRAPDOOR, 0, "Mangrove Trapdoor"));
 			self::registerBlock(new MangroveWallSign());
-			self::registerBlock(new MangroveWood());
+			self::registerBlock(new FixWood(BlockIds::MANGROVE_WOOD, 0, "Mangrove Wood"));
 			//TODO: MUDDY_MANGROVE_ROOTS
-			self::registerBlock(new StrippedMangroveLog(BlockIds::STRIPPED_MANGROVE_LOG, 0, "Mangrove"));
-			self::registerBlock(new StrippedMangroveWood());
+			self::registerBlock(new StrippedLog(BlockIds::STRIPPED_MANGROVE_LOG, 0, "Stripped Mangrove Log"));
+			self::registerBlock(new StrippedWood(BlockIds::STRIPPED_MANGROVE_WOOD, 0, "Stripped Mangrove Wood"));
 			self::registerBlock(new BambooButton());
 			self::registerBlock(new BambooDoubleSlab());
 			self::registerBlock(new BambooFence());
@@ -842,7 +845,7 @@ class BlockFactory
 			self::registerBlock(new BambooStairs());
 			self::registerBlock(new BambooSignPost());
 			self::registerBlock(new BambooWallSign());
-			self::registerBlock(new BambooTrapdoor());
+			self::registerBlock(new WoodenTrapdoor(BlockIds::BAMBOO_TRAPDOOR, 0, "Bamboo Trapdoor"));
 			//TODO: BIRCH_HANGING_SIGN
 			//TODO: CHISELED_BOOKSHELF
 			//TODO: CRIMSON_HANGING_SIGN
@@ -853,11 +856,11 @@ class BlockFactory
 
 			//TODO: WARPED_HANGING_SIGN
 			//TODO: SPRUCE_HANGING_SIGN
-			self::registerBlock(new BambooBlock());
-			self::registerBlock(new StrippedBambooBlock(BlockIds::STRIPPED_BAMBOO_BLOCK, 0, "Bamboo"));
-			//TODO: DECORATED_POT
-			//TODO: SUSPICIOUS_SAND
-			//TODO: TORCHFLOWER
+			self::registerBlock(new FixLog(BlockIds::BAMBOO_BLOCK, 0, "Bamboo Log"));
+			self::registerBlock(new StrippedLog(BlockIds::STRIPPED_BAMBOO_BLOCK, 0, "Stripped Bamboo Log"));
+			self::registerBlock(new DecoratedPot());
+			self::registerBlock(new SuspiciousSand());
+			self::registerBlock(new TorchFlower());
 			//TODO: TORCHFLOWER_CROP
 			//TODO: CALIBRATED_SCULK_SENSOR
 			self::registerBlock(new CherryButton());
@@ -865,27 +868,27 @@ class BlockFactory
 			self::registerBlock(new CherryFence());
 			self::registerBlock(new CherryFenceGate());
 			//TODO: CHERRY_HANGING_SIGN
-			self::registerBlock(new CherryLeaves()); //сделать наследником листвы
-			self::registerBlock(new CherryLog());
+			self::registerBlock(new CherryLeaves());
+			self::registerBlock(new FixLog(BlockIds::CHERRY_LOG, 0, "Cherry Log"));
 			self::registerBlock(new CherryPlanks());
 			self::registerBlock(new CherryPressurePlate());
 			self::registerBlock(new CherrySapling());
 			self::registerBlock(new CherrySlab());
 			self::registerBlock(new CherryStairs());
 			self::registerBlock(new CherrySignPost());
-			self::registerBlock(new CherryTrapdoor());
+			self::registerBlock(new WoodenTrapdoor(BlockIds::CHERRY_TRAPDOOR, 0, "Cherry Trapdoor"));
 			self::registerBlock(new CherryWallSign());
-			self::registerBlock(new CherryWood());
+			self::registerBlock(new FixWood(BlockIds::CHERRY_WOOD, 0, "Cherry Wood"));
 			//TODO: PINK_PETALS
-			self::registerBlock(new StrippedCherryWood());
-			self::registerBlock(new StrippedCherryLog(BlockIds::STRIPPED_CHERRY_LOG, 0, "Cherry"));
-			//TODO: SUSPICIOUS_GRAVEL
+			self::registerBlock(new StrippedWood(BlockIds::STRIPPED_CHERRY_WOOD, 0, "Stripped Cherry Wood"));
+			self::registerBlock(new StrippedLog(BlockIds::STRIPPED_CHERRY_LOG, 0, "Stripped Cherry Log"));
+			self::registerBlock(new SuspiciousGravel());
 			//TODO: PITCHER_CROP
 			//TODO: PITCHER_PLANT
-			//TODO: SNIFFER_EGG
+			self::registerBlock(new SnifferEgg());
 			self::registerBlock(new ChiseledCopper(BlockIds::CHISELED_COPPER, 0, "Chiseled Copper"));
-			//TODO: CHISELED_TUFF
-			//TODO: CHISELED_TUFF_BRICKS
+			self::registerBlock(new ChiseledTuff());
+			self::registerBlock(new ChiseledTuffBricks());
 			//TODO: COPPER_BULB
 			self::registerBlock(new CopperGrate(BlockIds::COPPER_GRATE, 0, "Copper Grate"));
 			self::registerBlock(new CopperTrapdoor(BlockIds::COPPER_TRAPDOOR, 0, "Copper Trapdoor"));
@@ -898,19 +901,20 @@ class BlockFactory
 			//TODO: OXIDIZED_COPPER_BULB
 			self::registerBlock(new CopperGrate(BlockIds::OXIDIZED_COPPER_GRATE, 0, "Oxidized Copper Grate"));
 			self::registerBlock(new CopperTrapdoor(BlockIds::OXIDIZED_COPPER_TRAPDOOR, 0, "Oxidized Copper Trapdoor"));
-			//TODO: POLISHED_TUFF
-			//TODO: POLISHED_TUFF_DOUBLE_SLAB
-			//TODO: POLISHED_TUFF_SLAB
-			//TODO: POLISHED_TUFF_STAIRS
-			//TODO: POLISHED_TUFF_WALL
-			//TODO: TUFF_BRICK_DOUBLE_SLAB
-			//TODO: TUFF_BRICK_SLAB
-			//TODO: TUFF_BRICK_STAIRS
-			//TODO: TUFF_BRICK_WALL
-			//TODO: TUFF_BRICKS
-			//TODO: TUFF_SLAB
-			//TODO: TUFF_STAIRS
-			//TODO: TUFF_WALL
+			self::registerBlock(new PolishedTuff());
+			self::registerBlock(new TuffDoubleSlab(BlockIds::POLISHED_TUFF_DOUBLE_SLAB, 0, BlockIds::POLISHED_TUFF_SLAB));
+			self::registerBlock(new TuffSlab(BlockIds::POLISHED_TUFF_SLAB, 0, "Polished Tuff Slab", BlockIds::POLISHED_TUFF_DOUBLE_SLAB));
+			self::registerBlock(new TuffStairs(BlockIds::POLISHED_TUFF_STAIRS, 0, "Polished Tuff Stairs"));
+			self::registerBlock(new StoneWall(BlockIds::POLISHED_TUFF_WALL, 0, "Polished Tuff Wall"));
+			self::registerBlock(new TuffDoubleSlab(BlockIds::TUFF_BRICK_DOUBLE_SLAB, 0, BlockIds::TUFF_BRICK_SLAB));
+			self::registerBlock(new TuffSlab(BlockIds::TUFF_BRICK_SLAB, 0, "Tuff Brick Slab", BlockIds::TUFF_BRICK_DOUBLE_SLAB));
+			self::registerBlock(new TuffStairs(BlockIds::TUFF_BRICK_STAIRS, 0, "Tuff Brick Stairs"));
+			self::registerBlock(new StoneWall(BlockIds::TUFF_BRICK_WALL, 0, "Tuff Brick Wall"));
+			self::registerBlock(new TuffBricks());
+			self::registerBlock(new TuffDoubleSlab(BlockIds::TUFF_DOUBLE_SLAB, 0, BlockIds::TUFF_SLAB));
+			self::registerBlock(new TuffSlab(BlockIds::TUFF_SLAB, 0, "Tuff Slab", BlockIds::TUFF_DOUBLE_SLAB));
+			self::registerBlock(new TuffStairs(BlockIds::TUFF_STAIRS, 0, "Tuff Stairs"));
+			self::registerBlock(new StoneWall(BlockIds::TUFF_WALL, 0, "Tuff Wall"));
 			self::registerBlock(new ChiseledCopper(BlockIds::WAXED_CHISELED_COPPER, 0, "Waxed Chiseled Copper"));
 			//TODO: WAXED_COPPER_BULB
 			self::registerBlock(new CopperGrate(BlockIds::WAXED_COPPER_GRATE, 0, "Waxed Copper Grate"));
@@ -942,19 +946,19 @@ class BlockFactory
 			self::registerBlock(new CherryDoor());
 			//TODO: RESIN_CLUMP
 			//TODO: ACACIA_HANGING_SIGN
-			self::registerBlock(new MossyCobblestoneWall());
-			self::registerBlock(new GraniteWall());
-			self::registerBlock(new DioriteWall());
-			self::registerBlock(new AndesiteWall());
-			self::registerBlock(new SandstoneWall());
-			self::registerBlock(new BrickWall());
-			self::registerBlock(new StoneBrickWall());
-			self::registerBlock(new MossyStoneBrickWall());
-			self::registerBlock(new NetherBrickWall());
-			self::registerBlock(new EndStoneBrickWall());
-			self::registerBlock(new PrismarineWall());
-			self::registerBlock(new RedSandstoneWall());
-			self::registerBlock(new RedNetherBrickWall());
+			self::registerBlock(new BrickWall(BlockIds::MOSSY_COBBLESTONE_WALL, 0, "Mossy Cobblestone Wall"));
+			self::registerBlock(new StoneWall(BlockIds::GRANITE_WALL, 0, "Granite Wall"));
+			self::registerBlock(new StoneWall(BlockIds::DIORITE_WALL, 0, "Diorite Wall"));
+			self::registerBlock(new StoneWall(BlockIds::ANDESITE_WALL, 0, "Andesite Wall"));
+			self::registerBlock(new SandstoneWall(BlockIds::SANDSTONE_WALL, 0, "Sandstone Wall"));
+			self::registerBlock(new BrickWall(BlockIds::BRICK_WALL, 0, "Brick Wall"));
+			self::registerBlock(new StoneWall(BlockIds::STONE_BRICK_WALL, 0, "Stone Brick Wall"));
+			self::registerBlock(new StoneWall(BlockIds::MOSSY_STONE_BRICK_WALL, 0, "Mossy Stone Brick Wall"));
+			self::registerBlock(new BrickWall(BlockIds::NETHER_BRICK_WALL, 0, "Nether Brick Wall"));
+			self::registerBlock(new EndStoneBrickWall(BlockIds::END_STONE_BRICK_WALL, 0, "End Stone Brick Wall"));
+			self::registerBlock(new StoneWall(BlockIds::PRISMARINE_WALL, 0, "Prismarine Wall"));
+			self::registerBlock(new SandstoneWall(BlockIds::RED_SANDSTONE_WALL, 0, "Red Sandstone Wall"));
+			self::registerBlock(new BrickWall(BlockIds::RED_NETHER_BRICK_WALL, 0, "Red Nether Brick Wall"));
 
 			//TODO: TRIAL_SPAWNER
 			//TODO: VAULT
@@ -977,31 +981,43 @@ class BlockFactory
 			self::registerBlock(new PaleOakFenceGate());
 			//TODO: PALE_OAK_HANGING_SIGN
 			self::registerBlock(new PaleOakLeaves());
-			self::registerBlock(new PaleOakLog());
+			self::registerBlock(new FixLog(BlockIds::PALE_OAK_LOG, 0, "Pale Oak Log"));
 			self::registerBlock(new PaleOakPlanks());
 			self::registerBlock(new PaleOakPressurePlate());
 			self::registerBlock(new PaleOakSapling());
 			self::registerBlock(new PaleOakSlab());
 			self::registerBlock(new PaleOakStairs());
 			self::registerBlock(new PaleOakSignPost());
-			self::registerBlock(new PaleOakTrapdoor());
+			self::registerBlock(new WoodenTrapdoor(BlockIds::PALE_OAK_TRAPDOOR, 0, "Pale Oak Trapdoor"));
 			self::registerBlock(new PaleOakWallSign());
-			self::registerBlock(new PaleOakWood());
+			self::registerBlock(new FixWood(BlockIds::PALE_OAK_WOOD, 0, "Pale Oak Wood"));
 			self::registerBlock(new Resin());
 			self::registerBlock(new ResinBrickDoubleSlab());
 			self::registerBlock(new ResinBrickSlab());
 			self::registerBlock(new ResinBrickStairs());
 			self::registerBlock(new ResinBricks());
-			self::registerBlock(new StrippedPaleOakLog(BlockIds::STRIPPED_PALE_OAK_LOG, 0, "Pale Oak"));
-			self::registerBlock(new StrippedPaleOakWood());
-			//TODO: RESIN_BRICK_WALL
-			self::registerBlock(new Bush());
-			self::registerBlock(new CactusFlower());
-			self::registerBlock(new FireflyBush());
-			self::registerBlock(new LeafLitter());
-			self::registerBlock(new ShortDryGrass());
-			self::registerBlock(new TallDryGrass());
-			self::registerBlock(new Wildflowers());
+			self::registerBlock(new StrippedLog(BlockIds::STRIPPED_PALE_OAK_LOG, 0, "Stripped Pale Oak Log"));
+			self::registerBlock(new StrippedWood(BlockIds::STRIPPED_PALE_OAK_WOOD, 0, "Stripped Pale Oak Wood"));
+			self::registerBlock(new StoneWall(BlockIds::RESIN_BRICK_WALL, 0, "Resin Brick Wall"));
+			self::registerBlock(new Bush(BlockIds::BUSH, 0, "Bush"));
+			self::registerBlock(new CactusFlower(BlockIds::CACTUS_FLOWER, 0, "Cactus Flower"));
+
+			self::registerBlock(new class(BlockIds::FIREFLY_BUSH, 0, "Firefly Bush") extends Bush {
+				public function canBeReplaced() : bool{ return false; }
+
+				public function getToolType() : int{ return BlockToolType::TYPE_NONE; }
+			});
+
+			self::registerBlock(new class(BlockIds::LEAF_LITTER, 0, "Leaf Litter") extends Petals {
+				public function canBeReplaced() : bool{ return true; }
+
+				public function supportedWhenPlacedAt(Block $blockReplace, Vector3 $clickVector, int $face, bool $isClickedBlock) : bool{
+					return !$this->isSameType($blockReplace) && parent::supportedWhenPlacedAt($blockReplace, $clickVector, $face, $isClickedBlock);
+				}
+			});
+			self::registerBlock(new DryGrass(BlockIds::SHORT_DRY_GRASS, 0, "Short Dry Grass"));
+			self::registerBlock(new DryGrass(BlockIds::TALL_DRY_GRASS, 0, "Tall Dry Grass"));
+			self::registerBlock(new Petals(BlockIds::WILDFLOWERS, 0, "Wildflowers"));
 			//TODO: COPPER_CHEST
 			//TODO: EXPOSED_COPPER_CHEST
 			//TODO: OXIDIZED_COPPER_CHEST
@@ -1010,6 +1026,96 @@ class BlockFactory
 			//TODO: WAXED_OXIDDIZED_COPPER_CHEST
 			//TODO: WAXED_WEATHERED_COPPER_CHEST
 			//TODO: WEATHERED_COPPER_CHEST
+
+			//TODO: WEATHERED_COPPER_CHEST
+			//TODO: WEATHERED_LIGHTNING_ROD
+			//TODO: WEATHERED_COPPER_LANTERN
+			//TODO: WEATHERED_COPPER_GOLEM_STATUE
+			//TODO: WEATHERED_COPPER_CHAIN
+			//TODO: WEATHERED_COPPER_BARS
+			//TODO: WAXED_WEATHERED_LIGHTNING_ROD
+			//TODO: WAXED_WEATHERED_COPPER_LANTERN
+			//TODO: WAXED_WEATHERED_COPPER_GOLEM_STATUE
+			//TODO: WAXED_WEATHERED_COPPER_CHAIN
+			//TODO: WAXED_WEATHERED_COPPER_BARS
+			//TODO: WAXED_OXIDIZED_LIGHTNING_ROD
+			//TODO: WAXED_OXIDIZED_COPPER_LANTERN
+			//TODO: WAXED_OXIDIZED_COPPER_GOLEM_STATUE
+			//TODO: WAXED_OXIDIZED_COPPER_CHAIN
+			//TODO: WAXED_OXIDIZED_COPPER_BARS
+			//TODO: WAXED_LIGHTNING_ROD
+			//TODO: WAXED_EXPOSED_LIGHTNING_ROD
+			//TODO: WAXED_EXPOSED_COPPER_LANTERN
+			//TODO: WAXED_EXPOSED_COPPER_GOLEM_STATUE
+			//TODO: WAXED_EXPOSED_COPPER_CHAIN
+			//TODO: WAXED_EXPOSED_COPPER_BARS
+			//TODO: WAXED_COPPER_LANTERN
+			//TODO: WAXED_COPPER_GOLEM_STATUE
+			//TODO: WAXED_COPPER_CHAIN
+			//TODO: WAXED_COPPER_BARS
+			//TODO: WARPED_SHELF
+			//TODO: SPRUCE_SHELF
+			//TODO: PALE_OAK_SHELF
+			//TODO: OXIDIZED_LIGHTNING_ROD
+			//TODO: OXIDIZED_COPPER_LANTERN
+			//TODO: OXIDIZED_COPPER_GOLEM_STATUE
+			//TODO: OXIDIZED_COPPER_CHAIN
+			//TODO: OXIDIZED_COPPER_BARS
+			//TODO: OAK_SHELF
+			//TODO: MANGROVE_SHELF
+			//TODO: JUNGLE_SHELF
+			//TODO: EXPOSED_LIGHTNING_ROD
+			//TODO: EXPOSED_COPPER_LANTERN
+			//TODO: EXPOSED_COPPER_GOLEM_STATUE
+			//TODO: EXPOSED_COPPER_CHAIN
+			//TODO: EXPOSED_COPPER_BARS
+			//TODO: DARK_OAK_SHELF
+			//TODO: CRIMSON_SHELF
+			//TODO: COPPER_TORCH
+			//TODO: COPPER_LANTERN
+			//TODO: COPPER_GOLEM_STATUE
+			//TODO: COPPER_CHAIN
+			//TODO: COPPER_BARS
+			//TODO: CHERRY_SHELF
+			//TODO: BIRCH_SHELF
+			//TODO: BAMBOO_SHELF
+			//TODO: ACACIA_SHELF
+			//TODO: GOLDEN_DANDELION
+			//TODO: CHISELED_CINNABAR
+			//TODO: CHISELED_SULFUR
+			//TODO: CINNABAR
+			//TODO: CINNABAR_BRICK_DOUBLE_SLAB
+			//TODO: CINNABAR_BRICK_SLAB
+			//TODO: CINNABAR_BRICK_STAIRS
+			//TODO: CINNABAR_BRICK_WALL
+			//TODO: CINNABAR_BRICKS
+			//TODO: CINNABAR_DOUBLE_SLAB
+			//TODO: CINNABAR_SLAB
+			//TODO: CINNABAR_STAIRS
+			//TODO: CINNABAR_WALL
+			//TODO: POLISHED_CINNABAR
+			//TODO: POLISHED_CINNABAR_DOUBLE_SLAB
+			//TODO: POLISHED_CINNABAR_SLAB
+			//TODO: SULFUR_WALL
+			//TODO: SULFUR_STAIRS
+			//TODO: SULFUR_SLAB
+			//TODO: SULFUR_DOUBLE_SLAB
+			//TODO: SULFUR_CUBE_SPAWN_EGG
+			//TODO: SULFUR_CUBE_BUCKET
+			//TODO: SULFUR_BRICKS
+			//TODO: SULFUR_BRICK_WALL
+			//TODO: SULFUR_BRICK_STAIRS
+			//TODO: SULFUR_BRICK_SLAB
+			//TODO: SULFUR_BRICK_DOUBLE_SLAB
+			//TODO: SULFUR
+			//TODO: POTENT_SULFUR
+			//TODO: POLISHED_SULFUR_WALL
+			//TODO: POLISHED_SULFUR_STAIRS
+			//TODO: POLISHED_SULFUR_SLAB
+			//TODO: POLISHED_SULFUR_DOUBLE_SLAB
+			//TODO: POLISHED_SULFUR
+			//TODO: POLISHED_CINNABAR_WALL
+			//TODO: POLISHED_CINNABAR_STAIRS
 		}
 	}
 
@@ -1061,7 +1167,7 @@ class BlockFactory
 	/**
 	 * Returns a new Block instance with the specified ID, meta and position.
 	 */
-	public static function get(int $id, int $meta = 0, Position $pos = null) : Block
+	public static function get(int $id, int $meta = 0, ?Position $pos = null) : Block
 	{
 		if($meta < 0 || $meta >= (1 << Block::INTERNAL_METADATA_BITS)){
 			throw new InvalidArgumentException("Block meta value $meta is out of bounds");
@@ -1088,9 +1194,67 @@ class BlockFactory
 		return $block;
 	}
 
-	public static function fromFullBlock(int $fullState, Position $pos = null) : Block
+	public static function fromFullBlock(int $fullState, ?Position $pos = null) : Block
 	{
 		return self::get($fullState >> Block::INTERNAL_METADATA_BITS, $fullState & Block::INTERNAL_METADATA_MASK, $pos);
+	}
+
+	private static function normalizeName(string $name) : string
+	{
+		return str_contains($name, ":") ? $name : "minecraft:" . $name;
+	}
+
+	/**
+	 * Returns the block with the given vanilla name, e.g. fromName("minecraft:oak_stairs", ["weirdo_direction" => 2]).
+	 * States which are not given keep their default values. Returns null for unknown names or states.
+	 *
+	 * @param mixed[] $states state name => value (bool, int or string)
+	 */
+	public static function fromName(string $name, array $states = [], ?Position $pos = null) : ?Block
+	{
+		$mapping = RuntimeBlockMapping::getInstance(ProtocolInfo::CURRENT_PROTOCOL);
+		$runtimeId = $mapping->lookupState(self::normalizeName($name), $states);
+		return $runtimeId === null ? null : self::fromFullBlock($mapping->fromRuntimeId($runtimeId), $pos);
+	}
+
+	/**
+	 * Returns the vanilla name of a block, e.g. "minecraft:oak_stairs"
+	 */
+	public static function getVanillaName(Block $block) : string
+	{
+		$mapping = RuntimeBlockMapping::getInstance(ProtocolInfo::CURRENT_PROTOCOL);
+		return $mapping->toName($mapping->toRuntimeId($block->getFullId()));
+	}
+
+	/**
+	 * Registers a block implementation by the vanilla name of the block, so the legacy ID doesn't have to be known.
+	 * The factory gets the legacy ID taken from the block palette.
+	 *
+	 * @param \Closure $factory fn(int $legacyId) : Block
+	 * @phpstan-param \Closure(int) : Block $factory
+	 *
+	 * @return int the legacy ID the block was registered with
+	 * @throws InvalidArgumentException if the block is unknown
+	 */
+	public static function registerNamed(string $name, \Closure $factory, bool $override = false) : int
+	{
+		$mapping = RuntimeBlockMapping::getInstance(ProtocolInfo::CURRENT_PROTOCOL);
+		$runtimeId = $mapping->lookupState(self::normalizeName($name));
+		if ($runtimeId === null) {
+			throw new InvalidArgumentException("Unknown block \"$name\"");
+		}
+		$legacyId = $mapping->fromRuntimeId($runtimeId) >> Block::INTERNAL_METADATA_BITS;
+		$block = $factory($legacyId);
+		if (!($block instanceof Block) || $block->getId() !== $legacyId) {
+			throw new InvalidArgumentException("The factory of \"$name\" must create a block with the ID $legacyId");
+		}
+		self::registerBlock($block, $override);
+		return $legacyId;
+	}
+
+	public static function getListOffset(int $id, int $meta) : int
+	{
+		return $id << Block::INTERNAL_METADATA_BITS | $meta;
 	}
 
 	/**
@@ -1117,10 +1281,5 @@ class BlockFactory
 	public static function getMappedStateId(int $fullState) : int
 	{
 		return self::$mappedStateIds[$fullState] ?? $fullState;
-	}
-
-	public static function getListOffset(int $id, int $meta) : int
-	{
-		return $id << Block::INTERNAL_METADATA_BITS | $meta;
 	}
 }

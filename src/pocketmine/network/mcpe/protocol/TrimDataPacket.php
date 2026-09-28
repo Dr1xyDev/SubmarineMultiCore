@@ -36,12 +36,12 @@ class TrimDataPacket extends DataPacket
 	 * @var TrimPattern[]
 	 * @phpstan-var list<TrimPattern>
 	 */
-	public array $trimPatterns;
+	public array $trimPatterns = [];
 	/**
 	 * @var TrimMaterial[]
 	 * @phpstan-var list<TrimMaterial>
 	 */
-	public array $trimMaterials;
+	public array $trimMaterials = [];
 
 	/**
 	 * @generate-create-func

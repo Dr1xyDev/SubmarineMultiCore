@@ -237,6 +237,6 @@ final class ProtocolInfo818
 	public const PLAYER_UPDATE_ENTITY_OVERRIDES_PACKET = 0x145;
 	public const PLAYER_LOCATION_PACKET = 0x146;
 	public const CLIENTBOUND_CONTROL_SCHEME_SET_PACKET = 0x147;
-	public const DEBUG_DRAWER_PACKET = 0x148;
+	public const PRIMITIVE_SHAPES_PACKET = 0x148;
 
 }

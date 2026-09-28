@@ -41,7 +41,7 @@ abstract class Button extends Flowable
 		return 0;
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool
 	{
 		if ($this->canBeSupportedAt($blockReplace->getSide(Facing::opposite($face)))) {
 			$this->meta = $face;
@@ -52,7 +52,7 @@ abstract class Button extends Flowable
 
 	abstract protected function getActivationTime() : int;
 
-	public function onActivate(Item $item, Player $player = null) : bool
+	public function onActivate(Item $item, ?Player $player = null) : bool
 	{
 		if (!$this->isActivated()) {
 			$this->meta ^= 0x08;
@@ -83,7 +83,7 @@ abstract class Button extends Flowable
 		}
 	}
 
-	private function canBeSupportedAt(Block $block) : bool
+	protected function canBeSupportedAt(Block $block) : bool
 	{
 		if (!$block->isTransparent()) {
 			return true;

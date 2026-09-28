@@ -37,6 +37,7 @@ final class CameraAimAssistPreset
 	public function __construct(
 		private string $identifier,
 		private string $categories,
+		private CameraAimAssistPresetExclusionDefinition $exclusionSettings,
 		private array $exclusionList,
 		private array $liquidTargetingList,
 		private array $itemSettings,
@@ -53,6 +54,10 @@ final class CameraAimAssistPreset
 	public function getCategories() : string
 	{
 		return $this->categories;
+	}
+
+	public function getExclusionSettings() : CameraAimAssistPresetExclusionDefinition{
+		return $this->exclusionSettings;
 	}
 
 	/**
@@ -89,16 +94,20 @@ final class CameraAimAssistPreset
 		return $this->defaultHandSettings;
 	}
 
-	public static function read(NetworkBinaryStream $in, int $protocolVersion) : self
+	public static function read(NetworkBinaryStream $in) : self
 	{
 		$identifier = $in->getString();
-		if ($protocolVersion < ProtocolInfo::PROTOCOL_776) {
+		if ($in->getProtocol() < ProtocolInfo::PROTOCOL_776) {
 			$categories = $in->getString();
 		}
 
 		$exclusionList = [];
-		for ($i = 0, $len = $in->getUnsignedVarInt(); $i < $len; ++$i) {
-			$exclusionList[] = $in->getString();
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_897) {
+			$exclusionSettings = CameraAimAssistPresetExclusionDefinition::read($in);
+		} else {
+			for ($i = 0, $len = $in->getUnsignedVarInt(); $i < $len; ++$i) {
+				$exclusionList[] = $in->getString();
+			}
 		}
 
 		$liquidTargetingList = [];
@@ -111,12 +120,13 @@ final class CameraAimAssistPreset
 			$itemSettings[] = CameraAimAssistPresetItemSettings::read($in);
 		}
 
-		$defaultItemSettings = $in->readOptional(fn () => $in->getString());
-		$defaultHandSettings = $in->readOptional(fn () => $in->getString());
+		$defaultItemSettings = $in->getOptional(fn () => $in->getString());
+		$defaultHandSettings = $in->getOptional(fn () => $in->getString());
 
 		return new self(
 			$identifier,
 			$categories ?? "",
+			$exclusionSettings ?? new CameraAimAssistPresetExclusionDefinition([], [], [], []),
 			$exclusionList,
 			$liquidTargetingList,
 			$itemSettings,
@@ -125,16 +135,20 @@ final class CameraAimAssistPreset
 		);
 	}
 
-	public function write(NetworkBinaryStream $out, int $protocolVersion) : void
+	public function write(NetworkBinaryStream $out) : void
 	{
 		$out->putString($this->identifier);
-		if ($protocolVersion < ProtocolInfo::PROTOCOL_776) {
+		if ($out->getProtocol() < ProtocolInfo::PROTOCOL_776) {
 			$out->putString($this->categories);
 		}
 
-		$out->putUnsignedVarInt(count($this->exclusionList));
-		foreach ($this->exclusionList as $exclusion) {
-			$out->putString($exclusion);
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_897) {
+			$this->exclusionSettings->write($out);
+		} else {
+			$out->putUnsignedVarInt(count($this->exclusionList));
+			foreach ($this->exclusionList as $exclusion) {
+				$out->putString($exclusion);
+			}
 		}
 
 		$out->putUnsignedVarInt(count($this->liquidTargetingList));
@@ -147,7 +161,7 @@ final class CameraAimAssistPreset
 			$itemSetting->write($out);
 		}
 
-		$out->writeOptional($this->defaultItemSettings, fn (string $v) => $out->putString($v));
-		$out->writeOptional($this->defaultHandSettings, fn (string $v) => $out->putString($v));
+		$out->putOptional($this->defaultItemSettings, fn (string $v) => $out->putString($v));
+		$out->putOptional($this->defaultHandSettings, fn (string $v) => $out->putString($v));
 	}
 }

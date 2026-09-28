@@ -24,15 +24,12 @@ namespace pocketmine\network\mcpe\protocol;
 
 use pocketmine\entity\Skin;
 use pocketmine\network\mcpe\NetworkSession;
+use pocketmine\network\mcpe\protocol\types\DeviceOS;
 use pocketmine\network\mcpe\protocol\types\PlayerListEntry;
 use pocketmine\network\mcpe\protocol\types\skin\SerializedSkin;
 use pocketmine\utils\Color;
 
 use function count;
-use function is_array;
-use function json_decode;
-use function json_encode;
-use function strtolower;
 
 class PlayerListPacket extends DataPacket
 {
@@ -62,8 +59,19 @@ class PlayerListPacket extends DataPacket
 		return "Standard_" . $type;
 	}
 
+	/** Since 1.26.40 every entry has its own type: [network type, inner type] by core type */
+	private const NETWORK_TYPES_V2168 = [
+		self::TYPE_ADD => [1, 0],
+		self::TYPE_REMOVE => [0, 1],
+	];
+
 	protected function decodePayload() : void
 	{
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_2168) {
+			$this->decodePayloadV2168();
+			return;
+		}
+
 		$this->type = $this->getByte();
 		$count = $this->getUnsignedVarInt();
 		for ($i = 0; $i < $count; ++$i) {
@@ -73,55 +81,21 @@ class PlayerListPacket extends DataPacket
 				$entry->uuid = $this->getUUID();
 				$entry->entityUniqueId = $this->getEntityUniqueId();
 				$entry->username = $this->getString();
-				if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_137) {
-					if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_223 && $this->getProtocol() < ProtocolInfo::PROTOCOL_291) {
-						$entry->thirdPartyName = $this->getString();
-						$entry->platform = $this->getVarInt();
-					}
-
-					if ($this->getProtocol() < ProtocolInfo::PROTOCOL_370) {
-						$skinId = $this->getString();
-						$skinData = $this->getString();
-						$capeData = $this->getString();
-						$geometryName = $this->getString();
-						$geometryData = $this->getString();
-
-						$entry->skin = new Skin(
-							$skinId,
-							$skinData,
-							$capeData,
-							$geometryName,
-							$geometryData
-						);
-					}
+				if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 					$entry->xboxUserId = $this->getString();
-					if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_223) {
-						$entry->platformChatId = $this->getString();
-						if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_370) {
-							if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_388) {
-								$entry->buildPlatform = $this->getLInt();
-							}
-							$entry->skin = $this->getSkin($this->getProtocol());
-							if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_388) {
-								$entry->isTeacher = $this->getBool();
-								$entry->isHost = $this->getBool();
-								if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_649) {
-									$entry->isSubClient = $this->getBool();
-									if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_800) {
-										$entry->color = Color::fromARGB($this->getLInt());
-									}
-								}
-							}
+					$entry->platformChatId = $this->getString();
+					$entry->buildPlatform = $this->getLInt();
+					$entry->skin = $this->getSkin();
+					$entry->isTeacher = $this->getBool();
+					$entry->isHost = $this->getBool();
+					if ($this->protocol >= ProtocolInfo::PROTOCOL_649) {
+						$entry->isSubClient = $this->getBool();
+						if ($this->protocol >= ProtocolInfo::PROTOCOL_800) {
+							$entry->color = Color::fromARGB($this->getLInt());
 						}
 					}
 				} else {
-					$skinId = $this->getString();
-					$skinData = $this->getString();
-
-					$entry->skin = new Skin(
-						$skinId,
-						$skinData
-					);
+					$entry->skin = new Skin($this->getString(), $this->getString());
 				}
 			} else {
 				$entry->uuid = $this->getUUID();
@@ -129,7 +103,7 @@ class PlayerListPacket extends DataPacket
 
 			$this->entries[$i] = $entry;
 		}
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_390) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			if ($this->type === self::TYPE_ADD) {
 				for ($i = 0; $i < $count; ++$i) {
 					$this->getBool();
@@ -138,8 +112,73 @@ class PlayerListPacket extends DataPacket
 		}
 	}
 
+	private function decodePayloadV2168() : void
+	{
+		$count = $this->getUnsignedVarInt();
+		$this->type = self::TYPE_ADD;
+		for ($i = 0; $i < $count; ++$i) {
+			$networkType = $this->getUnsignedVarInt();
+			$innerType = $this->getByte();
+			$type = null;
+			foreach (self::NETWORK_TYPES_V2168 as $coreType => [$expectedType, $expectedInnerType]) {
+				if ($networkType === $expectedType && $innerType === $expectedInnerType) {
+					$type = $coreType;
+					break;
+				}
+			}
+			if ($type === null) {
+				throw new PacketDecodeException("Unknown player list entry type $networkType (inner type $innerType)");
+			}
+			$this->type = $type;
+
+			$entry = new PlayerListEntry();
+			$entry->uuid = $this->getUUID();
+			if ($type === self::TYPE_ADD) {
+				$entry->entityUniqueId = $this->getEntityUniqueId();
+				$entry->username = $this->getString();
+				$entry->xboxUserId = $this->getString();
+				$entry->platformChatId = $this->getString();
+				$entry->buildPlatform = $this->getLInt();
+				$entry->skin = $this->getSkin();
+				$entry->isTeacher = $this->getBool();
+				$entry->isHost = $this->getBool();
+				$entry->isSubClient = $this->getBool();
+				$entry->color = Color::fromARGB($this->getLInt());
+			}
+			$this->entries[$i] = $entry;
+		}
+	}
+
+	private function encodePayloadV2168() : void
+	{
+		[$networkType, $innerType] = self::NETWORK_TYPES_V2168[$this->type];
+		$this->putUnsignedVarInt(count($this->entries));
+		foreach ($this->entries as $entry) {
+			$this->putUnsignedVarInt($networkType);
+			$this->putByte($innerType);
+			$this->putUUID($entry->uuid);
+			if ($this->type === self::TYPE_ADD) {
+				$this->putEntityUniqueId($entry->entityUniqueId);
+				$this->putString($entry->username);
+				$this->putString($entry->xboxUserId);
+				$this->putString($entry->platformChatId);
+				$this->putLInt($entry->buildPlatform < 0 ? DeviceOS::ANDROID : $entry->buildPlatform); //1.26.40+ clients disconnect on unknown platforms
+				$this->putSkin($entry->skin);
+				$this->putBool($entry->isTeacher);
+				$this->putBool($entry->isHost);
+				$this->putBool($entry->isSubClient);
+				$this->putLInt(($entry->color ?? new Color(255, 255, 255))->toARGB());
+			}
+		}
+	}
+
 	protected function encodePayload() : void
 	{
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_2168) {
+			$this->encodePayloadV2168();
+			return;
+		}
+
 		$this->putByte($this->type);
 		$this->putUnsignedVarInt(count($this->entries));
 		foreach ($this->entries as $entry) {
@@ -147,63 +186,28 @@ class PlayerListPacket extends DataPacket
 				$this->putUUID($entry->uuid);
 				$this->putEntityUniqueId($entry->entityUniqueId);
 				$this->putString($entry->username);
-				if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_137) {
-					if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_223 && $this->getProtocol() < ProtocolInfo::PROTOCOL_291) {
-						$this->putString($entry->thirdPartyName);
-						$this->putVarInt($entry->platform);
-					}
-					if ($this->getProtocol() < ProtocolInfo::PROTOCOL_370) {
-						$this->putString($entry->skin->getSkinId());
-						$this->putString($entry->skin->getClientFriendlySkinData($this->getProtocol()));
-						$this->putString($entry->skin->getCapeData());
-
-						$skinGeometryName = $entry->skin->getGeometryName();
-						$skinGeometryData = $entry->skin->getGeometryData();
-						if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_313) {
-							$skinGeometryName = strtolower($skinGeometryName);
-							$tempData = json_decode($skinGeometryData, true);
-							if (is_array($tempData)) {
-								foreach ($tempData as $key => $value) {
-									unset($tempData[$key]);
-									$tempData[strtolower($key)] = $value;
-								}
-
-								$skinGeometryData = json_encode($tempData);
-							}
-						}
-						$this->putString($skinGeometryName);
-						$this->putString($this->prepareGeometryDataForOld($skinGeometryData));
-					}
-
+				if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 					$this->putString($entry->xboxUserId);
-					if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_223) {
-						$this->putString($entry->platformChatId);
-						if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_370) {
-							if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_388) {
-								$this->putLInt($entry->buildPlatform);
-							}
-							$this->putSkin($entry->skin, $this->getProtocol());
-							if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_388) {
-								$this->putBool($entry->isTeacher);
-								$this->putBool($entry->isHost);
-								if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_649) {
-									$this->putBool($entry->isSubClient);
-									if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_800) {
-										$this->putLInt(($entry->color ?? new Color(255, 255, 255))->toARGB());
-									}
-								}
-							}
+					$this->putString($entry->platformChatId);
+					$this->putLInt($entry->buildPlatform);
+					$this->putSkin($entry->skin);
+					$this->putBool($entry->isTeacher);
+					$this->putBool($entry->isHost);
+					if ($this->protocol >= ProtocolInfo::PROTOCOL_649) {
+						$this->putBool($entry->isSubClient);
+						if ($this->protocol >= ProtocolInfo::PROTOCOL_800) {
+							$this->putLInt(($entry->color ?? new Color(255, 255, 255))->toARGB());
 						}
 					}
 				} else {
 					$this->putString(self::getPESkinId($entry->skin));
-					$this->putString($entry->skin->getClientFriendlySkinData($this->getProtocol()));
+					$this->putString($entry->skin->getClientFriendlySkinData($this->protocol));
 				}
 			} else {
 				$this->putUUID($entry->uuid);
 			}
 		}
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_390) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			if ($this->type === self::TYPE_ADD) {
 				foreach ($this->entries as $entry) {
 					$this->putBool($entry->skin->getSerializedSkin()->isTrustedSkin());

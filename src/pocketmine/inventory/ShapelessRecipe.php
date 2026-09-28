@@ -27,36 +27,46 @@ use pocketmine\utils\Utils;
 use function count;
 
 class ShapelessRecipe implements CraftingRecipe{
-	/** @var Item[] */
+	/**
+	 * @var RecipeIngredient[]
+	 * @phpstan-var list<RecipeIngredient>
+	 */
 	private array $ingredients = [];
-	/** @var Item[] */
+	/**
+	 * @var Item[]
+	 * @phpstan-var list<Item>
+	 */
 	private array $results;
 	private ShapelessRecipeType $type;
 
 	/**
-	 * @param Item[] $ingredients No more than 9 total. This applies to sum of item stack counts, not count of array.
-	 * @param Item[] $results     List of result items created by this recipe.
+	 * @param RecipeIngredient[]|Item[] $ingredients No more than 9 total. This applies to sum of item stack counts, not count of array.
+	 * @param Item[]                    $results     List of result items created by this recipe.
 	 *
-	 * TODO: we'll want to make the type parameter mandatory in PM5
+	 * @phpstan-param list<RecipeIngredient|Item> $ingredients
+	 * @phpstan-param list<Item>             $results
 	 */
 	public function __construct(array $ingredients, array $results, ?ShapelessRecipeType $type = null){
-		$this->type = $type ?? ShapelessRecipeType::CRAFTING();
-		foreach($ingredients as $item){
-			//Ensure they get split up properly
-			if(count($this->ingredients) + $item->getCount() > 9){
-				throw new \InvalidArgumentException("Shapeless recipes cannot have more than 9 ingredients");
-			}
-
-			while($item->getCount() > 0){
-				$this->ingredients[] = $item->pop();
+		foreach ($ingredients as $i => $ingredient) {
+			if ($ingredient instanceof Item) {
+				$ingredients[$i] = new ExactRecipeIngredient($ingredient);
 			}
 		}
 
+		$this->type = $type ?? ShapelessRecipeType::CRAFTING();
+
+		if(count($ingredients) > 9){
+			throw new \InvalidArgumentException("Shapeless recipes cannot have more than 9 ingredients");
+		}
+		Utils::validateArrayValueType($ingredients, function(RecipeIngredient $_) : void{});
+		$this->ingredients = $ingredients;
+		Utils::validateArrayValueType($results, function(Item $_) : void{});
 		$this->results = Utils::cloneObjectArray($results);
 	}
 
 	/**
 	 * @return Item[]
+	 * @phpstan-return list<Item>
 	 */
 	public function getResults() : array{
 		return Utils::cloneObjectArray($this->results);
@@ -70,29 +80,21 @@ class ShapelessRecipe implements CraftingRecipe{
 		return $this->type;
 	}
 
-	/**
-	 * @return Item[]
-	 */
 	public function getIngredientList() : array{
-		return Utils::cloneObjectArray($this->ingredients);
+		return $this->ingredients;
 	}
 
 	public function getIngredientCount() : int{
-		$count = 0;
-		foreach($this->ingredients as $ingredient){
-			$count += $ingredient->getCount();
-		}
-
-		return $count;
+		return count($this->ingredients);
 	}
 
 	public function matchesCraftingGrid(CraftingGrid $grid) : bool{
 		//don't pack the ingredients - shapeless recipes require that each ingredient be in a separate slot
 		$input = $grid->getContents();
 
-		foreach($this->ingredients as $needItem){
+		foreach($this->ingredients as $ingredient){
 			foreach($input as $j => $haveItem){
-				if($haveItem->equals($needItem, !$needItem->hasAnyDamageValue(), $needItem->hasNamedTag()) && $haveItem->getCount() >= $needItem->getCount()){
+				if($ingredient->accepts($haveItem)){
 					unset($input[$j]);
 					continue 2;
 				}

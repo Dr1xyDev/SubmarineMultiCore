@@ -39,8 +39,8 @@ class UpdateAttributesPacket extends DataPacket
 	protected function decodePayload() : void
 	{
 		$this->entityRuntimeId = $this->getEntityRuntimeId();
-		$this->entries = $this->getAttributeList($this->getProtocol());
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_419) {
+		$this->entries = $this->getAttributeList();
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_419) {
 			$this->tick = $this->getUnsignedVarLong();
 		}
 	}
@@ -48,8 +48,8 @@ class UpdateAttributesPacket extends DataPacket
 	protected function encodePayload() : void
 	{
 		$this->putEntityRuntimeId($this->entityRuntimeId);
-		$this->putAttributeList($this->getProtocol(), ...$this->entries);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_419) {
+		$this->putAttributeList(...$this->entries);
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_419) {
 			$this->putUnsignedVarLong($this->tick);
 		}
 	}

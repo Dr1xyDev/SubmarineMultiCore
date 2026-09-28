@@ -29,6 +29,7 @@ use pocketmine\event\entity\ItemMergeEvent;
 use pocketmine\event\entity\ItemSpawnEvent;
 use pocketmine\event\inventory\InventoryPickupItemEvent;
 use pocketmine\item\Item;
+use pocketmine\level\Level;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\convert\TypeConverter;
@@ -94,7 +95,10 @@ class ItemEntity extends Entity
 		if ($this->item->isNull()) {
 			throw new UnexpectedValueException("Item for " . get_class($this) . " is invalid");
 		}
-		(new ItemSpawnEvent($this))->call();
+
+		if ($this->level instanceof Level) {
+			(new ItemSpawnEvent($this))->call();
+		}
 	}
 
 	public function entityBaseTick(int $tickDiff = 1) : bool

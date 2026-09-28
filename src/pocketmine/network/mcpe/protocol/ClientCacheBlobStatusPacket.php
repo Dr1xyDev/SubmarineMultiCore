@@ -70,10 +70,18 @@ class ClientCacheBlobStatusPacket extends DataPacket
 	protected function decodePayload() : void
 	{
 		$hitCount = $this->getUnsignedVarInt();
-		$missCount = $this->getUnsignedVarInt();
-		for ($i = 0; $i < $hitCount; ++$i) {
-			$this->hitHashes[] = $this->getLLong();
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_1001) {
+			for ($i = 0; $i < $hitCount; ++$i) {
+				$this->hitHashes[] = $this->getLLong();
+			}
+			$missCount = $this->getUnsignedVarInt();
+		} else {
+			$missCount = $this->getUnsignedVarInt();
+			for ($i = 0; $i < $hitCount; ++$i) {
+				$this->hitHashes[] = $this->getLLong();
+			}
 		}
+
 		for ($i = 0; $i < $missCount; ++$i) {
 			$this->missHashes[] = $this->getLLong();
 		}
@@ -82,10 +90,18 @@ class ClientCacheBlobStatusPacket extends DataPacket
 	protected function encodePayload() : void
 	{
 		$this->putUnsignedVarInt(count($this->hitHashes));
-		$this->putUnsignedVarInt(count($this->missHashes));
-		foreach ($this->hitHashes as $hash) {
-			$this->putLLong($hash);
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_1001) {
+			foreach ($this->hitHashes as $hash) {
+				$this->putLLong($hash);
+			}
+			$this->putUnsignedVarInt(count($this->missHashes));
+		} else {
+			$this->putUnsignedVarInt(count($this->missHashes));
+			foreach ($this->hitHashes as $hash) {
+				$this->putLLong($hash);
+			}
 		}
+
 		foreach ($this->missHashes as $hash) {
 			$this->putLLong($hash);
 		}

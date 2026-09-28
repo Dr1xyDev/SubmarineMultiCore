@@ -22,8 +22,8 @@ declare(strict_types=1);
 
 namespace pocketmine\tile;
 
-use pocketmine\entity\Entity;
 use pocketmine\entity\object\ItemEntity;
+use pocketmine\event\inventory\HopperItemTakeEvent;
 use pocketmine\inventory\FurnaceInventory;
 use pocketmine\inventory\HopperInventory;
 use pocketmine\inventory\InventoryHolder;
@@ -32,10 +32,9 @@ use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Facing;
 use pocketmine\nbt\tag\CompoundTag;
 
-use function array_filter;
 use function count;
 
-class Hopper extends Spawnable implements InventoryHolder, Container, Nameable
+class Hopper extends Spawnable implements InventoryHolder, LootContainer, Nameable
 {
 	use NameableTrait {
 		addAdditionalSpawnData as addNameSpawnData;
@@ -48,23 +47,18 @@ class Hopper extends Spawnable implements InventoryHolder, Container, Nameable
 	protected int $transferCooldown = 8;
 	protected AxisAlignedBB $pullBox;
 
-	public function __construct(Level $level, CompoundTag $nbt)
-	{
-		parent::__construct($level, $nbt);
-
+	protected function readSaveData(CompoundTag $nbt) : void{
+		$this->inventory = new HopperInventory($this);
 		$this->pullBox = new AxisAlignedBB($this->x, $this->y, $this->z, $this->x + 1, $this->y + 1.5, $this->z + 1);
 
-		$this->getLevel()->scheduleDelayedBlockUpdate($this, 1);
-	}
-
-	protected function readSaveData(CompoundTag $nbt) : void
-	{
 		$this->transferCooldown = $nbt->getInt(self::TAG_TRANSFER_COOLDOWN, 8);
-
-		$this->inventory = new HopperInventory($this);
 
 		$this->loadName($nbt);
 		$this->loadItems($nbt);
+
+		if ($this->level instanceof Level) {
+			$this->level->scheduleDelayedBlockUpdate($this, 1);
+		}
 	}
 
 	protected function writeSaveData(CompoundTag $nbt) : void
@@ -98,47 +92,66 @@ class Hopper extends Spawnable implements InventoryHolder, Container, Nameable
 		return "Hopper";
 	}
 
-	protected function addAdditionalSpawnData(CompoundTag $nbt) : void
+	protected function addAdditionalSpawnData(CompoundTag $nbt, int $protocolVersion) : void
 	{
-		$this->addNameSpawnData($nbt);
+		$this->addNameSpawnData($nbt, $protocolVersion);
 	}
 
-	public function onUpdate() : bool
-	{
+	public function onUpdate() : bool{
 		if ($this->closed) {
 			return false;
 		}
 
+		$this->timings->startTiming();
+
 		if ($this->isOnTransferCooldown()) {
 			$this->transferCooldown--;
 		} else {
-			$transfer = $this->pushItems();
-
-			if (!$transfer && !$this->isFull()) {
-				$transfer = $this->pullItems();
+			$transfer = false;
+			$empty = $this->isEmpty();
+			if (!$empty) {
+				$transfer = $this->pushItems();
 			}
 
-			if ($transfer) {
-				$this->setTransferCooldown(8);
+			$full = false;
+			if (!$transfer) {
+				$full = $this->isFull();
+				if (!$full) {
+					$transfer = $this->pullItems();
+				}
 			}
+
+			$this->setTransferCooldown(8);
 		}
 
+		$this->timings->stopTiming();
 		return true;
 	}
 
 	public function isEmpty() : bool
 	{
-		return count($this->inventory->getContents()) === 0;
+		$slots = $this->inventory->getSlots();
+		$size = $this->inventory->getSize();
+		for ($i = 0; $i < $size; ++$i) {
+			$slot = $slots[$i] ?? null;
+			if ($slot !== null && !$slot->isNull()) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public function isFull() : bool
 	{
-		if ($this->inventory->getSize() < $this->inventory->getDefaultSize()) {
+		$inv = $this->inventory;
+		$size = $inv->getSize();
+		if ($size < $inv->getDefaultSize()) {
 			return false;
 		}
-
-		foreach ($this->inventory->getContents(true) as $slot => $item) {
-			if ($item->getMaxStackSize() !== $item->getCount()) {
+		$slots = $inv->getSlots();
+		for ($i = 0; $i < $size; ++$i) {
+			$item = $slots[$i] ?? null;
+			if ($item === null || $item->isNull() || $item->getCount() !== $item->getMaxStackSize()) {
 				return false;
 			}
 		}
@@ -190,6 +203,7 @@ class Hopper extends Spawnable implements InventoryHolder, Container, Nameable
 				}
 			}
 		} elseif ($tile instanceof Chest || $tile instanceof Hopper) {
+			$tile->unpackLootTable();
 			$inv = $tile->getInventory();
 
 			for ($i = 0, $size = $this->inventory->getSize(); $i < $size; $i++) {
@@ -218,6 +232,9 @@ class Hopper extends Spawnable implements InventoryHolder, Container, Nameable
 			if ($tile instanceof Hopper) {
 				return false;
 			}
+			if ($tile instanceof LootContainer) {
+				$tile->unpackLootTable();
+			}
 			$inv = $tile->getInventory();
 
 			for ($i = 0, $size = $inv->getSize(); $i < $size; $i++) {
@@ -230,6 +247,12 @@ class Hopper extends Spawnable implements InventoryHolder, Container, Nameable
 				}
 
 				$itemToAdd = (clone $item)->setCount(1);
+				$ev = new HopperItemTakeEvent($itemToAdd, $this->inventory, HopperItemTakeEvent::EVENT_TAKE_ITEM_FROM_INVENTORY, $inv);
+				$ev->call();
+				if ($ev->isCancelled()) {
+					continue;
+				}
+
 				if (count($this->inventory->addItem($itemToAdd)) === 0) {
 					$item->pop();
 					$inv->setItem($i, $item);
@@ -238,16 +261,20 @@ class Hopper extends Spawnable implements InventoryHolder, Container, Nameable
 				}
 			}
 		} else {
-			/** @var ItemEntity $entity */
-			foreach (array_filter($this->level->getNearbyEntities($this->pullBox), function (Entity $entity) : bool {
-				return $entity instanceof ItemEntity && !$entity->isFlaggedForDespawn();
-			}) as $entity) {
+			foreach ($this->level->getNearbyEntities($this->pullBox) as $entity) {
+				if (!$entity instanceof ItemEntity || $entity->isFlaggedForDespawn()) {
+					continue;
+				}
 				$item = $entity->getItem();
-				if ($this->inventory->canAddItem($item)) {
-					$this->inventory->addItem($item);
-					$entity->flagForDespawn();
+				$ev = new HopperItemTakeEvent($entity, $this->inventory, HopperItemTakeEvent::EVENT_TAKE_ITEM);
+				$ev->call();
+				if (!$ev->isCancelled()) {
+					if ($this->inventory->canAddItem($item)) {
+						$this->inventory->addItem($item);
+						$entity->flagForDespawn();
 
-					return true;
+						return true;
+					}
 				}
 			}
 		}
@@ -260,7 +287,7 @@ class Hopper extends Spawnable implements InventoryHolder, Container, Nameable
 		return $this->transferCooldown > 0;
 	}
 
-	public function setTransferCooldown(int $cooldown)
+	public function setTransferCooldown(int $cooldown) : void
 	{
 		$this->transferCooldown = $cooldown;
 	}

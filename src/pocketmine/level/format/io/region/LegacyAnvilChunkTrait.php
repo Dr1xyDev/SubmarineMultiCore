@@ -34,7 +34,6 @@ use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\IntArrayTag;
 use pocketmine\nbt\tag\ListTag;
 use UnexpectedValueException;
-
 use function chr;
 use function str_repeat;
 use function zlib_decode;

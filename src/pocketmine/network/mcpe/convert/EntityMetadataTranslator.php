@@ -88,7 +88,7 @@ class EntityMetadataTranslator
 		}
 
 		if (
-			$protocolVersion < ProtocolInfo::PROTOCOL_370 &&
+			$protocolVersion < ProtocolInfo::PROTOCOL_407 &&
 			isset($metadata[EntityMetadataProperties::DATA_TARGET_EID]) &&
 			$metadata[EntityMetadataProperties::DATA_TARGET_EID][1] === -1
 		) {
@@ -145,7 +145,7 @@ class EntityMetadataTranslator
 		}
 
 		if (
-			$protocolVersion < ProtocolInfo::PROTOCOL_370 &&
+			$protocolVersion < ProtocolInfo::PROTOCOL_407 &&
 			isset($translateMetadata[EntityMetadataProperties::DATA_TARGET_EID]) &&
 			$translateMetadata[EntityMetadataProperties::DATA_TARGET_EID][1] === 0
 		) {

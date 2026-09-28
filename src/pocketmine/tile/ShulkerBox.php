@@ -23,7 +23,7 @@ declare(strict_types=1);
 namespace pocketmine\tile;
 
 use InvalidArgumentException;
-use pocketmine\block\Block;
+use pocketmine\block\BlockIds;
 use pocketmine\inventory\InventoryHolder;
 use pocketmine\inventory\ShulkerBoxInventory;
 use pocketmine\item\Item;
@@ -31,9 +31,10 @@ use pocketmine\math\Facing;
 use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\ByteTag;
 use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\nbt\tag\ListTag;
 use pocketmine\Player;
 
-class ShulkerBox extends Spawnable implements InventoryHolder, Container, Nameable
+class ShulkerBox extends Spawnable implements InventoryHolder, LootContainer, Nameable
 {
 	use NameableTrait {
 		addAdditionalSpawnData as addNameSpawnData;
@@ -43,16 +44,12 @@ class ShulkerBox extends Spawnable implements InventoryHolder, Container, Nameab
 	public const TAG_FACING = "facing";
 	public const TAG_UNDYED = "isUndyed";
 
-	/** @var int */
-	protected $facing = Facing::UP;
-	/** @var bool */
-	protected $isUndyed = true;
+	protected int $facing = Facing::UP;
+	protected bool $isUndyed = true;
 
-	/** @var ShulkerBoxInventory */
-	protected $inventory;
+	protected ShulkerBoxInventory $inventory;
 
-	public function setFacing(int $facing) : void
-	{
+	public function setFacing(int $facing) : void{
 		if ($facing < 0 || $facing > 5) {
 			throw new InvalidArgumentException("Invalid shulkerbox facing: $facing");
 		}
@@ -61,42 +58,29 @@ class ShulkerBox extends Spawnable implements InventoryHolder, Container, Nameab
 		$this->onChanged();
 	}
 
-	public function getFacing() : int
-	{
+	public function getFacing() : int{
 		return $this->facing;
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getSize()
-	{
-		return 27;
-	}
-
-	public function getDefaultName() : string
-	{
+	public function getDefaultName() : string{
 		return "Shulker Box";
 	}
 
 	/**
 	 * @return ShulkerBoxInventory
 	 */
-	public function getInventory()
-	{
+	public function getInventory(){
 		return $this->inventory;
 	}
 
 	/**
 	 * @return ShulkerBoxInventory
 	 */
-	public function getRealInventory()
-	{
+	public function getRealInventory(){
 		return $this->inventory;
 	}
 
-	protected function readSaveData(CompoundTag $nbt) : void
-	{
+	protected function readSaveData(CompoundTag $nbt) : void{
 		$this->facing = $nbt->getByte(self::TAG_FACING, Facing::DOWN);
 		$this->isUndyed = $nbt->getByte(self::TAG_UNDYED, 1) == 1;
 
@@ -106,8 +90,7 @@ class ShulkerBox extends Spawnable implements InventoryHolder, Container, Nameab
 		$this->loadItems($nbt);
 	}
 
-	protected function writeSaveData(CompoundTag $nbt) : void
-	{
+	protected function writeSaveData(CompoundTag $nbt) : void{
 		$nbt->setTag(new ByteTag(self::TAG_FACING, $this->facing));
 		$nbt->setTag(new ByteTag(self::TAG_UNDYED, $this->isUndyed ? 1 : 0));
 
@@ -115,27 +98,33 @@ class ShulkerBox extends Spawnable implements InventoryHolder, Container, Nameab
 		$this->saveItems($nbt);
 	}
 
-	public function writeBlockData(CompoundTag $nbt)
-	{
-		$this->saveName($nbt);
-		$this->saveItems($nbt);
+	public function getCleanedNBT() : ?CompoundTag{
+		$nbt = parent::getCleanedNBT();
+		if($nbt !== null){
+			$nbt->removeTag(self::TAG_FACING);
+			$nbt->removeTag(self::TAG_UNDYED);
+		}
+		return $nbt;
 	}
 
-	protected function addAdditionalSpawnData(CompoundTag $nbt) : void
-	{
+	protected function addAdditionalSpawnData(CompoundTag $nbt, int $protocolVersion) : void{
 		$nbt->setTag(new ByteTag(self::TAG_FACING, $this->facing));
 		$nbt->setTag(new ByteTag(self::TAG_UNDYED, $this->isUndyed ? 1 : 0));
 
-		$this->addNameSpawnData($nbt);
+		$this->addNameSpawnData($nbt, $protocolVersion);
 	}
 
-	protected static function createAdditionalNBT(CompoundTag $nbt, Vector3 $pos, ?int $face = null, ?Item $item = null, ?Player $player = null) : void
-	{
+	protected static function createAdditionalNBT(CompoundTag $nbt, Vector3 $pos, ?int $face = null, ?Item $item = null, ?Player $player = null) : void{
 		parent::createAdditionalNBT($nbt, $pos, $face, $item, $player);
 
 		$nbt->setByte(self::TAG_FACING, $face ?? Facing::DOWN);
 		if ($item !== null) {
-			$nbt->setByte(self::TAG_UNDYED, $item->getId() == Block::UNDYED_SHULKER_BOX ? 1 : 0);
+			$itemNbt = $item->getNamedTag();
+			if ($itemNbt->hasTag(Container::TAG_ITEMS, ListTag::class)) {
+				$nbt->setTag($itemNbt->getListTag(Container::TAG_ITEMS));
+			}
+
+			$nbt->setByte(self::TAG_UNDYED, $item->getId() === BlockIds::UNDYED_SHULKER_BOX ? 1 : 0);
 		}
 	}
 }

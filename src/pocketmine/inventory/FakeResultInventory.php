@@ -27,7 +27,6 @@ use pocketmine\Player;
 
 interface FakeResultInventory
 {
-	public function getResultSlot() : int;
 
 	public function onResult(Player $player, Item $result) : bool;
 }

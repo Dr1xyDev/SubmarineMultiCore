@@ -133,7 +133,7 @@ class BrewingStand extends Transparent
 		return $this;
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool
 	{
 		$parent = parent::place($item, $blockReplace, $blockClicked, $face, $clickVector, $player);
 		if (!$blockReplace->getSide(Facing::DOWN)->isTransparent()) {
@@ -143,7 +143,7 @@ class BrewingStand extends Transparent
 		return $parent;
 	}
 
-	public function onActivate(Item $item, Player $player = null) : bool
+	public function onActivate(Item $item, ?Player $player = null) : bool
 	{
 		if ($player instanceof Player) {
 			$stand = $this->getLevel()->getTile($this);

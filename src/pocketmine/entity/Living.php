@@ -55,6 +55,7 @@ use pocketmine\nbt\tag\ListTag;
 use pocketmine\nbt\tag\ShortTag;
 use pocketmine\nbt\tag\StringTag;
 use pocketmine\network\mcpe\protocol\ActorEventPacket;
+use pocketmine\network\mcpe\protocol\AnimatePacket;
 use pocketmine\network\mcpe\protocol\MobEffectPacket;
 use pocketmine\Player;
 use pocketmine\timings\Timings;
@@ -81,6 +82,10 @@ use const M_PI;
 
 abstract class Living extends Entity implements Damageable
 {
+
+	public const float DEFAULT_KNOCKBACK_FORCE = 0.4;
+	public const float DEFAULT_KNOCKBACK_VERTICAL_LIMIT = 0.4;
+
 	protected $gravity = 0.08;
 	protected $drag = 0.02;
 
@@ -107,6 +112,10 @@ abstract class Living extends Entity implements Damageable
 
 	protected float $moveForward = 0.0;
 	protected float $moveStrafing = 0.0;
+
+	protected bool $isSwingInProgress = false;
+	protected int $swingProgressInt = 0;
+   protected float $swingProgress = 0;
 
 	public function getRevengeTarget() : ?Entity
 	{
@@ -175,8 +184,6 @@ abstract class Living extends Entity implements Damageable
 	{
 		return $this->leashed;
 	}
-
-	abstract public function getName() : string;
 
 	protected function initEntity() : void
 	{
@@ -507,12 +514,14 @@ abstract class Living extends Entity implements Damageable
 	{
 		foreach ($this->effects as $effect) {
 			$pk = new MobEffectPacket();
+			$pk->eventId = MobEffectPacket::EVENT_ADD;
 			$pk->entityRuntimeId = $this->id;
 			$pk->effectId = $effect->getId();
 			$pk->amplifier = $effect->getAmplifier();
 			$pk->particles = $effect->isVisible();
 			$pk->duration = $effect->getDuration();
-			$pk->eventId = MobEffectPacket::EVENT_ADD;
+			$pk->tick = 0;
+			$pk->ambient = $effect->isAmbient();
 
 			$player->dataPacket($pk);
 		}
@@ -809,31 +818,27 @@ abstract class Living extends Entity implements Damageable
 		$this->broadcastEntityEvent(ActorEventPacket::HURT_ANIMATION);
 	}
 
-	public function knockBack(float $diffX, float $diffZ, float $power, float $baseX = 0.300, float $baseY = 0.385) : void
-	{
-		$lenSquared = sqrt($diffX ** 2 + $diffZ ** 2);
-		if ($lenSquared <= 0) {
+	public function knockBack(float $x, float $z, float $force = self::DEFAULT_KNOCKBACK_FORCE, ?float $verticalLimit = self::DEFAULT_KNOCKBACK_VERTICAL_LIMIT) : void{
+		$f = sqrt($x * $x + $z * $z);
+		if($f <= 0){
 			return;
 		}
+		if(mt_rand() / mt_getrandmax() > $this->getAttributeMap()->getAttribute(Attribute::KNOCKBACK_RESISTANCE)->getValue()){
+			$f = 1 / $f;
 
-		if (mt_rand() / mt_getrandmax() > $this->getAttributeMap()->getAttribute(Attribute::KNOCKBACK_RESISTANCE)->getValue()) {
-			$len = 1 / $lenSquared;
+			$motionX = $this->motion->x / 2;
+			$motionY = $this->motion->y / 2;
+			$motionZ = $this->motion->z / 2;
+			$motionX += $x * $f * $force;
+			$motionY += $force;
+			$motionZ += $z * $f * $force;
 
-			$motion = $this->getSpeed();
-
-			$motion->x /= 2;
-			$motion->y /= 2;
-			$motion->z /= 2;
-
-			$motion->x += $diffX * $len * $power * $baseX;
-			$motion->y += $baseY;
-			$motion->z += $diffZ * $len * $power * $baseX;
-
-			if ($motion->y > $baseY) {
-				$motion->y = $baseY;
+			$verticalLimit ??= $force;
+			if($motionY > $verticalLimit){
+				$motionY = $verticalLimit;
 			}
 
-			$this->setMotion($motion);
+			$this->setMotion(new Vector3($motionX, $motionY, $motionZ));
 		}
 	}
 
@@ -846,7 +851,9 @@ abstract class Living extends Entity implements Damageable
 
 	protected function onDeath() : void
 	{
-		$ev = new EntityDeathEvent($this, $this->getDrops(), $this->getXpDropAmount());
+		//baby mobs never drop loot in vanilla (players are never babies)
+		$drops = !($this instanceof Player) && $this->isBaby() ? [] : $this->getDrops();
+		$ev = new EntityDeathEvent($this, $drops, $this->getXpDropAmount());
 		$ev->call();
 		foreach ($ev->getDrops() as $item) {
 			$this->getLevel()->dropItem($this, $item);
@@ -884,6 +891,7 @@ abstract class Living extends Entity implements Damageable
 			return false;
 		}
 
+		$this->updateEntityActionState();
 		$this->updateLeashedState();
 
 		return parent::onUpdate($currentTick);
@@ -1056,6 +1064,34 @@ abstract class Living extends Entity implements Damageable
 		$this->attack($ev);
 	}
 
+	protected function getKillingPlayer() : ?Player
+	{
+		$cause = $this->getLastDamageCause();
+		if ($cause instanceof EntityDamageByEntityEvent) {
+			$damager = $cause->getDamager();
+			if ($damager instanceof Player) {
+				return $damager;
+			}
+		}
+
+		$revengeTarget = $this->getRevengeTarget();
+		if ($revengeTarget instanceof Player) {
+			return $revengeTarget;
+		}
+
+		return null;
+	}
+
+	protected function getLootingLevel() : int
+	{
+		$player = $this->getKillingPlayer();
+		if ($player === null) {
+			return 0;
+		}
+
+		return $player->getInventory()->getItemInHand()->getEnchantmentLevel(Enchantment::LOOTING);
+	}
+
 	/**
 	 * @return Item[]
 	 */
@@ -1134,16 +1170,19 @@ abstract class Living extends Entity implements Damageable
 	 */
 	public function lookAt(Vector3 $target) : void
 	{
-		$horizontal = sqrt(($target->x - $this->x) ** 2 + ($target->z - $this->z) ** 2);
-		$vertical = $target->y - $this->y;
-		$this->pitch = -atan2($vertical, $horizontal) / M_PI * 180; //negative is up, positive is down
-
 		$xDist = $target->x - $this->x;
 		$zDist = $target->z - $this->z;
-		$this->yaw = atan2($zDist, $xDist) / M_PI * 180 - 90;
-		if ($this->yaw < 0) {
-			$this->yaw += 360.0;
+
+		$horizontal = sqrt($xDist ** 2 + $zDist ** 2);
+		$vertical = $target->y - ($this->y + $this->getEyeHeight());
+		$pitch = -atan2($vertical, $horizontal) / M_PI * 180; //negative is up, positive is down
+
+		$yaw = atan2($zDist, $xDist) / M_PI * 180 - 90;
+		if($yaw < 0){
+			$yaw += 360.0;
 		}
+
+		$this->setRotation($yaw, $pitch);
 	}
 
 	protected function sendSpawnPacket(Player $player) : void
@@ -1161,6 +1200,61 @@ abstract class Living extends Entity implements Damageable
 				$this->armorInventory = null;
 			}
 			parent::close();
+		}
+	}
+
+	protected function updateEntityActionState() : void {
+
+	}
+
+	protected function updateArmSwingProgress() : void{
+		$armProcessEnd = $this->getArmSwingAnimationEnd();
+		if ($this->isSwingInProgress) {
+			++$this->swingProgressInt;
+			if ($this->swingProgressInt >= $armProcessEnd) {
+				$this->swingProgressInt = 0;
+				$this->isSwingInProgress = false;
+			}
+		} else {
+			$this->swingProgressInt = 0;
+		}
+
+		$this->swingProgress = (float) $this->swingProgressInt / (float) $armProcessEnd;
+	}
+
+	public function getArmSwingAnimationEnd() : int {
+		if ($this->hasEffect(Effect::HASTE) || $this->hasEffect(Effect::CONDUIT_POWER)) {
+			$hasteAmplifier = 0;
+			$conduitPowerAmplifier = 0;
+			if ($this->hasEffect(Effect::HASTE)) {
+				$hasteAmplifier = $this->getEffect(Effect::HASTE)->getAmplifier();
+			}
+
+			if ($this->hasEffect(Effect::CONDUIT_POWER)) {
+				$conduitPowerAmplifier = $this->getEffect(Effect::CONDUIT_POWER)->getAmplifier();
+			}
+
+			return 6 - (1 + max($hasteAmplifier, $conduitPowerAmplifier));
+		} else {
+			return $this->hasEffect(Effect::MINING_FATIGUE) ? 6 + (1 + $this->getEffect(Effect::MINING_FATIGUE)->getAmplifier()) * 2 : 6;
+		}
+	}
+
+	public function swing(bool $updateSelf) : void {
+		if (!$this->isSwingInProgress || $this->swingProgressInt >= $this->getArmSwingAnimationEnd() / 2 || $this->swingProgressInt < 0) {
+			$this->swingProgressInt = -1;
+			$this->isSwingInProgress = true;
+
+			$packet = new AnimatePacket();
+			$packet->action = AnimatePacket::ACTION_SWING_ARM;
+			$packet->actorRuntimeId = $this->getId();
+
+			$viewers = $this->getViewers();
+			if ($updateSelf) {
+				$viewers[] = $this;
+			}
+
+			$this->server->broadcastPacket($viewers, $packet);
 		}
 	}
 
@@ -1247,7 +1341,10 @@ abstract class Living extends Entity implements Damageable
 			$item = $player->getInventory()->getItemInHand();
 			if ($item->getId() === Item::LEAD && $this->allowLeashing()) {
 				$this->setLeashedToEntity($player);
-				$item->pop();
+				if ($player->hasFiniteResources()) {
+					$item->pop();
+					$player->getInventory()->setItemInHand($item);
+				}
 				return true;
 			}
 		}

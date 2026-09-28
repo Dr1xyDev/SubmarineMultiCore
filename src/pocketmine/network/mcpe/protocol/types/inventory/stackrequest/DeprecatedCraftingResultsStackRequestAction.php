@@ -24,8 +24,11 @@ namespace pocketmine\network\mcpe\protocol\types\inventory\stackrequest;
 
 use pocketmine\item\Item;
 use pocketmine\network\mcpe\NetworkBinaryStream;
+use pocketmine\network\mcpe\protocol\PacketDecodeException;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\types\GetTypeIdFromConstTrait;
 use pocketmine\network\mcpe\protocol\types\inventory\ItemStack;
+use pocketmine\network\mcpe\protocol\types\recipe\RecipeIngredient;
 use function count;
 
 /**
@@ -58,21 +61,39 @@ final class DeprecatedCraftingResultsStackRequestAction extends ItemStackRequest
 		return $this->iterations;
 	}
 
-	public static function read(NetworkBinaryStream $in, int $playerProtocol) : self
+	public static function read(NetworkBinaryStream $in) : self
 	{
 		$results = [];
-		for ($i = 0, $len = $in->getUnsignedVarInt(); $i < $len; ++$i) {
-			$results[] = $in->getItemStackWithoutStackId($playerProtocol);
+		$len = $in->getUnsignedVarInt();
+		if ($len > 256) {
+			throw new PacketDecodeException("Too many crafting results: $len");
+		}
+		for ($i = 0; $i < $len; ++$i) {
+			if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_2168) {
+				//since 1.26.40 the results are item descriptors instead of item stacks; the server doesn't use them
+				$in->getStackRequestIngredient();
+				$in->getUnsignedVarInt(); //block runtime ID
+				$in->getString(); //extra data
+				$results[] = ItemStack::null();
+			} else {
+				$results[] = $in->getItemStackWithoutStackId();
+			}
 		}
 		$iterations = $in->getByte();
 		return new self($results, $iterations);
 	}
 
-	public function write(NetworkBinaryStream $out, int $playerProtocol) : void
+	public function write(NetworkBinaryStream $out) : void
 	{
 		$out->putUnsignedVarInt(count($this->results));
 		foreach ($this->results as $result) {
-			$out->putItemStackWithoutStackId($result, $playerProtocol);
+			if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_2168) {
+				$out->putStackRequestIngredient(new RecipeIngredient(null, 0));
+				$out->putUnsignedVarInt(0);
+				$out->putString("");
+			} else {
+				$out->putItemStackWithoutStackId($result);
+			}
 		}
 		$out->putByte($this->iterations);
 	}

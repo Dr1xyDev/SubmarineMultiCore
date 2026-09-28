@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace pocketmine\network\mcpe\protocol;
 
 use pocketmine\network\mcpe\NetworkSession;
+use pocketmine\network\mcpe\protocol\types\GatheringJoinInfo;
 
 class TransferPacket extends DataPacket
 {
@@ -31,13 +32,18 @@ class TransferPacket extends DataPacket
 	public string $address;
 	public int $port = 19132;
 	public bool $reloadWorld = false;
+	/** Gatherings experience to join, 1.26.40+ only */
+	public ?GatheringJoinInfo $gatheringsConfig = null;
 
 	protected function decodePayload() : void
 	{
 		$this->address = $this->getString();
 		$this->port = $this->getLShort();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_729) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_729) {
 			$this->reloadWorld = $this->getBool();
+		}
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_2168) {
+			$this->gatheringsConfig = $this->getOptional(fn() => GatheringJoinInfo::read($this));
 		}
 	}
 
@@ -45,8 +51,11 @@ class TransferPacket extends DataPacket
 	{
 		$this->putString($this->address);
 		$this->putLShort($this->port);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_729) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_729) {
 			$this->putBool($this->reloadWorld);
+		}
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_2168) {
+			$this->putOptional($this->gatheringsConfig, fn(GatheringJoinInfo $v) => $v->write($this));
 		}
 	}
 

@@ -36,7 +36,7 @@ class StopSoundPacket extends DataPacket
 	{
 		$this->soundName = $this->getString();
 		$this->stopAll = $this->getBool();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_712) {
 			$this->stopMusicLegacy = $this->getBool();
 		}
 	}
@@ -45,7 +45,7 @@ class StopSoundPacket extends DataPacket
 	{
 		$this->putString($this->soundName);
 		$this->putBool($this->stopAll);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_712) {
 			$this->putBool($this->stopMusicLegacy);
 		}
 	}

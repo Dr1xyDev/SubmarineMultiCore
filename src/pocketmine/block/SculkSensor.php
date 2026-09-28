@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace pocketmine\block;
 
 use pocketmine\item\Item;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 class SculkSensor extends Solid
 {
@@ -57,14 +56,5 @@ class SculkSensor extends Solid
 	public function getDropsForCompatibleTool(Item $item) : array
 	{
 		return [];
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_440) {
-			return BlockFactory::get(BlockIds::STONE_SLAB);
-		}
-
-		return null;
 	}
 }

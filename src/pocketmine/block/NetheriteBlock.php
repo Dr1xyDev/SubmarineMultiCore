@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace pocketmine\block;
 
 use pocketmine\item\TieredTool;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 class NetheriteBlock extends Solid
 {
@@ -58,14 +57,5 @@ class NetheriteBlock extends Solid
 	public function getToolHarvestLevel() : int
 	{
 		return TieredTool::TIER_DIAMOND;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_419) {
-			return BlockFactory::get(BlockIds::DIAMOND_BLOCK);
-		}
-
-		return null;
 	}
 }

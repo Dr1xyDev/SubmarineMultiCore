@@ -56,8 +56,20 @@ final class CameraPreset
 		private ?bool $playerEffects,
 		private ?bool $alignTargetAndCameraForward,
 		private ?CameraPresetAimAssist $aimAssist,
-		private ?ControlScheme $controlScheme
+		private ?ControlScheme $controlScheme,
+		private bool $applyInheritedStartingRotation = false, //since 1.26.50
+		private ?Vector2 $startingRotation = null //since 1.26.50
 	) {
+	}
+
+	public function isApplyInheritedStartingRotation() : bool
+	{
+		return $this->applyInheritedStartingRotation;
+	}
+
+	public function getStartingRotation() : ?Vector2
+	{
+		return $this->startingRotation;
 	}
 
 	public function getName() : string
@@ -175,50 +187,54 @@ final class CameraPreset
 		return $this->controlScheme;
 	}
 
-	public static function read(NetworkBinaryStream $in, int $protocol) : self
+	public static function read(NetworkBinaryStream $in) : self
 	{
 		$name = $in->getString();
 		$parent = $in->getString();
-		$xPosition = $in->readOptional($in->getLFloat(...));
-		$yPosition = $in->readOptional($in->getLFloat(...));
-		$zPosition = $in->readOptional($in->getLFloat(...));
-		$pitch = $in->readOptional($in->getLFloat(...));
-		$yaw = $in->readOptional($in->getLFloat(...));
-		if ($protocol >= ProtocolInfo::PROTOCOL_712) {
-			if ($protocol >= ProtocolInfo::PROTOCOL_729) {
-				$rotationSpeed = $in->readOptional($in->getLFloat(...));
-				$snapToTarget = $in->readOptional($in->getBool(...));
-				if ($protocol >= ProtocolInfo::PROTOCOL_748) {
-					$horizontalRotationLimit = $in->readOptional($in->getVector2(...));
-					$verticalRotationLimit = $in->readOptional($in->getVector2(...));
-					$continueTargeting = $in->readOptional($in->getBool(...));
-					if ($protocol >= ProtocolInfo::PROTOCOL_766) {
-						$blockListeningRadius = $in->readOptional($in->getLFloat(...));
+		$xPosition = $in->getOptional($in->getLFloat(...));
+		$yPosition = $in->getOptional($in->getLFloat(...));
+		$zPosition = $in->getOptional($in->getLFloat(...));
+		$pitch = $in->getOptional($in->getLFloat(...));
+		$yaw = $in->getOptional($in->getLFloat(...));
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
+			if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_729) {
+				$rotationSpeed = $in->getOptional($in->getLFloat(...));
+				$snapToTarget = $in->getOptional($in->getBool(...));
+				if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_748) {
+					$horizontalRotationLimit = $in->getOptional($in->getVector2(...));
+					$verticalRotationLimit = $in->getOptional($in->getVector2(...));
+					$continueTargeting = $in->getOptional($in->getBool(...));
+					if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_766) {
+						$blockListeningRadius = $in->getOptional($in->getLFloat(...));
 					}
 				}
 			}
-			$viewOffset = $in->readOptional($in->getVector2(...));
-			if ($protocol >= ProtocolInfo::PROTOCOL_729) {
-				$entityOffset = $in->readOptional($in->getVector3(...));
+			$viewOffset = $in->getOptional($in->getVector2(...));
+			if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_729) {
+				$entityOffset = $in->getOptional($in->getVector3(...));
 			}
-			$radius = $in->readOptional($in->getLFloat(...));
-			if ($protocol >= ProtocolInfo::PROTOCOL_776) {
-				$yawLimitMin = $in->readOptional($in->getLFloat(...));
-				$yawLimitMax = $in->readOptional($in->getLFloat(...));
+			$radius = $in->getOptional($in->getLFloat(...));
+			if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_776) {
+				$yawLimitMin = $in->getOptional($in->getLFloat(...));
+				$yawLimitMax = $in->getOptional($in->getLFloat(...));
 			}
 		}
-		$audioListenerType = $in->readOptional($in->getByte(...));
-		$playerEffects = $in->readOptional($in->getBool(...));
-		if ($protocol >= ProtocolInfo::PROTOCOL_748) {
-			if ($protocol < ProtocolInfo::PROTOCOL_818) {
-				$alignTargetAndCameraForward = $in->readOptional($in->getBool(...));
+		$audioListenerType = $in->getOptional($in->getByte(...));
+		$playerEffects = $in->getOptional($in->getBool(...));
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_748) {
+			if ($in->getProtocol() < ProtocolInfo::PROTOCOL_818) {
+				$alignTargetAndCameraForward = $in->getOptional($in->getBool(...));
 			}
-			if ($protocol >= ProtocolInfo::PROTOCOL_766) {
-				$aimAssist = $in->readOptional(fn () => CameraAimAssistPreset::read($in, $protocol));
-				if ($protocol >= ProtocolInfo::PROTOCOL_800) {
-					$controlScheme = $in->readOptional(fn () => ControlScheme::fromPacket($in->getByte()));
+			if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_766) {
+				$aimAssist = $in->getOptional(fn () => CameraPresetAimAssist::read($in));
+				if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_800) {
+					$controlScheme = $in->getOptional(fn () => ControlScheme::fromPacket($in->getByte()));
 				}
 			}
+		}
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_2193) {
+			$applyInheritedStartingRotation = $in->getBool();
+			$startingRotation = $in->getOptional($in->getVector2(...));
 		}
 
 		return new self(
@@ -244,55 +260,61 @@ final class CameraPreset
 			$playerEffects,
 			$alignTargetAndCameraForward ?? null,
 			$aimAssist ?? null,
-			$controlScheme ?? null
+			$controlScheme ?? null,
+			$applyInheritedStartingRotation ?? false,
+			$startingRotation ?? null
 		);
 	}
 
-	public function write(NetworkBinaryStream $out, int $protocol) : void
+	public function write(NetworkBinaryStream $out) : void
 	{
 		$out->putString($this->name);
 		$out->putString($this->parent);
-		$out->writeOptional($this->xPosition, $out->putLFloat(...));
-		$out->writeOptional($this->yPosition, $out->putLFloat(...));
-		$out->writeOptional($this->zPosition, $out->putLFloat(...));
-		$out->writeOptional($this->pitch, $out->putLFloat(...));
-		$out->writeOptional($this->yaw, $out->putLFloat(...));
-		if ($protocol >= ProtocolInfo::PROTOCOL_712) {
-			if ($protocol >= ProtocolInfo::PROTOCOL_729) {
-				$out->writeOptional($this->rotationSpeed, $out->putLFloat(...));
-				$out->writeOptional($this->snapToTarget, $out->putBool(...));
-				if ($protocol >= ProtocolInfo::PROTOCOL_748) {
-					$out->writeOptional($this->horizontalRotationLimit, $out->putVector2(...));
-					$out->writeOptional($this->verticalRotationLimit, $out->putVector2(...));
-					$out->writeOptional($this->continueTargeting, $out->putBool(...));
-					if ($protocol >= ProtocolInfo::PROTOCOL_766) {
-						$out->writeOptional($this->blockListeningRadius, $out->putLFloat(...));
+		$out->putOptional($this->xPosition, $out->putLFloat(...));
+		$out->putOptional($this->yPosition, $out->putLFloat(...));
+		$out->putOptional($this->zPosition, $out->putLFloat(...));
+		$out->putOptional($this->pitch, $out->putLFloat(...));
+		$out->putOptional($this->yaw, $out->putLFloat(...));
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
+			if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_729) {
+				$out->putOptional($this->rotationSpeed, $out->putLFloat(...));
+				$out->putOptional($this->snapToTarget, $out->putBool(...));
+				if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_748) {
+					$out->putOptional($this->horizontalRotationLimit, $out->putVector2(...));
+					$out->putOptional($this->verticalRotationLimit, $out->putVector2(...));
+					$out->putOptional($this->continueTargeting, $out->putBool(...));
+					if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_766) {
+						$out->putOptional($this->blockListeningRadius, $out->putLFloat(...));
 					}
 				}
 			}
-			$out->writeOptional($this->viewOffset, $out->putVector2(...));
-			if ($protocol >= ProtocolInfo::PROTOCOL_729) {
-				$out->writeOptional($this->entityOffset, $out->putVector3(...));
+			$out->putOptional($this->viewOffset, $out->putVector2(...));
+			if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_729) {
+				$out->putOptional($this->entityOffset, $out->putVector3(...));
 			}
-			$out->writeOptional($this->radius, $out->putLFloat(...));
-			if ($protocol >= ProtocolInfo::PROTOCOL_776) {
-				$out->writeOptional($this->yawLimitMin, $out->putLFloat(...));
-				$out->writeOptional($this->yawLimitMax, $out->putLFloat(...));
+			$out->putOptional($this->radius, $out->putLFloat(...));
+			if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_776) {
+				$out->putOptional($this->yawLimitMin, $out->putLFloat(...));
+				$out->putOptional($this->yawLimitMax, $out->putLFloat(...));
 			}
 		}
 
-		$out->writeOptional($this->audioListenerType, $out->putByte(...));
-		$out->writeOptional($this->playerEffects, $out->putBool(...));
-		if ($protocol >= ProtocolInfo::PROTOCOL_748) {
-			if ($protocol < ProtocolInfo::PROTOCOL_818) {
-				$out->writeOptional($this->alignTargetAndCameraForward, $out->putBool(...));
+		$out->putOptional($this->audioListenerType, $out->putByte(...));
+		$out->putOptional($this->playerEffects, $out->putBool(...));
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_748) {
+			if ($out->getProtocol() < ProtocolInfo::PROTOCOL_818) {
+				$out->putOptional($this->alignTargetAndCameraForward, $out->putBool(...));
 			}
-			if ($protocol >= ProtocolInfo::PROTOCOL_766) {
-				$out->writeOptional($this->aimAssist, fn (CameraPresetAimAssist $v) => $v->write($out));
-				if ($protocol >= ProtocolInfo::PROTOCOL_800) {
-					$out->writeOptional($this->controlScheme, fn (ControlScheme $v) => $out->putByte($v->value));
+			if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_766) {
+				$out->putOptional($this->aimAssist, fn (CameraPresetAimAssist $v) => $v->write($out));
+				if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_800) {
+					$out->putOptional($this->controlScheme, fn (ControlScheme $v) => $out->putByte($v->value));
 				}
 			}
+		}
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_2193) {
+			$out->putBool($this->applyInheritedStartingRotation);
+			$out->putOptional($this->startingRotation, $out->putVector2(...));
 		}
 	}
 }

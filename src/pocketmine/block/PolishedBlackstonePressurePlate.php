@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class PolishedBlackstonePressurePlate extends StonePressurePlate
 {
 	protected $id = self::POLISHED_BLACKSTONE_PRESSURE_PLATE;
@@ -36,14 +34,5 @@ class PolishedBlackstonePressurePlate extends StonePressurePlate
 	public function getName() : string
 	{
 		return "Polished Blackstone Pressure Plate";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_419) {
-			return BlockFactory::get(BlockIds::STONE_PRESSURE_PLATE, $this->meta);
-		}
-
-		return null;
 	}
 }

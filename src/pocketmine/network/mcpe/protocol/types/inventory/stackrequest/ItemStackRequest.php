@@ -70,59 +70,78 @@ final class ItemStackRequest
 		return $this->filterStringCause;
 	}
 
-	private static function readAction(NetworkBinaryStream $in, int $typeId, int $playerProtocol) : ItemStackRequestAction
+	private static function readAction(NetworkBinaryStream $in, int $typeId) : ItemStackRequestAction
 	{
-		$typeId = ConstantTranslator::getInstance()->fromNetworkId(ItemStackRequestActionType::class, $typeId, $playerProtocol);
+		$typeId = ConstantTranslator::getInstance()->fromNetworkId(ItemStackRequestActionType::class, $typeId, $in->getProtocol());
 		return match($typeId) {
-			TakeStackRequestAction::ID => TakeStackRequestAction::read($in, $playerProtocol),
-			PlaceStackRequestAction::ID => PlaceStackRequestAction::read($in, $playerProtocol),
-			SwapStackRequestAction::ID => SwapStackRequestAction::read($in, $playerProtocol),
-			DropStackRequestAction::ID => DropStackRequestAction::read($in, $playerProtocol),
-			DestroyStackRequestAction::ID => DestroyStackRequestAction::read($in, $playerProtocol),
-			CraftingConsumeInputStackRequestAction::ID => CraftingConsumeInputStackRequestAction::read($in, $playerProtocol),
-			CraftingCreateSpecificResultStackRequestAction::ID => CraftingCreateSpecificResultStackRequestAction::read($in, $playerProtocol),
-			LabTableCombineStackRequestAction::ID => LabTableCombineStackRequestAction::read($in, $playerProtocol),
-			BeaconPaymentStackRequestAction::ID => BeaconPaymentStackRequestAction::read($in, $playerProtocol),
-			MineBlockStackRequestAction::ID => MineBlockStackRequestAction::read($in, $playerProtocol),
-			CraftRecipeStackRequestAction::ID => CraftRecipeStackRequestAction::read($in, $playerProtocol),
-			CraftRecipeAutoStackRequestAction::ID => CraftRecipeAutoStackRequestAction::read($in, $playerProtocol),
-			CreativeCreateStackRequestAction::ID => CreativeCreateStackRequestAction::read($in, $playerProtocol),
-			CraftRecipeOptionalStackRequestAction::ID => CraftRecipeOptionalStackRequestAction::read($in, $playerProtocol),
-			GrindstoneStackRequestAction::ID => GrindstoneStackRequestAction::read($in, $playerProtocol),
-			LoomStackRequestAction::ID => LoomStackRequestAction::read($in, $playerProtocol),
-			DeprecatedCraftingNonImplementedStackRequestAction::ID => DeprecatedCraftingNonImplementedStackRequestAction::read($in, $playerProtocol),
-			DeprecatedCraftingResultsStackRequestAction::ID => DeprecatedCraftingResultsStackRequestAction::read($in, $playerProtocol),
-			default => throw new PacketDecodeException("Unhandled item stack request action type $typeId for protocol $playerProtocol "),
+			TakeStackRequestAction::ID => TakeStackRequestAction::read($in),
+			PlaceStackRequestAction::ID => PlaceStackRequestAction::read($in),
+			SwapStackRequestAction::ID => SwapStackRequestAction::read($in),
+			DropStackRequestAction::ID => DropStackRequestAction::read($in),
+			DestroyStackRequestAction::ID => DestroyStackRequestAction::read($in),
+			CraftingConsumeInputStackRequestAction::ID => CraftingConsumeInputStackRequestAction::read($in),
+			CraftingCreateSpecificResultStackRequestAction::ID => CraftingCreateSpecificResultStackRequestAction::read($in),
+			LabTableCombineStackRequestAction::ID => LabTableCombineStackRequestAction::read($in),
+			BeaconPaymentStackRequestAction::ID => BeaconPaymentStackRequestAction::read($in),
+			MineBlockStackRequestAction::ID => MineBlockStackRequestAction::read($in),
+			CraftRecipeStackRequestAction::ID => CraftRecipeStackRequestAction::read($in),
+			CraftRecipeAutoStackRequestAction::ID => CraftRecipeAutoStackRequestAction::read($in),
+			CreativeCreateStackRequestAction::ID => CreativeCreateStackRequestAction::read($in),
+			CraftRecipeOptionalStackRequestAction::ID => CraftRecipeOptionalStackRequestAction::read($in),
+			GrindstoneStackRequestAction::ID => GrindstoneStackRequestAction::read($in),
+			LoomStackRequestAction::ID => LoomStackRequestAction::read($in),
+			DeprecatedCraftingNonImplementedStackRequestAction::ID => DeprecatedCraftingNonImplementedStackRequestAction::read($in),
+			DeprecatedCraftingResultsStackRequestAction::ID => DeprecatedCraftingResultsStackRequestAction::read($in),
+			default => throw new PacketDecodeException("Unhandled item stack request action type $typeId"),
 		};
 	}
 
-	public static function read(NetworkBinaryStream $in, int $playerProtocol) : self
+	public static function read(NetworkBinaryStream $in) : self
 	{
 		$requestId = $in->readItemStackRequestId();
 		$actions = [];
-		for ($i = 0, $len = $in->getUnsignedVarInt(); $i < $len; ++$i) {
-			$typeId = $in->getByte();
-			$actions[] = self::readAction($in, $typeId, $playerProtocol);
+		$len = $in->getUnsignedVarInt();
+		if ($len > 256) {
+			throw new PacketDecodeException("Too many item stack request actions: $len");
+		}
+		for ($i = 0; $i < $len; ++$i) {
+			if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_2168) {
+				//since 1.26.40: new (renumbered) type ID + the old type ID as the inner type
+				$typeId = $in->getUnsignedVarInt();
+				$innerTypeId = $in->getByte();
+				$coreTypeId = ConstantTranslator::getInstance()->fromNetworkId(ItemStackRequestActionType::class, $typeId, $in->getProtocol());
+				if ($innerTypeId !== $coreTypeId) {
+					throw new PacketDecodeException("ItemStackRequestAction type mismatch: outer type $typeId, inner type $innerTypeId");
+				}
+			} else {
+				$typeId = $in->getByte();
+			}
+			$actions[] = self::readAction($in, $typeId);
 		}
 		$filterStrings = [];
 		for ($i = 0, $len = $in->getUnsignedVarInt(); $i < $len; ++$i) {
 			$filterStrings[] = $in->getString();
 		}
-		if ($playerProtocol >= ProtocolInfo::PROTOCOL_557) {
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_557) {
 			$filterStringCause = $in->getLInt();
 		}
 		return new self($requestId, $actions, $filterStrings, $filterStringCause ?? 0);
 	}
 
-	public function write(NetworkBinaryStream $out, int $playerProtocol) : void
+	public function write(NetworkBinaryStream $out) : void
 	{
 		$out->writeItemStackRequestId($this->requestId);
 		$out->putUnsignedVarInt(count($this->actions));
 		foreach ($this->actions as $action) {
 			try {
-				$typeId = ConstantTranslator::getInstance()->toNetworkId(ItemStackRequestActionType::class, $action->getTypeId(), $playerProtocol);
-				$out->putByte($typeId);
-				$action->write($out, $playerProtocol);
+				$typeId = ConstantTranslator::getInstance()->toNetworkId(ItemStackRequestActionType::class, $action->getTypeId(), $out->getProtocol());
+				if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_2168) {
+					$out->putUnsignedVarInt($typeId);
+					$out->putByte($action->getTypeId());
+				} else {
+					$out->putByte($typeId);
+				}
+				$action->write($out);
 			} catch (ConstantTranslatorException $exception) {
 			}
 		}
@@ -130,7 +149,7 @@ final class ItemStackRequest
 		foreach ($this->filterStrings as $string) {
 			$out->putString($string);
 		}
-		if ($playerProtocol >= ProtocolInfo::PROTOCOL_557) {
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_557) {
 			$out->putLInt($this->filterStringCause);
 		}
 	}

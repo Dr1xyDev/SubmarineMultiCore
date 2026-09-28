@@ -23,9 +23,13 @@ declare(strict_types=1);
 namespace pocketmine\entity\vehicle;
 
 use pocketmine\entity\Vehicle;
+use pocketmine\event\entity\EntityDamageByEntityEvent;
+use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
+use pocketmine\level\GameRules;
 use pocketmine\math\Vector3;
+use pocketmine\Player;
 
 class Minecart extends Vehicle
 {
@@ -49,10 +53,41 @@ class Minecart extends Vehicle
 		return new Vector3($seatNumber * 0.8, 0, 0);
 	}
 
+	/**
+	 * @return Item[]
+	 */
 	public function getDrops() : array
 	{
 		return [
 			ItemFactory::get(Item::MINECART)
 		];
+	}
+
+	public function attack(EntityDamageEvent $source) : void
+	{
+		if ($this->isKilled) {
+			//already broken, don't drop twice
+			return;
+		}
+
+		parent::attack($source);
+
+		if ($source->isCancelled() || !($source instanceof EntityDamageByEntityEvent)) {
+			return;
+		}
+
+		$this->setHurtTime(10);
+		$this->setHurtDirection(-$this->getHurtDirection());
+
+		$damager = $source->getDamager();
+		$creative = $damager instanceof Player && $damager->isCreative();
+		if ($creative || $this->getHealth() <= 0) {
+			$this->kill();
+			if (!$creative && $this->level->getGameRules()->getBool(GameRules::RULE_DO_ENTITY_DROPS)) {
+				foreach ($this->getDrops() as $drop) {
+					$this->level->dropItem($this, $drop);
+				}
+			}
+		}
 	}
 }

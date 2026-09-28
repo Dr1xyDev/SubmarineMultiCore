@@ -62,33 +62,24 @@ final class SubChunkPacketEntryCommon
 		return $this->renderHeightMap;
 	}
 
-	public static function read(NetworkBinaryStream $in, bool $cacheEnabled, int $protocolVersion) : self
+	public static function read(NetworkBinaryStream $in, bool $cacheEnabled) : self
 	{
 		$offset = SubChunkPositionOffset::read($in);
 
 		$requestResult = $in->getByte();
 
-		$data = !$cacheEnabled || $requestResult !== SubChunkRequestResult::SUCCESS_ALL_AIR ? $in->getString() : "";
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_2168) {
+			//since 1.26.40 the terrain data and the heightmap payloads are optionals
+			$data = $in->getOptional($in->getString(...)) ?? "";
+		} else {
+			$data = !$cacheEnabled || $requestResult !== SubChunkRequestResult::SUCCESS_ALL_AIR ? $in->getString() : "";
+		}
 
-		$heightMapDataType = $in->getByte();
-		$heightMapData = match ($heightMapDataType) {
-			SubChunkPacketHeightMapType::NO_DATA => null,
-			SubChunkPacketHeightMapType::DATA => SubChunkPacketHeightMapInfo::read($in),
-			SubChunkPacketHeightMapType::ALL_TOO_HIGH => SubChunkPacketHeightMapInfo::allTooHigh(),
-			SubChunkPacketHeightMapType::ALL_TOO_LOW => SubChunkPacketHeightMapInfo::allTooLow(),
-			default => throw new PacketDecodeException("Unknown heightmap data type $heightMapDataType")
-		};
+		$heightMapData = self::readHeightMap($in, $in->getByte(), null);
 
-		if ($protocolVersion >= ProtocolInfo::PROTOCOL_818) {
-			$renderHeightMapDataType = $in->getByte();
-			$renderHeightMapData = match ($renderHeightMapDataType) {
-				SubChunkPacketHeightMapType::NO_DATA => null,
-				SubChunkPacketHeightMapType::DATA => SubChunkPacketHeightMapInfo::read($in),
-				SubChunkPacketHeightMapType::ALL_TOO_HIGH => SubChunkPacketHeightMapInfo::allTooHigh(),
-				SubChunkPacketHeightMapType::ALL_TOO_LOW => SubChunkPacketHeightMapInfo::allTooLow(),
-				SubChunkPacketHeightMapType::ALL_COPIED => $heightMapData,
-				default => throw new PacketDecodeException("Unknown render heightmap data type $renderHeightMapDataType")
-			};
+		$renderHeightMapData = null;
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_818) {
+			$renderHeightMapData = self::readHeightMap($in, $in->getByte(), $heightMapData);
 		}
 
 		return new self(
@@ -96,44 +87,67 @@ final class SubChunkPacketEntryCommon
 			$requestResult,
 			$data,
 			$heightMapData,
-			$renderHeightMapData ?? SubChunkPacketHeightMapType::NO_DATA
+			$renderHeightMapData
 		);
 	}
 
-	public function write(NetworkBinaryStream $out, bool $cacheEnabled, int $protocolVersion) : void
+	private static function readHeightMap(NetworkBinaryStream $in, int $type, ?SubChunkPacketHeightMapInfo $copySource) : ?SubChunkPacketHeightMapInfo
+	{
+		$data = null;
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_2168) {
+			$data = $in->getOptional(fn() => SubChunkPacketHeightMapInfo::read($in));
+		} elseif ($type === SubChunkPacketHeightMapType::DATA) {
+			$data = SubChunkPacketHeightMapInfo::read($in);
+		}
+
+		return match ($type) {
+			SubChunkPacketHeightMapType::NO_DATA => null,
+			SubChunkPacketHeightMapType::DATA => $data ?? throw new PacketDecodeException("Heightmap data type is DATA but no heightmap data was provided"),
+			SubChunkPacketHeightMapType::ALL_TOO_HIGH => SubChunkPacketHeightMapInfo::allTooHigh(),
+			SubChunkPacketHeightMapType::ALL_TOO_LOW => SubChunkPacketHeightMapInfo::allTooLow(),
+			SubChunkPacketHeightMapType::ALL_COPIED => $copySource,
+			default => throw new PacketDecodeException("Unknown heightmap data type $type")
+		};
+	}
+
+	private static function writeHeightMap(NetworkBinaryStream $out, ?SubChunkPacketHeightMapInfo $heightMap, int $nullType) : void
+	{
+		if ($heightMap === null) {
+			$type = $nullType;
+		} elseif ($heightMap->isAllTooLow()) {
+			$type = SubChunkPacketHeightMapType::ALL_TOO_LOW;
+		} elseif ($heightMap->isAllTooHigh()) {
+			$type = SubChunkPacketHeightMapType::ALL_TOO_HIGH;
+		} else {
+			$type = SubChunkPacketHeightMapType::DATA;
+		}
+		$out->putByte($type);
+
+		$data = $type === SubChunkPacketHeightMapType::DATA ? $heightMap : null;
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_2168) {
+			$out->putOptional($data, fn(SubChunkPacketHeightMapInfo $v) => $v->write($out));
+		} elseif ($data !== null) {
+			$data->write($out);
+		}
+	}
+
+	public function write(NetworkBinaryStream $out, bool $cacheEnabled) : void
 	{
 		$this->offset->write($out);
 
 		$out->putByte($this->requestResult);
 
-		if (!$cacheEnabled || $this->requestResult !== SubChunkRequestResult::SUCCESS_ALL_AIR) {
+		$hasTerrainData = !$cacheEnabled || $this->requestResult !== SubChunkRequestResult::SUCCESS_ALL_AIR;
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_2168) {
+			$out->putOptional($hasTerrainData ? $this->terrainData : null, $out->putString(...));
+		} elseif ($hasTerrainData) {
 			$out->putString($this->terrainData);
 		}
 
-		if ($this->heightMap === null) {
-			$out->putByte(SubChunkPacketHeightMapType::NO_DATA);
-		} elseif ($this->heightMap->isAllTooLow()) {
-			$out->putByte(SubChunkPacketHeightMapType::ALL_TOO_LOW);
-		} elseif ($this->heightMap->isAllTooHigh()) {
-			$out->putByte(SubChunkPacketHeightMapType::ALL_TOO_HIGH);
-		} else {
-			$heightMapData = $this->heightMap; //avoid PHPStan purity issue
-			$out->putByte(SubChunkPacketHeightMapType::DATA);
-			$heightMapData->write($out);
-		}
+		self::writeHeightMap($out, $this->heightMap, SubChunkPacketHeightMapType::NO_DATA);
 
-		if ($protocolVersion >= ProtocolInfo::PROTOCOL_818) {
-			if ($this->renderHeightMap === null) {
-				$out->putByte(SubChunkPacketHeightMapType::ALL_COPIED);
-			} elseif ($this->renderHeightMap->isAllTooLow()) {
-				$out->putByte(SubChunkPacketHeightMapType::ALL_TOO_LOW);
-			} elseif ($this->renderHeightMap->isAllTooHigh()) {
-				$out->putByte(SubChunkPacketHeightMapType::ALL_TOO_HIGH);
-			} else {
-				$renderHeightMapData = $this->renderHeightMap; //avoid PHPStan purity issue
-				$out->putByte(SubChunkPacketHeightMapType::DATA);
-				$renderHeightMapData->write($out);
-			}
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_818) {
+			self::writeHeightMap($out, $this->renderHeightMap, SubChunkPacketHeightMapType::ALL_COPIED);
 		}
 	}
 }

@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace pocketmine\block;
 
 use pocketmine\item\Item;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 class PowderSnow extends Transparent
 {
@@ -52,14 +51,5 @@ class PowderSnow extends Transparent
 	public function getDropsForCompatibleTool(Item $item) : array
 	{
 		return [];
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_440) {
-			return BlockFactory::get(BlockIds::SNOW_BLOCK, $this->meta);
-		}
-
-		return null;
 	}
 }

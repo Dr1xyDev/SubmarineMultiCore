@@ -65,16 +65,9 @@ class EnderChest extends Chest
 		return TieredTool::TIER_WOODEN;
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool
 	{
-		$faces = [
-			0 => 4,
-			1 => 2,
-			2 => 5,
-			3 => 3
-		];
-
-		$this->meta = $faces[$player instanceof Player ? $player->getDirection() : 0];
+		$this->meta = Block::getMetaFace($player instanceof Player ? $player->getDirection() : 0);
 
 		$this->getLevel()->setBlock($blockReplace, $this, true, true);
 		Tile::createTile(Tile::ENDER_CHEST, $this->getLevel(), TileEnderChest::createNBT($this, $face, $item, $player));
@@ -82,7 +75,7 @@ class EnderChest extends Chest
 		return true;
 	}
 
-	public function onActivate(Item $item, Player $player = null) : bool
+	public function onActivate(Item $item, ?Player $player = null) : bool
 	{
 		if ($player instanceof Player) {
 

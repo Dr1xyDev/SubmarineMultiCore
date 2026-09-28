@@ -27,7 +27,6 @@ use pocketmine\item\TieredTool;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Facing;
 use pocketmine\math\Vector3;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\Player;
 
 class Lantern extends Transparent
@@ -92,13 +91,13 @@ class Lantern extends Transparent
 			!$down->isTransparent() ||
 			($down instanceof Glass) ||
 			($down instanceof Fence) ||
-			($down instanceof CobblestoneWall) ||
+			($down instanceof Wall) ||
 			$down->getId() === BlockIds::CHAIN ||
 			$down->getId() === BlockIds::IRON_BARS ||
 			$down->isSolid();
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool
 	{
 		if ($this->level->getBlock($this) instanceof Liquid) {
 			return false;
@@ -147,14 +146,5 @@ class Lantern extends Transparent
 			$this->y + ($this->meta == 0 ? 0.375 : 0.5),
 			$this->z + 0.6875
 		);
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_332) {
-			return BlockFactory::get(BlockIds::TORCH);
-		}
-
-		return null;
 	}
 }

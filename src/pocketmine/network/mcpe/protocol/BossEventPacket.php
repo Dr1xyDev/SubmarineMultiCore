@@ -52,95 +52,119 @@ class BossEventPacket extends DataPacket
 	public int $bossEid;
 	public int $eventType;
 
-	public int $playerEid;
-	public float $healthPercent;
-	public string $title;
+	public int $playerEid = 0;
+	public float $healthPercent = 0.0;
+	public string $title = "";
 	public string $filteredTitle = "";
-	public bool $darkenScreen;
-	public int $color;
-	public int $overlay;
+	public bool $darkenScreen = false;
+	public int $color = BossBarColor::YELLOW;
+	public int $overlay = 0;
 
 	protected function decodePayload() : void
 	{
 		$this->bossEid = $this->getEntityUniqueId();
-		$this->eventType = $this->getUnsignedVarInt();
-		switch ($this->eventType) {
-			case self::TYPE_REGISTER_PLAYER:
-			case self::TYPE_UNREGISTER_PLAYER:
-			case self::TYPE_QUERY:
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_1001) {
+			if ($this->protocol < ProtocolInfo::PROTOCOL_2193) {
 				$this->playerEid = $this->getEntityUniqueId();
-				break;
+			}
+			$this->eventType = $this->getByte();
+			$this->title = $this->getString();
+			$this->filteredTitle = $this->getString();
+			$this->healthPercent = $this->getLFloat();
+			$this->color = ConstantTranslator::getInstance()->fromNetworkId(BossBarColor::class, $this->getByte(), $this->protocol);
+			$this->overlay = $this->getByte();
+		} else {
+			$this->eventType = $this->getUnsignedVarInt();
+			switch ($this->eventType) {
+				case self::TYPE_REGISTER_PLAYER:
+				case self::TYPE_UNREGISTER_PLAYER:
+				case self::TYPE_QUERY:
+					$this->playerEid = $this->getEntityUniqueId();
+					break;
 				/** @noinspection PhpMissingBreakStatementInspection */
-			case self::TYPE_SHOW:
-				$this->title = $this->getString();
-				if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_776) {
-					$this->filteredTitle = $this->getString();
-				}
-				$this->healthPercent = $this->getLFloat();
+				case self::TYPE_SHOW:
+					$this->title = $this->getString();
+					if ($this->protocol >= ProtocolInfo::PROTOCOL_776) {
+						$this->filteredTitle = $this->getString();
+					}
+					$this->healthPercent = $this->getLFloat();
 				/** @noinspection PhpMissingBreakStatementInspection */
 				// no break
-			case self::TYPE_PROPERTIES:
-				$this->darkenScreen = match($raw = $this->getLShort()) {
-					0 => false,
-					1 => true,
-					default => throw new PacketDecodeException("Invalid darkenScreen value $raw"),
-				};
+				case self::TYPE_PROPERTIES:
+					$this->darkenScreen = match ($raw = $this->getLShort()) {
+						0 => false,
+						1 => true,
+						default => throw new PacketDecodeException("Invalid darkenScreen value $raw"),
+					};
 				// no break
-			case self::TYPE_TEXTURE:
-				$this->color = ConstantTranslator::getInstance()->fromNetworkId(BossBarColor::class, $this->getUnsignedVarInt(), $this->getProtocol());
-				$this->overlay = $this->getUnsignedVarInt();
-				break;
-			case self::TYPE_HEALTH_PERCENT:
-				$this->healthPercent = $this->getLFloat();
-				break;
-			case self::TYPE_TITLE:
-				$this->title = $this->getString();
-				if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_776) {
-					$this->filteredTitle = $this->getString();
-				}
-				break;
-			default:
-				break;
+				case self::TYPE_TEXTURE:
+					$this->color = ConstantTranslator::getInstance()->fromNetworkId(BossBarColor::class, $this->getUnsignedVarInt(), $this->protocol);
+					$this->overlay = $this->getUnsignedVarInt();
+					break;
+				case self::TYPE_HEALTH_PERCENT:
+					$this->healthPercent = $this->getLFloat();
+					break;
+				case self::TYPE_TITLE:
+					$this->title = $this->getString();
+					if ($this->protocol >= ProtocolInfo::PROTOCOL_776) {
+						$this->filteredTitle = $this->getString();
+					}
+					break;
+				default:
+					break;
+			}
 		}
 	}
 
 	protected function encodePayload() : void
 	{
 		$this->putEntityUniqueId($this->bossEid);
-		$this->putUnsignedVarInt($this->eventType);
-		switch ($this->eventType) {
-			case self::TYPE_REGISTER_PLAYER:
-			case self::TYPE_UNREGISTER_PLAYER:
-			case self::TYPE_QUERY:
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_1001) {
+			if ($this->protocol < ProtocolInfo::PROTOCOL_2193) {
 				$this->putEntityUniqueId($this->playerEid);
-				break;
+			}
+			$this->putByte($this->eventType);
+			$this->putString($this->title);
+			$this->putString($this->filteredTitle);
+			$this->putLFloat($this->healthPercent);
+			$this->putByte(ConstantTranslator::getInstance()->toNetworkId(BossBarColor::class, $this->color, $this->protocol, BossBarColor::PURPLE));
+			$this->putByte($this->overlay);
+		} else {
+			$this->putUnsignedVarInt($this->eventType);
+			switch ($this->eventType) {
+				case self::TYPE_REGISTER_PLAYER:
+				case self::TYPE_UNREGISTER_PLAYER:
+				case self::TYPE_QUERY:
+				$this->putEntityUniqueId($this->playerEid);
+					break;
 				/** @noinspection PhpMissingBreakStatementInspection */
-			case self::TYPE_SHOW:
-				$this->putString($this->title);
-				if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_776) {
-					$this->putString($this->filteredTitle);
-				}
-				$this->putLFloat($this->healthPercent);
+				case self::TYPE_SHOW:
+					$this->putString($this->title);
+					if ($this->protocol >= ProtocolInfo::PROTOCOL_776) {
+						$this->putString($this->filteredTitle);
+					}
+					$this->putLFloat($this->healthPercent);
 				/** @noinspection PhpMissingBreakStatementInspection */
 				// no break
-			case self::TYPE_PROPERTIES:
-				$this->putLShort($this->darkenScreen ? 1 : 0);
+				case self::TYPE_PROPERTIES:
+					$this->putLShort($this->darkenScreen ? 1 : 0);
 				// no break
-			case self::TYPE_TEXTURE:
-				$this->putUnsignedVarInt(ConstantTranslator::getInstance()->toNetworkId(BossBarColor::class, $this->color, $this->getProtocol(), BossBarColor::PURPLE));
-				$this->putUnsignedVarInt($this->overlay);
-				break;
-			case self::TYPE_HEALTH_PERCENT:
-				$this->putLFloat($this->healthPercent);
-				break;
-			case self::TYPE_TITLE:
-				$this->putString($this->title);
-				if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_776) {
-					$this->putString($this->filteredTitle);
-				}
-				break;
-			default:
-				break;
+				case self::TYPE_TEXTURE:
+					$this->putUnsignedVarInt(ConstantTranslator::getInstance()->toNetworkId(BossBarColor::class, $this->color, $this->protocol, BossBarColor::PURPLE));
+					$this->putUnsignedVarInt($this->overlay);
+					break;
+				case self::TYPE_HEALTH_PERCENT:
+					$this->putLFloat($this->healthPercent);
+					break;
+				case self::TYPE_TITLE:
+					$this->putString($this->title);
+					if ($this->protocol >= ProtocolInfo::PROTOCOL_776) {
+						$this->putString($this->filteredTitle);
+					}
+					break;
+				default:
+					break;
+			}
 		}
 	}
 

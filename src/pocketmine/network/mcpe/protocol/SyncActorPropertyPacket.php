@@ -25,6 +25,7 @@ namespace pocketmine\network\mcpe\protocol;
 use pocketmine\nbt\NetworkLittleEndianNBTStream;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\NetworkSession;
+use pocketmine\network\mcpe\protocol\types\entity\PlayerActorProperties;
 
 class SyncActorPropertyPacket extends DataPacket
 {
@@ -37,6 +38,11 @@ class SyncActorPropertyPacket extends DataPacket
 		$result = new self();
 		$result->data = $data;
 		return $result;
+	}
+
+	public static function createFromProperties(PlayerActorProperties $properties) : self
+	{
+		return self::create($properties->toNbt());
 	}
 
 	public function getData() : CompoundTag

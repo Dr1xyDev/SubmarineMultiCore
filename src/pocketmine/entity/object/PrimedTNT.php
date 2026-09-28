@@ -104,8 +104,7 @@ class PrimedTNT extends Entity implements Explosive
 		return $hasUpdate || $this->fuse >= 0;
 	}
 
-	public function explode() : void
-	{
+	public function explode() : void{
 		$ev = new ExplosionPrimeEvent($this, 4);
 		$ev->call();
 		if (!$ev->isCancelled()) {

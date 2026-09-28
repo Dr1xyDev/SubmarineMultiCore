@@ -43,6 +43,10 @@ class LeatherCap extends Armor
 		return 56;
 	}
 
+	public function getEnchantAbility() : int{
+		return 15;
+	}
+
 	public function getArmorSlot() : int
 	{
 		return ArmorSlot::SLOT_HELMET;

@@ -23,24 +23,33 @@ declare(strict_types=1);
 namespace pocketmine\entity\projectile;
 
 use pocketmine\block\Block;
+use pocketmine\entity\Effect;
+use pocketmine\entity\EffectInstance;
 use pocketmine\entity\Entity;
+use pocketmine\entity\hostile\Enderman;
 use pocketmine\entity\Living;
 use pocketmine\event\entity\ProjectileHitEvent;
 use pocketmine\event\inventory\InventoryPickupArrowEvent;
-use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
+use pocketmine\item\ItemIds;
 use pocketmine\item\Potion;
-use pocketmine\level\Level;
+use pocketmine\level\ChunkManager;
 use pocketmine\level\particle\MobSpellParticle;
 use pocketmine\level\sound\ArrowHitSound;
 use pocketmine\math\RayTraceResult;
 use pocketmine\math\Vector3;
+use pocketmine\nbt\tag\ByteTag;
 use pocketmine\nbt\tag\CompoundTag;
-use pocketmine\nbt\tag\ShortTag;
+use pocketmine\nbt\tag\IntTag;
+use pocketmine\nbt\tag\ListTag;
 use pocketmine\network\mcpe\protocol\ActorEventPacket;
 use pocketmine\network\mcpe\protocol\TakeItemActorPacket;
 use pocketmine\Player;
 
+use pocketmine\utils\Binary;
+use function ceil;
+use function count;
+use function max;
 use function mt_rand;
 use function sqrt;
 
@@ -53,7 +62,10 @@ class Arrow extends Projectile
 	public const PICKUP_CREATIVE = 2;
 
 	private const TAG_PICKUP = "pickup"; //TAG_Byte
-	private const TAG_POTION = "Potion"; //TAG_Short
+	public const TAG_CRIT = "crit"; //TAG_Byte
+	private const TAG_LIFE = "life"; //TAG_Short
+	private const TAG_MOB_EFFECTS = "mobEffects"; //TAG_List<TAG_Compound>
+	private const TAG_AUX_VALUE = "auxValue"; //TAG_Byte
 
 	public float $width = 0.25;
 	public float $height = 0.25;
@@ -61,41 +73,77 @@ class Arrow extends Projectile
 	protected $gravity = 0.05;
 	protected $drag = 0.01;
 
-	/** @var float */
-	protected $damage = 2.0;
+	protected float $damage = 2.0;
+	protected int $pickupMode = self::PICKUP_ANY;
+	protected float $punchKnockback = 0.0;
+	protected int $collideTicks = 0;
+	protected bool $critical = false;
 
-	/** @var int */
-	protected $pickupMode = self::PICKUP_ANY;
+	/** @var EffectInstance[] */
+	protected array $mobEffects = [];
 
-	/** @var float */
-	protected $punchKnockback = 0.0;
-
-	/** @var int */
-	protected $collideTicks = 0;
-
-	/** @var int */
-	protected $potionId = 0;
-
-	public function __construct(Level $level, CompoundTag $nbt, ?Entity $shootingEntity = null, bool $critical = false)
-	{
+	public function __construct(ChunkManager $level, CompoundTag $nbt, ?Entity $shootingEntity = null, bool $critical = false){
 		parent::__construct($level, $nbt, $shootingEntity);
 		$this->setCritical($critical);
 	}
 
-	protected function initEntity() : void
-	{
+	protected function initEntity() : void{
 		parent::initEntity();
 
-		$this->pickupMode = $this->namedtag->getByte(self::TAG_PICKUP, self::PICKUP_ANY, true);
-		$this->collideTicks = $this->namedtag->getShort("life", $this->collideTicks);
-		if (!$this->namedtag->hasTag(self::TAG_POTION, ShortTag::class)) {
-			$this->namedtag->setShort(self::TAG_POTION, $this->potionId);
+		$this->pickupMode = $this->namedtag->getByte(self::TAG_PICKUP, self::PICKUP_ANY);
+		$this->critical = $this->namedtag->getByte(self::TAG_CRIT, 0) === 1;
+		$this->collideTicks = $this->namedtag->getShort(self::TAG_LIFE, $this->collideTicks);
+
+		if ($this->namedtag->hasTag(self::TAG_MOB_EFFECTS, ListTag::class)) {
+			/** @var CompoundTag[]|ListTag|null $effectList */
+			$effectList = $this->namedtag->getListTag(self::TAG_MOB_EFFECTS);
+			foreach ($effectList as $e) {
+				$effect = Effect::getEffect($e->getByte("Id"));
+				if ($effect === null) {
+					continue;
+				}
+
+				$this->mobEffects[] = new EffectInstance(
+					$effect,
+					$e->getInt("Duration"),
+					Binary::unsignByte($e->getByte("Amplifier")),
+					$e->getByte("ShowParticles", 1) !== 0,
+					$e->getByte("Ambient", 0) !== 0
+				);
+			}
 		}
-		$this->potionId = $this->namedtag->getShort(self::TAG_POTION, 0);
+
+		$this->setAuxValue($this->namedtag->getByte(self::TAG_AUX_VALUE, 0));
 	}
 
-	public function setThrowableMotion(Vector3 $motion, float $velocity, float $inaccuracy) : bool
-	{
+	public function saveNBT() : void{
+		parent::saveNBT();
+
+		$this->namedtag->setByte(self::TAG_PICKUP, $this->pickupMode);
+		$this->namedtag->setByte(self::TAG_CRIT, $this->critical ? 1 : 0);
+		$this->namedtag->setShort(self::TAG_LIFE, $this->collideTicks);
+
+		if (count($this->mobEffects) > 0) {
+			$effects = [];
+			foreach ($this->mobEffects as $effect) {
+				$effects[] = new CompoundTag("", [
+					new ByteTag("Id", $effect->getId()),
+					new ByteTag("Amplifier", Binary::signByte($effect->getAmplifier())),
+					new IntTag("Duration", $effect->getDuration()),
+					new ByteTag("Ambient", $effect->isAmbient() ? 1 : 0),
+					new ByteTag("ShowParticles", $effect->isVisible() ? 1 : 0)
+				]);
+			}
+
+			$this->namedtag->setTag(new ListTag(self::TAG_MOB_EFFECTS, $effects));
+		} else {
+			$this->namedtag->removeTag(self::TAG_MOB_EFFECTS);
+		}
+
+		$this->namedtag->setByte(self::TAG_AUX_VALUE, $this->getAuxValue());
+	}
+
+	public function setThrowableMotion(Vector3 $motion, float $velocity, float $inaccuracy) : bool{
 		return $this->setMotion($motion->add(
 			$this->random->nextFloat() * ($this->random->nextBoolean() ? 1 : -1) * 0.0075 * $inaccuracy,
 			$this->random->nextFloat() * ($this->random->nextBoolean() ? 1 : -1) * 0.0075 * $inaccuracy,
@@ -104,63 +152,94 @@ class Arrow extends Projectile
 			->multiply($velocity));
 	}
 
-	public function saveNBT() : void
-	{
-		parent::saveNBT();
-
-		$this->namedtag->setByte(self::TAG_PICKUP, $this->pickupMode, true);
-		$this->namedtag->setShort(self::TAG_POTION, $this->potionId);
-		$this->namedtag->setShort("life", $this->collideTicks);
-	}
-
-	public function isCritical() : bool
-	{
+	public function isCritical() : bool{
 		return $this->getGenericFlag(self::DATA_FLAG_CRITICAL);
 	}
 
-	public function setCritical(bool $value = true) : void
-	{
+	public function setCritical(bool $value = true) : void{
 		$this->setGenericFlag(self::DATA_FLAG_CRITICAL, $value);
 	}
 
-	public function getResultDamage() : int
-	{
-		$base = parent::getResultDamage();
-		if ($this->isCritical()) {
+	public function getResultDamage() : int{
+		$base = (int) ceil($this->motion->length() * parent::getResultDamage());
+		if($this->isCritical()){
 			return ($base + mt_rand(0, (int) ($base / 2) + 1));
-		} else {
+		}else{
 			return $base;
 		}
 	}
 
-	public function getPunchKnockback() : float
-	{
+	public function getMobEffects() : array{
+		return $this->mobEffects;
+	}
+
+	/**
+	 * @param EffectInstance[] $mobEffects
+	 */
+	public function setMobEffects(array $mobEffects) : void{
+		$this->mobEffects = $mobEffects;
+	}
+
+	public function addMobEffect(EffectInstance $effect) : void{
+		$this->mobEffects[] = $effect;
+	}
+
+	public function getPunchKnockback() : float{
 		return $this->punchKnockback;
 	}
 
-	public function setPunchKnockback(float $punchKnockback) : void
-	{
+	public function setPunchKnockback(float $punchKnockback) : void{
 		$this->punchKnockback = $punchKnockback;
 	}
 
-	public function entityBaseTick(int $tickDiff = 1) : bool
-	{
+	public function getAuxValue() : int{
+		return $this->getDataPropertyManager()->getShort(self::DATA_POTION_AUX_VALUE);
+	}
+
+	public function setAuxValue(int $auxValue) : void{
+		$this->getDataPropertyManager()->setShort(self::DATA_POTION_AUX_VALUE, $auxValue);
+	}
+
+	public function entityBaseTick(int $tickDiff = 1) : bool{
 		if ($this->closed) {
 			return false;
 		}
 
 		$hasUpdate = parent::entityBaseTick($tickDiff);
 
-		if ($this->potionId !== 0) {
-			if (!$this->onGround || ($this->onGround && ($tickDiff % 4) === 0)) {
-				$color = Potion::getColor($this->potionId - 1);
-				$this->level->addParticle(new MobSpellParticle($this->add(
-					$this->width / 2 + mt_rand(-100, 100) / 500,
-					$this->height / 2 + mt_rand(-100, 100) / 500,
-					$this->width / 2 + mt_rand(-100, 100) / 500
-				), $color[0], $color[1], $color[2]));
+		$auxValue = $this->getAuxValue();
+		if ($auxValue > 0 || count($this->mobEffects) !== 0) {
+			if (!$this->onGround) {
+				for ($i = 0; $i < 2; $i++) {
+					$px = $this->x + ($this->motion->x * ($i / 2.0));
+					$py = $this->y + ($this->motion->y * ($i / 2.0));
+					$pz = $this->z + ($this->motion->z * ($i / 2.0));
+					$particle = $this->getParticle(new Vector3($px, $py, $pz));
+					if ($particle !== null) {
+						$this->level->addParticle($particle);
+					}
+				}
+			} elseif ((count($this->mobEffects) !== 0 || $this->getAuxValue() > 0) && $this->collideTicks % 6 === 0) {
+				$px = $this->x + ($this->random->nextFloat() * 2.0 - 1.0) * 0.2;
+				$py = $this->y + ($this->random->nextFloat() * 2.0 - 1.0) * 0.2;
+				$pz = $this->z + ($this->random->nextFloat() * 2.0 - 1.0) * 0.2;
+				$particle = $this->getParticle(new Vector3($px, $py, $pz));
+				if ($particle !== null) {
+					$this->level->addParticle($particle);
+				}
 			}
-			$hasUpdate = true;
+		}
+
+		if (!$this->onGround && $this->isCritical()) {
+			for ($i = 0; $i < 4; $i++) {
+				$px = $this->x + ($this->motion->x * ($i / 4.0));
+				$py = $this->y + ($this->motion->y * ($i / 4.0));
+				$pz = $this->z + ($this->motion->z * ($i / 4.0));
+				$particle = $this->getParticle(new Vector3($px, $py, $pz));
+				if ($particle !== null) {
+					$this->level->addParticle($particle);
+				}
+			}
 		}
 
 		if ($this->blockHit !== null) {
@@ -176,66 +255,94 @@ class Arrow extends Projectile
 		return $hasUpdate;
 	}
 
-	protected function onHit(ProjectileHitEvent $event) : void
-	{
+	public function getParticle(Vector3 $pos) : ?MobSpellParticle {
+		if (count($this->mobEffects) === 0) {
+			$auxValue = $this->getAuxValue();
+			if ($auxValue === 0) {
+				return null;
+			}
+
+			foreach (Potion::getPotionEffectsById($auxValue - 1) as $effect) {
+				$this->addMobEffect((clone $effect)->setDuration(max(1, (int) ($effect->getDuration() / 8))));
+			}
+
+			if (count($this->mobEffects) === 0) {
+				return null;
+			}
+		}
+
+		$color = $this->mobEffects[0]->getColor();
+		return new MobSpellParticle($pos, $color->getR(), $color->getG(), $color->getB(), $color->getA());
+	}
+
+	protected function onHit(ProjectileHitEvent $event) : void{
 		$this->setCritical(false);
 		$this->broadcastSound(new ArrowHitSound($this));
 	}
 
-	protected function onHitBlock(Block $blockHit, RayTraceResult $hitResult) : void
-	{
+	protected function onHitBlock(Block $blockHit, RayTraceResult $hitResult) : void{
 		parent::onHitBlock($blockHit, $hitResult);
 		$this->broadcastEntityEvent(ActorEventPacket::ARROW_SHAKE, 7); //7 ticks
+
+		$this->motion->x = (float) ($hitResult->hitVector->x - $this->x);
+		$this->motion->y = (float) ($hitResult->hitVector->y - $this->y);
+		$this->motion->z = (float) ($hitResult->hitVector->z - $this->z);
+
+		$distance = sqrt($this->motion->x ** 2 + $this->motion->y ** 2 + $this->motion->z ** 2);
+		if ($distance > 0.0) {
+			$this->x -= $this->motion->x / $distance * 0.05;
+			$this->y -= $this->motion->y / $distance * 0.05;
+			$this->z -= $this->motion->z / $distance * 0.05;
+		}
 	}
 
-	protected function onHitEntity(Entity $entityHit, RayTraceResult $hitResult) : bool
-	{
+	protected function onHitEntity(Entity $entityHit, RayTraceResult $hitResult) : bool{
 		if (($hit = parent::onHitEntity($entityHit, $hitResult))) {
-			if ($this->potionId !== 0 && $entityHit instanceof Living) {
-				foreach (Potion::getPotionEffectsById($this->potionId - 1) as $effect) {
-					$entityHit->addEffect($effect->setDuration((int) ($effect->getDuration() / 8)));
-				}
+			if ($this->isOnFire() && !($entityHit instanceof Enderman)) {
+				$entityHit->setOnFire(5);
 			}
-			if ($this->punchKnockback > 0) {
+
+			if($this->punchKnockback > 0){
 				$horizontalSpeed = sqrt($this->motion->x ** 2 + $this->motion->z ** 2);
-				if ($horizontalSpeed > 0) {
+				if($horizontalSpeed > 0){
 					$multiplier = $this->punchKnockback * 0.6 / $horizontalSpeed;
 					$entityHit->setMotion($entityHit->getMotion()->add($this->motion->x * $multiplier, 0.1, $this->motion->z * $multiplier));
 				}
 			}
+
+			if ($entityHit instanceof Living) {
+				foreach ($this->mobEffects as $effect) {
+					$entityHit->addEffect($effect);
+				}
+			}
+
+			if ($entityHit instanceof Enderman) {
+				$this->flagForDespawn();
+			}
+		} else {
+			$this->motion->x *= -0.1;
+			$this->motion->y *= -0.1;
+			$this->motion->z *= -0.1;
+			$this->yaw += 180.0;
 		}
 
 		return $hit;
 	}
 
-	public function getPickupMode() : int
-	{
+	public function getPickupMode() : int{
 		return $this->pickupMode;
 	}
 
-	public function setPickupMode(int $pickupMode) : void
-	{
+	public function setPickupMode(int $pickupMode) : void{
 		$this->pickupMode = $pickupMode;
 	}
 
-	public function getPotionId() : int
-	{
-		return $this->potionId;
-	}
-
-	public function setPotionId(int $potionId) : void
-	{
-		$this->potionId = $potionId;
-	}
-
-	public function onCollideWithPlayer(Player $player) : void
-	{
+	public function onCollideWithPlayer(Player $player) : void{
 		if ($this->blockHit === null) {
 			return;
 		}
 
-		$item = ItemFactory::get(Item::ARROW, $this->potionId, 1);
-
+		$item = ItemFactory::get(ItemIds::ARROW, $this->getAuxValue());
 		if ($player->isSurvival()) {
 			if ($player->getOffHandInventory()->getItem(0)->canStackWith($item)) {
 				$playerInventory = $player->getOffHandInventory();

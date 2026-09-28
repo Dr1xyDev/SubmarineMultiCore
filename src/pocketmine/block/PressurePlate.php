@@ -22,36 +22,40 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
+use pocketmine\block\utils\StaticSupportTrait;
 use pocketmine\entity\Entity;
+use pocketmine\event\block\PressurePlateUpdateEvent;
 use pocketmine\level\sound\PressurePlateActivateSound;
 use pocketmine\level\sound\PressurePlateDeactivateSound;
 use pocketmine\math\Axis;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Facing;
-use pocketmine\math\Vector3;
 
 use function count;
 
 abstract class PressurePlate extends Transparent
 {
+	use StaticSupportTrait;
+
+	public function getVariantBitmask() : int
+	{
+		return 0;
+	}
+
 	public function isSolid() : bool
 	{
 		return false;
 	}
 
-	private function canBeSupportedAt(Block $block) : bool
-	{
-		return !$block->isTransparent() || $block->isNarrowSurface() || $this->canStayOnFullSolid($block);
-	}
-
-	public function canBePlacedAt(Block $blockReplace, Vector3 $clickVector, int $face, bool $isClickedBlock) : bool
-	{
-		return $this->canBeSupportedAt($blockReplace->getSide(Facing::DOWN)) && parent::canBePlacedAt($blockReplace, $clickVector, $face, $isClickedBlock);
-	}
-
 	protected function recalculateCollisionBoxes() : array
 	{
 		return [];
+	}
+
+	protected function canBeSupportedAt(Block $block) : bool
+	{
+		$down = $this->getSide(Facing::DOWN);
+		return !$down->isTransparent() || $down->isNarrowSurface() || $this->canStayOnFullSolid($down);
 	}
 
 	public function hasEntityCollision() : bool
@@ -118,6 +122,11 @@ abstract class PressurePlate extends Transparent
 		//plate is already deactivated.
 		if (count($activatingEntities) > 0 || $this->hasOutputSignal()) {
 			[$newState, $pressedChange] = $this->calculatePlateState($activatingEntities);
+
+			$ev = new PressurePlateUpdateEvent($this, $newState, $activatingEntities);
+			$ev->call();
+			$newState = $ev->isCancelled() ? null : $ev->getNewState();
+
 			if ($newState !== null) {
 				$this->level->setBlock($this, $newState);
 				if ($pressedChange !== null) {
@@ -134,12 +143,7 @@ abstract class PressurePlate extends Transparent
 		}
 	}
 
-	public function onNearbyBlockChange() : void
-	{
-		if (!$this->canBeSupportedAt($this->getSide(Facing::DOWN))) {
-			$this->level->useBreakOn($this);
-		}
-	}
+	abstract public function getDeactivationDelayTicks() : int;
 
 	public function isActivated() : bool
 	{

@@ -47,12 +47,12 @@ class AdventureSettingsPacket extends DataPacket
 
 	protected function decodePayload() : void
 	{
-		$this->adventureSettingsData = AdventureSettingsData::decode($this, $this->getProtocol());
+		$this->adventureSettingsData = AdventureSettingsData::decode($this);
 	}
 
 	protected function encodePayload() : void
 	{
-		$this->adventureSettingsData->encode($this, $this->getProtocol());
+		$this->adventureSettingsData->encode($this);
 	}
 
 	public function handle(NetworkSession $session) : bool

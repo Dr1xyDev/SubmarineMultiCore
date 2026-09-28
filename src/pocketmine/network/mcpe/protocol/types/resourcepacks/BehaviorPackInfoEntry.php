@@ -79,42 +79,34 @@ class BehaviorPackInfoEntry
 		return $this->isAddonPack;
 	}
 
-	public function write(int $playerProtocol, NetworkBinaryStream $out) : void
+	public function write(NetworkBinaryStream $out) : void
 	{
 		$out->putString($this->packId);
 		$out->putString($this->version);
 		$out->putLLong($this->sizeBytes);
 		$out->putString($this->encryptionKey);
-		if ($playerProtocol >= ProtocolInfo::PROTOCOL_137) {
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_407) {
 			$out->putString($this->subPackName);
-			if ($playerProtocol >= ProtocolInfo::PROTOCOL_282) {
-				$out->putString($this->contentId);
-				if ($playerProtocol >= ProtocolInfo::PROTOCOL_332) {
-					$out->putBool($this->hasScripts);
-					if ($playerProtocol >= ProtocolInfo::PROTOCOL_712) {
-						$out->putBool($this->isAddonPack);
-					}
-				}
+			$out->putString($this->contentId);
+			$out->putBool($this->hasScripts);
+			if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
+				$out->putBool($this->isAddonPack);
 			}
 		}
 	}
 
-	public static function read(int $playerProtocol, NetworkBinaryStream $in) : self
+	public static function read(NetworkBinaryStream $in) : self
 	{
 		$uuid = $in->getString();
 		$version = $in->getString();
 		$sizeBytes = $in->getLLong();
 		$encryptionKey = $in->getString();
-		if ($playerProtocol >= ProtocolInfo::PROTOCOL_137) {
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_407) {
 			$subPackName = $in->getString();
-			if ($playerProtocol >= ProtocolInfo::PROTOCOL_282) {
-				$contentId = $in->getString();
-				if ($playerProtocol >= ProtocolInfo::PROTOCOL_332) {
-					$hasScripts = $in->getBool();
-					if ($playerProtocol >= ProtocolInfo::PROTOCOL_712) {
-						$isAddonPack = $in->getBool();
-					}
-				}
+			$contentId = $in->getString();
+			$hasScripts = $in->getBool();
+			if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
+				$isAddonPack = $in->getBool();
 			}
 		}
 

@@ -45,13 +45,13 @@ final class CraftingCreateSpecificResultStackRequestAction extends ItemStackRequ
 		return $this->resultIndex;
 	}
 
-	public static function read(NetworkBinaryStream $in, int $playerProtocol) : self
+	public static function read(NetworkBinaryStream $in) : self
 	{
 		$slot = $in->getByte();
 		return new self($slot);
 	}
 
-	public function write(NetworkBinaryStream $out, int $playerProtocol) : void
+	public function write(NetworkBinaryStream $out) : void
 	{
 		$out->putByte($this->resultIndex);
 	}

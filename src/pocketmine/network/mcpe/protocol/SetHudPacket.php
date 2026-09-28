@@ -61,7 +61,7 @@ class SetHudPacket extends DataPacket
 
 	protected function decodePayload() : void
 	{
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_786) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_786) {
 			$this->hudElements = [];
 			for ($i = 0, $count = $this->getUnsignedVarInt(); $i < $count; ++$i) {
 				$this->hudElements[] = HudElement::fromPacket($this->getVarInt());
@@ -78,7 +78,7 @@ class SetHudPacket extends DataPacket
 
 	protected function encodePayload() : void
 	{
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_786) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_786) {
 			$this->putUnsignedVarInt(count($this->hudElements));
 			foreach ($this->hudElements as $element) {
 				$this->putVarInt($element->value);

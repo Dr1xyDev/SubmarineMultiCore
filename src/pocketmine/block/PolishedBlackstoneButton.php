@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class PolishedBlackstoneButton extends StoneButton
 {
 	protected $id = self::POLISHED_BLACKSTONE_BUTTON;
@@ -36,14 +34,5 @@ class PolishedBlackstoneButton extends StoneButton
 	public function getName() : string
 	{
 		return "Polished Blackstone Button";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_419) {
-			return BlockFactory::get(BlockIds::STONE_BUTTON, $this->meta);
-		}
-
-		return null;
 	}
 }

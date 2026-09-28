@@ -27,6 +27,7 @@ use pocketmine\network\mcpe\protocol\types\camera\CameraAimAssistCategories;
 use pocketmine\network\mcpe\protocol\types\camera\CameraAimAssistCategory;
 use pocketmine\network\mcpe\protocol\types\camera\CameraAimAssistPreset;
 
+use pocketmine\network\mcpe\protocol\types\camera\CameraAimAssistPresetsPacketOperation;
 use function count;
 
 class CameraAimAssistPresetsPacket extends DataPacket
@@ -34,17 +35,17 @@ class CameraAimAssistPresetsPacket extends DataPacket
 	public const NETWORK_ID = ProtocolInfo::CAMERA_AIM_ASSIST_PRESETS_PACKET;
 
 	/** @var CameraAimAssistCategory[]|CameraAimAssistCategories[] */
-	private array $categories;
+	private array $categories = [];
 	/** @var CameraAimAssistPreset[] */
-	private array $presets;
-	private int $operation;
+	private array $presets = [];
+	private CameraAimAssistPresetsPacketOperation $operation;
 
 	/**
 	 * @generate-create-func
 	 * @param CameraAimAssistCategory[]|CameraAimAssistCategories[] $categories
 	 * @param CameraAimAssistPreset[]                               $presets
 	 */
-	public static function create(array $categories, array $presets, int $operation) : self
+	public static function create(array $categories, array $presets, CameraAimAssistPresetsPacketOperation $operation) : self
 	{
 		$result = new self();
 		$result->categories = $categories;
@@ -69,7 +70,7 @@ class CameraAimAssistPresetsPacket extends DataPacket
 		return $this->presets;
 	}
 
-	public function getOperation() : int
+	public function getOperation() : CameraAimAssistPresetsPacketOperation
 	{
 		return $this->operation;
 	}
@@ -78,19 +79,20 @@ class CameraAimAssistPresetsPacket extends DataPacket
 	{
 		$this->categories = [];
 		for ($i = 0, $count = $this->getUnsignedVarInt(); $i < $count; ++$i) {
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_800) {
-				$this->categories[] = CameraAimAssistCategories::read($this);
-			} else {
+			//1.21.80 flattened the category groups into a plain category list
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_800) {
 				$this->categories[] = CameraAimAssistCategory::read($this);
+			} else {
+				$this->categories[] = CameraAimAssistCategories::read($this);
 			}
 		}
 		$this->presets = [];
 		for ($i = 0, $count = $this->getUnsignedVarInt(); $i < $count; ++$i) {
-			$this->presets[] = CameraAimAssistPreset::read($this, $this->getProtocol());
+			$this->presets[] = CameraAimAssistPreset::read($this);
 		}
 
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_776) {
-			$this->operation = $this->getByte();
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_776) {
+			$this->operation = CameraAimAssistPresetsPacketOperation::fromPacket($this->getByte());
 		}
 	}
 
@@ -102,11 +104,11 @@ class CameraAimAssistPresetsPacket extends DataPacket
 		}
 		$this->putUnsignedVarInt(count($this->presets));
 		foreach ($this->presets as $preset) {
-			$preset->write($this, $this->getProtocol());
+			$preset->write($this);
 		}
 
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_776) {
-			$this->putByte($this->operation);
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_776) {
+			$this->putByte($this->operation->value);
 		}
 	}
 

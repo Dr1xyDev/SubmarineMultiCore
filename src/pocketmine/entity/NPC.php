@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace pocketmine\entity;
 
+use pocketmine\level\ChunkManager;
 use pocketmine\level\Level;
 use pocketmine\nbt\tag\ByteArrayTag;
 use pocketmine\nbt\tag\CompoundTag;
@@ -38,7 +39,7 @@ class NPC extends Human
 	/**
 	 * NPC constructor.
 	 */
-	public function __construct(Level $level, float $x, float $y, float $z, float $yaw, float $pitch, Skin $skin)
+	public function __construct(ChunkManager $level, float $x, float $y, float $z, float $yaw, float $pitch, Skin $skin)
 	{
 		$this->skin = $skin;
 

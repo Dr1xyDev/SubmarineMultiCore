@@ -27,19 +27,22 @@ use pocketmine\block\Block;
 /**
  * Called when a block spreads to another block, such as grass spreading to nearby dirt blocks.
  */
-class BlockSpreadEvent extends BlockFormEvent
-{
-	/** @var Block */
-	private $source;
+class BlockSpreadEvent extends BaseBlockChangeEvent{
 
-	public function __construct(Block $block, Block $source, Block $newState)
-	{
+	/**
+	 * @param Block $block    Block being replaced (TODO: rename this)
+	 * @param Block $source   Origin of the spread
+	 * @param Block $newState Replacement block
+	 */
+	public function __construct(
+		Block $block,
+		private Block $source,
+		Block $newState
+	){
 		parent::__construct($block, $newState);
-		$this->source = $source;
 	}
 
-	public function getSource() : Block
-	{
+	public function getSource() : Block{
 		return $this->source;
 	}
 }

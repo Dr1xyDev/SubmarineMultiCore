@@ -25,7 +25,6 @@ namespace pocketmine\block;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
 use pocketmine\item\ItemIds;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 class AzaleaLeaves extends Leaves
 {
@@ -57,14 +56,5 @@ class AzaleaLeaves extends Leaves
 
 	public function getPersistentBitmask() : int{
 		return 0x01;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_440) {
-			return BlockFactory::get(BlockIds::LEAVES);
-		}
-
-		return null;
 	}
 }

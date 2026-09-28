@@ -71,7 +71,7 @@ class Sword extends TieredTool
 	{
 		if ($playerProtocol < ProtocolInfo::PROTOCOL_407) {
 			if ($this->getId() === ItemIds::NETHERITE_SWORD) {
-				return new TranslatedItemData(ItemIds::DIAMOND_SWORD, $this->getDamage());
+				return new TranslatedItemData(ItemIds::DIAMOND_SWORD, $this->getDamage(), $this->getName());
 			}
 		}
 

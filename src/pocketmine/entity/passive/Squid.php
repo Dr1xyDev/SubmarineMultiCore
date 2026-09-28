@@ -128,8 +128,9 @@ class Squid extends WaterAnimal
 
 	public function getDrops() : array
 	{
+		$looting = $this->getLootingLevel();
 		return [
-			ItemFactory::get(Item::DYE, 0, mt_rand(1, 3))
+			ItemFactory::get(Item::DYE, 0, mt_rand(1, 3 + $looting))
 		];
 	}
 

@@ -22,9 +22,9 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
+use pocketmine\item\TieredTool;
 
-class BlackstoneDoubleSlab extends DoubleStoneSlab
+class BlackstoneDoubleSlab extends DoubleSlab
 {
 	protected int $slabId;
 
@@ -40,12 +40,18 @@ class BlackstoneDoubleSlab extends DoubleStoneSlab
 		return $this->slabId;
 	}
 
-	public function getBlockProtocol(int $playerProtocol) : ?Block
+	public function getHardness() : float
 	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_419) {
-			return BlockFactory::get(BlockIds::DOUBLE_STONE_SLAB);
-		}
+		return 1.5;
+	}
 
-		return null;
+	public function getToolType() : int
+	{
+		return BlockToolType::TYPE_PICKAXE;
+	}
+
+	public function getToolHarvestLevel() : int
+	{
+		return TieredTool::TIER_WOODEN;
 	}
 }

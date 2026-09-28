@@ -61,7 +61,7 @@ class Pickaxe extends TieredTool
 	{
 		if ($playerProtocol < ProtocolInfo::PROTOCOL_407) {
 			if ($this->getId() === ItemIds::NETHERITE_PICKAXE) {
-				return new TranslatedItemData(ItemIds::DIAMOND_PICKAXE, $this->getDamage());
+				return new TranslatedItemData(ItemIds::DIAMOND_PICKAXE, $this->getDamage(), $this->getName());
 			}
 		}
 

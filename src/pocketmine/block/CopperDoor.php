@@ -25,7 +25,6 @@ namespace pocketmine\block;
 use pocketmine\block\utils\CopperMaterial;
 use pocketmine\block\utils\CopperOxidation;
 use pocketmine\item\TieredTool;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 class CopperDoor extends Door implements CopperMaterial
 {
@@ -88,14 +87,5 @@ class CopperDoor extends Door implements CopperMaterial
 	public function getHardness() : float
 	{
 		return 3;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_630) {
-			return BlockFactory::get(BlockIds::WOODEN_DOOR_BLOCK, $this->meta);
-		}
-
-		return null;
 	}
 }

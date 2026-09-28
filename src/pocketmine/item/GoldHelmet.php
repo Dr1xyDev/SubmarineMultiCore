@@ -43,6 +43,10 @@ class GoldHelmet extends Armor
 		return 78;
 	}
 
+	public function getEnchantAbility() : int{
+		return 25;
+	}
+
 	public function getArmorSlot() : int
 	{
 		return ArmorSlot::SLOT_HELMET;

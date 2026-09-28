@@ -47,6 +47,7 @@ use pocketmine\network\mcpe\protocol\BlockEventPacket;
 use pocketmine\network\mcpe\protocol\BlockPickRequestPacket;
 use pocketmine\network\mcpe\protocol\BookEditPacket;
 use pocketmine\network\mcpe\protocol\BossEventPacket;
+use pocketmine\network\mcpe\protocol\CameraAimAssistActorPriorityPacket;
 use pocketmine\network\mcpe\protocol\CameraAimAssistInstructionPacket;
 use pocketmine\network\mcpe\protocol\CameraAimAssistPacket;
 use pocketmine\network\mcpe\protocol\CameraAimAssistPresetsPacket;
@@ -54,13 +55,21 @@ use pocketmine\network\mcpe\protocol\CameraInstructionPacket;
 use pocketmine\network\mcpe\protocol\CameraPacket;
 use pocketmine\network\mcpe\protocol\CameraPresetsPacket;
 use pocketmine\network\mcpe\protocol\CameraShakePacket;
+use pocketmine\network\mcpe\protocol\CameraSplinePacket;
 use pocketmine\network\mcpe\protocol\ChangeDimensionPacket;
 use pocketmine\network\mcpe\protocol\ChangeMobPropertyPacket;
 use pocketmine\network\mcpe\protocol\ChunkRadiusUpdatedPacket;
+use pocketmine\network\mcpe\protocol\ClientboundAttributeLayerSyncPacket;
 use pocketmine\network\mcpe\protocol\ClientboundCloseFormPacket;
 use pocketmine\network\mcpe\protocol\ClientboundControlSchemeSetPacket;
+use pocketmine\network\mcpe\protocol\ClientboundDataDrivenUICloseAllScreensPacket;
+use pocketmine\network\mcpe\protocol\ClientboundDataDrivenUIReloadPacket;
+use pocketmine\network\mcpe\protocol\ClientboundDataDrivenUIShowScreenPacket;
+use pocketmine\network\mcpe\protocol\ClientboundDataStorePacket;
 use pocketmine\network\mcpe\protocol\ClientboundDebugRendererPacket;
 use pocketmine\network\mcpe\protocol\ClientboundMapItemDataPacket;
+use pocketmine\network\mcpe\protocol\ClientboundTextureShiftPacket;
+use pocketmine\network\mcpe\protocol\ClientboundUpdateSoundDataPacket;
 use pocketmine\network\mcpe\protocol\ClientCacheBlobStatusPacket;
 use pocketmine\network\mcpe\protocol\ClientCacheMissResponsePacket;
 use pocketmine\network\mcpe\protocol\ClientCacheStatusPacket;
@@ -88,9 +97,8 @@ use pocketmine\network\mcpe\protocol\CreatePhotoPacket;
 use pocketmine\network\mcpe\protocol\CreativeContentPacket;
 use pocketmine\network\mcpe\protocol\CurrentStructureFeaturePacket;
 use pocketmine\network\mcpe\protocol\DataPacket;
-use pocketmine\network\mcpe\protocol\DataStoreSyncPacket;
 use pocketmine\network\mcpe\protocol\DeathInfoPacket;
-use pocketmine\network\mcpe\protocol\DebugDrawerPacket;
+use pocketmine\network\mcpe\protocol\DebugDrawePrimitiveShapesPacket;
 use pocketmine\network\mcpe\protocol\DebugInfoPacket;
 use pocketmine\network\mcpe\protocol\DimensionDataPacket;
 use pocketmine\network\mcpe\protocol\DisconnectPacket;
@@ -129,6 +137,7 @@ use pocketmine\network\mcpe\protocol\LevelEventPacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacketV1;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacketV2;
+use pocketmine\network\mcpe\protocol\LocatorBarPacket;
 use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\network\mcpe\protocol\MapCreateLockedCopyPacket;
 use pocketmine\network\mcpe\protocol\MapInfoRequestPacket;
@@ -151,6 +160,8 @@ use pocketmine\network\mcpe\protocol\NpcRequestPacket;
 use pocketmine\network\mcpe\protocol\OnScreenTextureAnimationPacket;
 use pocketmine\network\mcpe\protocol\OpenSignPacket;
 use pocketmine\network\mcpe\protocol\PacketViolationWarningPacket;
+use pocketmine\network\mcpe\protocol\PartyChangedPacket;
+use pocketmine\network\mcpe\protocol\PartyDestinationCookieResponsePacket;
 use pocketmine\network\mcpe\protocol\PhotoInfoRequestPacket;
 use pocketmine\network\mcpe\protocol\PhotoTransferPacket;
 use pocketmine\network\mcpe\protocol\PlayerActionPacket;
@@ -174,6 +185,7 @@ use pocketmine\network\mcpe\protocol\PositionTrackingDBServerBroadcastPacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\PurchaseReceiptPacket;
 use pocketmine\network\mcpe\protocol\RefreshEntitlementsPacket;
+use pocketmine\network\mcpe\protocol\RecordStartedPacket;
 use pocketmine\network\mcpe\protocol\RemoveActorPacket;
 use pocketmine\network\mcpe\protocol\RemoveBlockPacket;
 use pocketmine\network\mcpe\protocol\RemoveObjectivePacket;
@@ -187,17 +199,23 @@ use pocketmine\network\mcpe\protocol\ResourcePackChunkRequestPacket;
 use pocketmine\network\mcpe\protocol\ResourcePackClientResponsePacket;
 use pocketmine\network\mcpe\protocol\ResourcePackDataInfoPacket;
 use pocketmine\network\mcpe\protocol\ResourcePacksInfoPacket;
+use pocketmine\network\mcpe\protocol\ResourcePacksReadyForValidationPacket;
 use pocketmine\network\mcpe\protocol\ResourcePackStackPacket;
 use pocketmine\network\mcpe\protocol\RespawnPacket;
 use pocketmine\network\mcpe\protocol\RiderJumpPacket;
 use pocketmine\network\mcpe\protocol\ScriptCustomEventPacket;
 use pocketmine\network\mcpe\protocol\ScriptMessagePacket;
+use pocketmine\network\mcpe\protocol\SendPartyDestinationCookiePacket;
+use pocketmine\network\mcpe\protocol\ServerboundDataDrivenScreenClosedPacket;
+use pocketmine\network\mcpe\protocol\ServerboundDataStorePacket;
 use pocketmine\network\mcpe\protocol\ServerboundDiagnosticsPacket;
 use pocketmine\network\mcpe\protocol\ServerboundLoadingScreenPacket;
 use pocketmine\network\mcpe\protocol\ServerPlayerPostMovePositionPacket;
+use pocketmine\network\mcpe\protocol\ServerPresenceInfoPacket;
 use pocketmine\network\mcpe\protocol\ServerSettingsRequestPacket;
 use pocketmine\network\mcpe\protocol\ServerSettingsResponsePacket;
 use pocketmine\network\mcpe\protocol\ServerStatsPacket;
+use pocketmine\network\mcpe\protocol\ServerStoreInfoPacket;
 use pocketmine\network\mcpe\protocol\ServerToClientHandshakePacket;
 use pocketmine\network\mcpe\protocol\SetActorDataPacket;
 use pocketmine\network\mcpe\protocol\SetActorLinkPacket;
@@ -212,6 +230,7 @@ use pocketmine\network\mcpe\protocol\SetLastHurtByPacket;
 use pocketmine\network\mcpe\protocol\SetLocalPlayerAsInitializedPacket;
 use pocketmine\network\mcpe\protocol\SetMovementAuthorityPacket;
 use pocketmine\network\mcpe\protocol\SetPlayerGameTypePacket;
+use pocketmine\network\mcpe\protocol\SetPlayerFurnaceOptionsPacket;
 use pocketmine\network\mcpe\protocol\SetPlayerInventoryOptionsPacket;
 use pocketmine\network\mcpe\protocol\SetScoreboardIdentityPacket;
 use pocketmine\network\mcpe\protocol\SetScorePacket;
@@ -235,6 +254,7 @@ use pocketmine\network\mcpe\protocol\SubChunkPacket;
 use pocketmine\network\mcpe\protocol\SubChunkRequestPacket;
 use pocketmine\network\mcpe\protocol\SubClientLoginPacket;
 use pocketmine\network\mcpe\protocol\SyncActorPropertyPacket;
+use pocketmine\network\mcpe\protocol\SyncWorldClocksPacket;
 use pocketmine\network\mcpe\protocol\TakeItemActorPacket;
 use pocketmine\network\mcpe\protocol\TextPacket;
 use pocketmine\network\mcpe\protocol\TickingAreasLoadStatusPacket;
@@ -258,6 +278,7 @@ use pocketmine\network\mcpe\protocol\UpdateSubChunkBlocksPacket;
 use pocketmine\network\mcpe\protocol\UpdateTradePacket;
 use pocketmine\network\mcpe\protocol\UseItemPacket;
 use pocketmine\network\mcpe\protocol\VideoStreamConnectPacket;
+use pocketmine\network\mcpe\protocol\VoxelShapesPacket;
 
 abstract class NetworkSession
 {
@@ -1153,11 +1174,6 @@ abstract class NetworkSession
 		return false;
 	}
 
-	public function handleDataStoreSync(DataStoreSyncPacket $packet) : bool
-	{
-		return false;
-	}
-
 	public function handleDeathInfo(DeathInfoPacket $packet) : bool
 	{
 		return false;
@@ -1348,12 +1364,27 @@ abstract class NetworkSession
 		return false;
 	}
 
+	public function handleClientboundDataStore(ClientboundDataStorePacket $packet) : bool
+	{
+		return false;
+	}
+
 	public function handleGraphicsOverrideParameter(GraphicsOverrideParameterPacket $packet) : bool
 	{
 		return false;
 	}
 
+	public function handleServerboundDataStore(ServerboundDataStorePacket $packet) : bool
+	{
+		return false;
+	}
+
 	public function handleServerStats(ServerStatsPacket $packet) : bool
+	{
+		return false;
+	}
+
+	public function handleServerPresenceInfo(ServerPresenceInfoPacket $packet) : bool
 	{
 		return false;
 	}
@@ -1408,7 +1439,7 @@ abstract class NetworkSession
 		return false;
 	}
 
-	public function handleDebugDrawer(DebugDrawerPacket $packet) : bool
+	public function handleDebugDrawer(DebugDrawePrimitiveShapesPacket $packet) : bool
 	{
 		return false;
 	}
@@ -1439,6 +1470,101 @@ abstract class NetworkSession
 	}
 
 	public function handleClientboundControlSchemeSet(ClientboundControlSchemeSetPacket $packet) : bool
+	{
+		return false;
+	}
+
+	public function handleCameraAimAssistActorPriority(CameraAimAssistActorPriorityPacket $packet) : bool
+	{
+		return false;
+	}
+
+	public function handleCameraSpline(CameraSplinePacket $packet) : bool
+	{
+		return false;
+	}
+
+	public function handleClientboundDataDrivenUICloseAllScreens(ClientboundDataDrivenUICloseAllScreensPacket $packet) : bool
+	{
+		return false;
+	}
+
+	public function handleClientboundDataDrivenUIReload(ClientboundDataDrivenUIReloadPacket $packet) : bool
+	{
+		return false;
+	}
+
+	public function handleClientboundDataDrivenUIShowScreen(ClientboundDataDrivenUIShowScreenPacket $packet) : bool
+	{
+		return false;
+	}
+
+	public function handleClientboundTextureShift(ClientboundTextureShiftPacket $packet) : bool
+	{
+		return false;
+	}
+
+	public function handleResourcePacksReadyForValidation(ResourcePacksReadyForValidationPacket $packet) : bool
+	{
+		return false;
+	}
+
+	public function handleLocatorBar(LocatorBarPacket $packet) : bool
+	{
+		return false;
+	}
+
+	public function handlePartyChanged(PartyChangedPacket $packet) : bool
+	{
+		return false;
+	}
+
+	public function handleServerboundDataDrivenScreenClosed(ServerboundDataDrivenScreenClosedPacket $packet) : bool
+	{
+		return false;
+	}
+
+	public function handleSyncWorldClocks(SyncWorldClocksPacket $packet) : bool
+	{
+		return false;
+	}
+
+	public function handleClientboundAttributeLayerSync(ClientboundAttributeLayerSyncPacket $packet) : bool
+	{
+		return false;
+	}
+
+	public function handleVoxelShapes(VoxelShapesPacket $packet) : bool
+	{
+		return false;
+	}
+
+	public function handleServerStoreInfo(ServerStoreInfoPacket $packet) : bool
+	{
+		return false;
+	}
+
+	public function handleSendPartyDestinationCookie(SendPartyDestinationCookiePacket $packet) : bool
+	{
+		return false;
+	}
+
+	public function handlePartyDestinationCookieResponse(PartyDestinationCookieResponsePacket $packet) : bool
+	{
+		return false;
+	}
+
+	public function handleClientboundUpdateSoundData(ClientboundUpdateSoundDataPacket $packet) : bool
+	{
+		return false;
+	}
+
+	public function handleSetPlayerFurnaceOptions(SetPlayerFurnaceOptionsPacket $packet) : bool
+	{
+		return false;
+	}
+
+	public function handleRecordStarted(RecordStartedPacket $packet) : bool
 	{
 		return false;
 	}

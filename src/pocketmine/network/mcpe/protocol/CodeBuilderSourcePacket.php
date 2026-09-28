@@ -70,7 +70,7 @@ class CodeBuilderSourcePacket extends DataPacket
 	{
 		$this->operation = $this->getByte();
 		$this->category = $this->getByte();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_685) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_685) {
 			$this->codeStatus = $this->getByte();
 		} else {
 			$this->value = $this->getString();
@@ -81,7 +81,7 @@ class CodeBuilderSourcePacket extends DataPacket
 	{
 		$this->putByte($this->operation);
 		$this->putByte($this->category);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_685) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_685) {
 			$this->putByte($this->codeStatus);
 		} else {
 			$this->putString($this->value);

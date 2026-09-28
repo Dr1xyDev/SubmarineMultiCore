@@ -22,34 +22,26 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\item\Item;
+use pocketmine\block\utils\StaticSupportTrait;
 use pocketmine\math\Facing;
-use pocketmine\math\Vector3;
-use pocketmine\Player;
 
 abstract class Eyeblossom extends Flowable
 {
+	use StaticSupportTrait;
+
 	public function __construct(int $meta = 0)
 	{
 		$this->meta = $meta;
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
-	{
-		$down = $this->getSide(Facing::DOWN);
-		if ($down->getId() === Block::GRASS || $down->getId() === Block::DIRT || $down->getId() === Block::PALE_MOSS_BLOCK) {
-			$this->getLevel()->setBlock($blockReplace, $this, true);
-
-			return true;
-		}
-
-		return false;
-	}
-
-	public function onNearbyBlockChange() : void
-	{
-		if ($this->getSide(Facing::DOWN)->isTransparent()) {
-			$this->getLevel()->useBreakOn($this);
-		}
+	protected function canBeSupportedAt(Block $block) : bool{
+		$supportBlock = $block->getSide(Facing::DOWN);
+		return
+			$supportBlock instanceof Grass ||
+			$supportBlock instanceof Dirt ||
+			$supportBlock instanceof Mycelium ||
+			$supportBlock instanceof Podzol ||
+			$supportBlock instanceof Farmland ||
+			$supportBlock instanceof PaleMoss;
 	}
 }

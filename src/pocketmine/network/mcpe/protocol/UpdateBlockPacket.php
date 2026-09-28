@@ -23,7 +23,7 @@ declare(strict_types=1);
 namespace pocketmine\network\mcpe\protocol;
 
 use pocketmine\block\Block;
-use pocketmine\network\mcpe\convert\RuntimeBlockMapping;
+use pocketmine\network\mcpe\convert\block\RuntimeBlockMapping;
 use pocketmine\network\mcpe\NetworkSession;
 
 class UpdateBlockPacket extends DataPacket
@@ -42,25 +42,28 @@ class UpdateBlockPacket extends DataPacket
 	public const DATA_LAYER_NORMAL = 0;
 	public const DATA_LAYER_LIQUID = 1;
 
-	public int $x;
-	public int $z;
-	public int $y;
+	public int $x = 0;
+	public int $z = 0;
+	public int $y = 0;
 	public int $blockId;
 	public int $blockMeta;
 	public int $flags;
 	public int $dataLayerId = self::DATA_LAYER_NORMAL;
+	/**
+	 * Network runtime ID to send instead of the mapping of blockId:blockMeta, used for states which have no legacy
+	 * equivalent (neighbour-dependent states since 1.26.50)
+	 */
+	public ?int $blockRuntimeId = null;
 
 	protected function decodePayload() : void
 	{
 		$this->getBlockPosition($this->x, $this->y, $this->z);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_223) {
-			$fullState = RuntimeBlockMapping::getInstance($this->getProtocol())->fromRuntimeId($this->getUnsignedVarInt());
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
+			$fullState = RuntimeBlockMapping::getInstance($this->protocol)->fromRuntimeId($this->getUnsignedVarInt());
 			$this->blockId = $fullState >> Block::INTERNAL_METADATA_BITS;
 			$this->blockMeta = $fullState & Block::INTERNAL_METADATA_MASK;
 			$this->flags = $this->getUnsignedVarInt();
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_261) {
-				$this->dataLayerId = $this->getUnsignedVarInt();
-			}
+			$this->dataLayerId = $this->getUnsignedVarInt();
 		} else {
 			$this->blockId = $this->getUnsignedVarInt();
 			$aux = $this->getUnsignedVarInt();
@@ -72,13 +75,11 @@ class UpdateBlockPacket extends DataPacket
 	protected function encodePayload() : void
 	{
 		$this->putBlockPosition($this->x, $this->y, $this->z);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_223) {
-			$runtimeId = RuntimeBlockMapping::getInstance($this->getProtocol())->toRuntimeId(($this->blockId << Block::INTERNAL_METADATA_BITS) | $this->blockMeta);
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
+			$runtimeId = $this->blockRuntimeId ?? RuntimeBlockMapping::getInstance($this->protocol)->toRuntimeId(($this->blockId << Block::INTERNAL_METADATA_BITS) | $this->blockMeta);
 			$this->putUnsignedVarInt($runtimeId);
 			$this->putUnsignedVarInt($this->flags);
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_261) {
-				$this->putUnsignedVarInt($this->dataLayerId);
-			}
+			$this->putUnsignedVarInt($this->dataLayerId);
 		} else {
 			$this->putUnsignedVarInt($this->blockId);
 			$this->putUnsignedVarInt(($this->flags << 4) | $this->blockMeta);

@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class WarpedFence extends WoodenFence
 {
 	protected $id = self::WARPED_FENCE;
@@ -56,14 +54,5 @@ class WarpedFence extends WoodenFence
 	public function getFlammability() : int
 	{
 		return 0;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_419) {
-			return BlockFactory::get(BlockIds::FENCE, $this->meta);
-		}
-
-		return null;
 	}
 }

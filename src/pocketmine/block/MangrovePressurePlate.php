@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class MangrovePressurePlate extends WoodenPressurePlate
 {
 	protected $id = self::MANGROVE_PRESSURE_PLATE;
@@ -36,14 +34,5 @@ class MangrovePressurePlate extends WoodenPressurePlate
 	public function getName() : string
 	{
 		return "Mangrove Pressure Plate";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_527) {
-			return BlockFactory::get(BlockIds::WOODEN_PRESSURE_PLATE, $this->meta);
-		}
-
-		return null;
 	}
 }

@@ -56,29 +56,47 @@ class BookEditPacket extends DataPacket
 	/** @var string */
 	public $xuid;
 
-	protected function decodePayload() : void
-	{
-		$this->type = $this->getByte();
-		$this->inventorySlot = $this->getByte();
+	protected function decodePayload() : void{
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_924) {
+			$this->inventorySlot = $this->getUnsignedVarInt();
+			$this->type = $this->getUnsignedVarInt();
+		} else {
+			$this->type = $this->getByte();
+			$this->inventorySlot = $this->getByte();
+		}
 
 		switch ($this->type) {
 			case self::TYPE_REPLACE_PAGE:
 			case self::TYPE_ADD_PAGE:
-				$this->pageNumber = $this->getByte();
+				if ($this->protocol >= ProtocolInfo::PROTOCOL_924) {
+					$this->pageNumber = $this->getUnsignedVarInt();
+				} else {
+					$this->pageNumber = $this->getByte();
+				}
+
 				$this->text = $this->getString();
 				$this->photoName = $this->getString();
 				break;
 			case self::TYPE_DELETE_PAGE:
-				$this->pageNumber = $this->getByte();
+				if ($this->protocol >= ProtocolInfo::PROTOCOL_924) {
+					$this->pageNumber = $this->getUnsignedVarInt();
+				} else {
+					$this->pageNumber = $this->getByte();
+				}
 				break;
 			case self::TYPE_SWAP_PAGES:
-				$this->pageNumber = $this->getByte();
-				$this->secondaryPageNumber = $this->getByte();
+				if ($this->protocol >= ProtocolInfo::PROTOCOL_924) {
+					$this->pageNumber = $this->getUnsignedVarInt();
+					$this->secondaryPageNumber = $this->getUnsignedVarInt();
+				} else {
+					$this->pageNumber = $this->getByte();
+					$this->secondaryPageNumber = $this->getByte();
+				}
 				break;
 			case self::TYPE_SIGN_BOOK:
 				$this->title = $this->getString();
 				$this->author = $this->getString();
-				if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_223) {
+				if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 					$this->xuid = $this->getString();
 				}
 				break;
@@ -87,29 +105,47 @@ class BookEditPacket extends DataPacket
 		}
 	}
 
-	protected function encodePayload() : void
-	{
-		$this->putByte($this->type);
-		$this->putByte($this->inventorySlot);
+	protected function encodePayload() : void{
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_924) {
+			$this->putUnsignedVarInt($this->inventorySlot);
+			$this->putUnsignedVarInt($this->type);
+		} else {
+			$this->putByte($this->type);
+			$this->putByte($this->inventorySlot);
+		}
 
 		switch ($this->type) {
 			case self::TYPE_REPLACE_PAGE:
 			case self::TYPE_ADD_PAGE:
-				$this->putByte($this->pageNumber);
+				if ($this->protocol >= ProtocolInfo::PROTOCOL_924) {
+					$this->putUnsignedVarInt($this->pageNumber);
+				} else {
+					$this->putByte($this->pageNumber);
+				}
+
 				$this->putString($this->text);
 				$this->putString($this->photoName);
 				break;
 			case self::TYPE_DELETE_PAGE:
-				$this->putByte($this->pageNumber);
+				if ($this->protocol >= ProtocolInfo::PROTOCOL_924) {
+					$this->putUnsignedVarInt($this->pageNumber);
+				} else {
+					$this->putByte($this->pageNumber);
+				}
 				break;
 			case self::TYPE_SWAP_PAGES:
-				$this->putByte($this->pageNumber);
-				$this->putByte($this->secondaryPageNumber);
+				if ($this->protocol >= ProtocolInfo::PROTOCOL_924) {
+					$this->putUnsignedVarInt($this->pageNumber);
+					$this->putUnsignedVarInt($this->secondaryPageNumber);
+				} else {
+					$this->putByte($this->pageNumber);
+					$this->putByte($this->secondaryPageNumber);
+				}
 				break;
 			case self::TYPE_SIGN_BOOK:
 				$this->putString($this->title);
 				$this->putString($this->author);
-				if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_223) {
+				if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 					$this->putString($this->xuid);
 				}
 				break;

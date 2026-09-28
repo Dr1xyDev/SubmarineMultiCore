@@ -58,37 +58,27 @@ class BitSet
 
 	public function get(int $index) : bool
 	{
-		[$partIndex, $bitIndex] = $this->getPartIndex($index);
+		if ($index < 0 || $index >= $this->length) {
+			throw new \InvalidArgumentException("Index out of bounds");
+		}
 
-		return ($this->parts[$partIndex] & (1 << $bitIndex)) !== 0;
+		return ($this->parts[(int) ($index / self::INT_BITS)] & (1 << ($index % self::INT_BITS))) !== 0;
 	}
 
 	public function set(int $index, bool $value) : void
 	{
-		[$partIndex, $bitIndex] = $this->getPartIndex($index);
+		if ($index < 0 || $index >= $this->length) {
+			throw new \InvalidArgumentException("Index out of bounds");
+		}
+
+		$partIndex = (int) ($index / self::INT_BITS);
+		$bitIndex = $index % self::INT_BITS;
 
 		if ($value) {
 			$this->parts[$partIndex] |= 1 << $bitIndex;
 		} else {
 			$this->parts[$partIndex] &= ~(1 << $bitIndex);
 		}
-	}
-
-	/**
-	 * Returns the part index and the bit index within that part for a given bit index.
-	 *
-	 * @return array{int, int}
-	 */
-	private function getPartIndex(int $index) : array
-	{
-		if ($index < 0 || $index >= $this->length) {
-			throw new \InvalidArgumentException("Index out of bounds");
-		}
-
-		return [
-			intdiv($index, self::INT_BITS),
-			$index % self::INT_BITS
-		];
 	}
 
 	/**

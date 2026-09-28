@@ -54,10 +54,10 @@ class SetTitlePacket extends DataPacket
 		$this->fadeInTime = $this->getVarInt();
 		$this->stayTime = $this->getVarInt();
 		$this->fadeOutTime = $this->getVarInt();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_448) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_448) {
 			$this->xuid = $this->getString();
 			$this->platformOnlineId = $this->getString();
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_712) {
 				$this->filteredTitleText = $this->getString();
 			}
 		}
@@ -70,10 +70,10 @@ class SetTitlePacket extends DataPacket
 		$this->putVarInt($this->fadeInTime);
 		$this->putVarInt($this->stayTime);
 		$this->putVarInt($this->fadeOutTime);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_448) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_448) {
 			$this->putString($this->xuid);
 			$this->putString($this->platformOnlineId);
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_712) {
 				$this->putString($this->filteredTitleText);
 			}
 		}

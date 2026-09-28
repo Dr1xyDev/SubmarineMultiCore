@@ -22,6 +22,8 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\protocol\types;
 
+use pocketmine\math\Vector3;
+
 class StructureSettings
 {
 	/** @var string */
@@ -30,6 +32,8 @@ class StructureSettings
 	public $ignoreEntities;
 	/** @var bool */
 	public $ignoreBlocks;
+	/** 1.19.40+ */
+	public bool $allowNonTickingChunks = false;
 	/** @var int */
 	public $structureSizeX;
 	/** @var int */
@@ -48,8 +52,14 @@ class StructureSettings
 	public $rotation;
 	/** @var int */
 	public $mirror;
+	/** 1.18.0+ */
+	public int $animationMode = 0;
+	/** 1.18.0+ */
+	public float $animationSeconds = 0.0;
 	/** @var float */
 	public $integrityValue;
 	/** @var int */
 	public $integritySeed;
+	/** 1.16.0+ */
+	public ?Vector3 $pivot = null;
 }

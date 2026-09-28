@@ -78,9 +78,20 @@ class Blaze extends Monster implements RangedAttackerMob
 
 	public function getDrops() : array
 	{
-		return [
-			ItemFactory::get(Item::BLAZE_ROD, 0, rand(0, 1)), ItemFactory::get(Item::GLOWSTONE_DUST, 0, rand(0, 2))
-		];
+		$looting = $this->getLootingLevel();
+		$drops = [];
+
+		$blazeRods = rand(0, 1 + $looting);
+		if ($blazeRods > 0) {
+			$drops[] = ItemFactory::get(Item::BLAZE_ROD, 0, $blazeRods);
+		}
+
+		$glowstoneDust = rand(0, 2 + $looting);
+		if ($glowstoneDust > 0) {
+			$drops[] = ItemFactory::get(Item::GLOWSTONE_DUST, 0, $glowstoneDust);
+		}
+
+		return $drops;
 	}
 
 	public function onBehaviorUpdate() : bool

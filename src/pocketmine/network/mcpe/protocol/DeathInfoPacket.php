@@ -35,7 +35,7 @@ class DeathInfoPacket extends DataPacket
 
 	private string $messageTranslationKey;
 	/** @var string[] */
-	private array $messageParameters;
+	private array $messageParameters = [];
 
 	/**
 	 * @generate-create-func

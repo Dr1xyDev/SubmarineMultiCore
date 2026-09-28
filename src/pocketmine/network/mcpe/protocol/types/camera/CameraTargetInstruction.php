@@ -45,7 +45,7 @@ final class CameraTargetInstruction
 
 	public static function read(NetworkBinaryStream $in) : self
 	{
-		$targetCenterOffset = $in->readOptional(fn () => $in->getVector3());
+		$targetCenterOffset = $in->getOptional(fn () => $in->getVector3());
 		$actorUniqueId = $in->getLLong();
 		return new self(
 			$targetCenterOffset,
@@ -55,7 +55,7 @@ final class CameraTargetInstruction
 
 	public function write(NetworkBinaryStream $out) : void
 	{
-		$out->writeOptional($this->targetCenterOffset, fn (Vector3 $v) => $out->putVector3($v));
+		$out->putOptional($this->targetCenterOffset, fn (Vector3 $v) => $out->putVector3($v));
 		$out->putLLong($this->actorUniqueId);
 	}
 }

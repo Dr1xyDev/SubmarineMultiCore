@@ -36,7 +36,7 @@ class ItemComponentPacket extends DataPacket
 	 * @var ItemComponentPacketEntry[]
 	 * @phpstan-var list<ItemComponentPacketEntry>
 	 */
-	private array $entries;
+	private array $entries = [];
 
 	/**
 	 * @param ItemComponentPacketEntry[] $entries

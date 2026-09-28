@@ -58,7 +58,7 @@ class Beacon extends Transparent
 		return 4.5;
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool
 	{
 		$this->getLevel()->setBlock($blockReplace, $this, true, true);
 
@@ -67,7 +67,7 @@ class Beacon extends Transparent
 		return true;
 	}
 
-	public function onActivate(Item $item, Player $player = null) : bool
+	public function onActivate(Item $item, ?Player $player = null) : bool
 	{
 		if ($player instanceof Player) {
 			$tile = $this->level->getTile($this);
@@ -77,7 +77,7 @@ class Beacon extends Transparent
 					return true;
 				}
 
-				$player->addWindow($tile->getInventory(), Player::BEACON_WINDOW_ID);
+				$player->addWindow($tile->getInventory());
 			}
 		}
 

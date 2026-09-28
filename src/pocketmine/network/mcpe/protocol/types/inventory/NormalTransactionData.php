@@ -32,12 +32,12 @@ class NormalTransactionData extends TransactionData
 
 	public const ID = InventoryTransactionPacket::TYPE_NORMAL;
 
-	protected function decodeData(NetworkBinaryStream $stream, int $playerProtocol) : void
+	protected function decodeData(NetworkBinaryStream $in, bool $legacyTransaction) : void
 	{
 
 	}
 
-	protected function encodeData(NetworkBinaryStream $stream, int $playerProtocol) : void
+	protected function encodeData(NetworkBinaryStream $out, bool $legacyTransaction) : void
 	{
 
 	}

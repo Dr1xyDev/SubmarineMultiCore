@@ -24,7 +24,7 @@ namespace pocketmine\level\format\io\data;
 
 use pocketmine\level\format\io\exception\CorruptedLevelException;
 use pocketmine\level\format\io\exception\UnsupportedLevelFormatException;
-use pocketmine\level\generator\Flat;
+use pocketmine\level\generator\FlatGenerator;
 use pocketmine\level\generator\GeneratorManager;
 use pocketmine\level\Level;
 use pocketmine\level\LevelCreationOptions;
@@ -39,11 +39,11 @@ use pocketmine\utils\Binary;
 use pocketmine\utils\Filesystem;
 use Symfony\Component\Filesystem\Path;
 use UnexpectedValueException;
-
 use function file_put_contents;
 use function strlen;
 use function substr;
 use function time;
+use const LEVELDB_ZLIB_RAW_COMPRESSION;
 
 class BedrockLevelData extends BaseNbtLevelData
 {
@@ -57,7 +57,7 @@ class BedrockLevelData extends BaseNbtLevelData
 	public static function generate(string $path, string $name, LevelCreationOptions $options) : void
 	{
 		switch ($options->getGeneratorClass()) {
-			case Flat::class:
+			case FlatGenerator::class:
 				$generatorType = self::GENERATOR_FLAT;
 				break;
 			default:
@@ -101,6 +101,7 @@ class BedrockLevelData extends BaseNbtLevelData
 			new ByteTag("hardcore", 0),
 			new StringTag("generatorName", GeneratorManager::getGeneratorName($options->getGeneratorClass())),
 			new StringTag("generatorOptions", $options->getGeneratorOptions()),
+			new IntTag("CompressionType", LEVELDB_ZLIB_RAW_COMPRESSION),
 		]);
 
 		$nbt = new LittleEndianNBTStream();
@@ -174,6 +175,11 @@ class BedrockLevelData extends BaseNbtLevelData
 		$nbt = new LittleEndianNBTStream();
 		$buffer = $nbt->write($this->compoundTag);
 		Filesystem::safeFilePutContents($this->dataPath, Binary::writeLInt(self::CURRENT_STORAGE_VERSION) . Binary::writeLInt(strlen($buffer)) . $buffer);
+	}
+
+	public function getCompressionType() : int
+	{
+		return $this->compoundTag->getInt("CompressionType", LEVELDB_ZLIB_RAW_COMPRESSION);
 	}
 
 	public function getDifficulty() : int

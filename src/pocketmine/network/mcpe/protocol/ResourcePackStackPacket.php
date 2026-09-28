@@ -64,27 +64,28 @@ class ResourcePackStackPacket extends DataPacket
 	{
 		$this->mustAccept = $this->getBool();
 
-		$behaviorPackCount = $this->getUnsignedVarInt();
-		while ($behaviorPackCount-- > 0) {
-			$this->behaviorPackStack[] = ResourcePackStackEntry::read($this->getProtocol(), $this);
+		if ($this->protocol < ProtocolInfo::PROTOCOL_897) {
+			$behaviorPackCount = $this->getUnsignedVarInt();
+			while ($behaviorPackCount-- > 0) {
+				$this->behaviorPackStack[] = ResourcePackStackEntry::read($this);
+			}
 		}
 
 		$resourcePackCount = $this->getUnsignedVarInt();
 		while ($resourcePackCount-- > 0) {
-			$this->resourcePackStack[] = ResourcePackStackEntry::read($this->getProtocol(), $this);
+			$this->resourcePackStack[] = ResourcePackStackEntry::read($this);
 		}
 
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_291) {
-			if ($this->getProtocol() < ProtocolInfo::PROTOCOL_419) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
+			if ($this->protocol < ProtocolInfo::PROTOCOL_419) {
 				$this->isExperimental = $this->getBool();
 			}
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_388) {
-				$this->baseGameVersion = $this->getString();
-				if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_419) {
-					$this->experiments = Experiments::read($this);
-					if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_671) {
-						$this->useVanillaEditorPacks = $this->getBool();
-					}
+
+			$this->baseGameVersion = $this->getString();
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_419) {
+				$this->experiments = Experiments::read($this);
+				if ($this->protocol >= ProtocolInfo::PROTOCOL_671) {
+					$this->useVanillaEditorPacks = $this->getBool();
 				}
 			}
 		}
@@ -94,27 +95,27 @@ class ResourcePackStackPacket extends DataPacket
 	{
 		$this->putBool($this->mustAccept);
 
-		$this->putUnsignedVarInt(count($this->behaviorPackStack));
-		foreach ($this->behaviorPackStack as $entry) {
-			$entry->write($this->getProtocol(), $this);
+		if ($this->protocol < ProtocolInfo::PROTOCOL_897) {
+			$this->putUnsignedVarInt(count($this->behaviorPackStack));
+			foreach ($this->behaviorPackStack as $entry) {
+				$entry->write($this);
+			}
 		}
 
 		$this->putUnsignedVarInt(count($this->resourcePackStack));
 		foreach ($this->resourcePackStack as $entry) {
-			$entry->write($this->getProtocol(), $this);
+			$entry->write($this);
 		}
 
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_291) {
-			if ($this->getProtocol() < ProtocolInfo::PROTOCOL_419) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
+			if ($this->protocol < ProtocolInfo::PROTOCOL_419) {
 				$this->putBool($this->isExperimental);
 			}
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_388) {
-				$this->putString($this->baseGameVersion);
-				if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_419) {
-					$this->experiments->write($this);
-					if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_671) {
-						$this->putBool($this->useVanillaEditorPacks);
-					}
+			$this->putString($this->baseGameVersion);
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_419) {
+				$this->experiments->write($this);
+				if ($this->protocol >= ProtocolInfo::PROTOCOL_671) {
+					$this->putBool($this->useVanillaEditorPacks);
 				}
 			}
 		}

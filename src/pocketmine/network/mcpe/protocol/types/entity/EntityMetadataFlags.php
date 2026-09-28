@@ -150,8 +150,8 @@ interface EntityMetadataFlags
 	public const DATA_FLAG_DOES_SERVER_AUTH_ONLY_DISMOUNT = 123;
 	public const DATA_FLAG_FLAGBODY_ROTATION_ALWAYS_FOLLOWS_HEAD = 124;
 	public const DATA_FLAG_CAN_USE_VERTICAL_MOVEMENT_ACTION = 125;
-
-	public const DATA_FLAG_NUMBER_OF_FLAGS = 126;
+	public const DATA_FLAG_ROTATION_LOCKED_TO_VEHICLE = 126;
+	public const DATA_FLAG_USES_LEGACY_FRICTION = 127;
 
 	//The following aliases are kept for backwards compatibility only
 	public const DATA_FLAG_WASD_AIR_CONTROLLED = self::DATA_FLAG_WASD_FREE_CAMERA_CONTROLLED;

@@ -36,38 +36,16 @@ interface ProtocolInfo
 	 */
 
 	/** Actual Minecraft: PE protocol version */
-	public const CURRENT_PROTOCOL = self::PROTOCOL_859;
+	public const CURRENT_PROTOCOL = self::PROTOCOL_2193;
 
 	/** Current Minecraft PE version reported by the server. This is usually the earliest currently supported version. */
-	public const MINECRAFT_VERSION = "1.21.120";
+	public const MINECRAFT_VERSION = "1.26.50";
 
 	/** Version number sent to clients in ping responses. */
-	public const MINECRAFT_VERSION_NETWORK = "1.21.120";
+	public const MINECRAFT_VERSION_NETWORK = "1.26.50";
 
 	public const ACCEPTED_PROTOCOLS = [
-		ProtocolInfo::PROTOCOL_110,
-		ProtocolInfo::PROTOCOL_111,
-		ProtocolInfo::PROTOCOL_112,
 		ProtocolInfo::PROTOCOL_113,
-		ProtocolInfo::PROTOCOL_137,
-		ProtocolInfo::PROTOCOL_141,
-		ProtocolInfo::PROTOCOL_150,
-		ProtocolInfo::PROTOCOL_160,
-		ProtocolInfo::PROTOCOL_201,
-		ProtocolInfo::PROTOCOL_223,
-		ProtocolInfo::PROTOCOL_261,
-		ProtocolInfo::PROTOCOL_274,
-		ProtocolInfo::PROTOCOL_282,
-		ProtocolInfo::PROTOCOL_291,
-		ProtocolInfo::PROTOCOL_313,
-		ProtocolInfo::PROTOCOL_332,
-		ProtocolInfo::PROTOCOL_340,
-		ProtocolInfo::PROTOCOL_354,
-		ProtocolInfo::PROTOCOL_361,
-		ProtocolInfo::PROTOCOL_370,
-		ProtocolInfo::PROTOCOL_388,
-		ProtocolInfo::PROTOCOL_389,
-		ProtocolInfo::PROTOCOL_390,
 		ProtocolInfo::PROTOCOL_407,
 		ProtocolInfo::PROTOCOL_408,
 		ProtocolInfo::PROTOCOL_419,
@@ -113,13 +91,20 @@ interface ProtocolInfo
 		ProtocolInfo::PROTOCOL_819,
 		ProtocolInfo::PROTOCOL_827,
 		ProtocolInfo::PROTOCOL_844,
-		ProtocolInfo::PROTOCOL_859
+		ProtocolInfo::PROTOCOL_859,
+		ProtocolInfo::PROTOCOL_860,
+		ProtocolInfo::PROTOCOL_897,
+		ProtocolInfo::PROTOCOL_898,
+		ProtocolInfo::PROTOCOL_924,
+		ProtocolInfo::PROTOCOL_944,
+		ProtocolInfo::PROTOCOL_975,
+		ProtocolInfo::PROTOCOL_1001,
+		ProtocolInfo::PROTOCOL_2168,
+		ProtocolInfo::PROTOCOL_2169,
+		ProtocolInfo::PROTOCOL_2193
 	];
 
 	//Pocket Edition 1.1
-	public const PROTOCOL_110 = 110; // 1.1.0.0, 1.1.0.1, 1.1.0.2, 1.1.0.3, 1.1.0.4, 1.1.0.5
-	public const PROTOCOL_111 = 111; // 1.1.0.8
-	public const PROTOCOL_112 = 112; // 1.1.0.9
 	public const PROTOCOL_113 = 113; // 1.1.0, 1.1.1.0, 1.1.1.1, 1.1.1, 1.1.2, 1.1.3.0, 1.1.3.1, 1.1.3, 1.1.4, 1.1.5, 1.1.7
 
 	//Bedrock Edition 1.2
@@ -221,7 +206,23 @@ interface ProtocolInfo
 	public const PROTOCOL_819 = 819; // 1.21.93, 1.21.94
 	public const PROTOCOL_827 = 827; // 1.21.100.23, 1.21.100.24, 1.21.100
 	public const PROTOCOL_844 = 844; // 1.21.110, 1.21.111, 1.21.112, 1.21.113
-	public const PROTOCOL_859 = 859; // 1.21.120.24, 1.21.120.25, 1.21.120
+	public const PROTOCOL_859 = 859; // 1.21.120.24, 1.21.120.25, 1.21.120, 1.21.121, 1.21.122, 1.21.123
+	public const PROTOCOL_860 = 860; // 1.21.124
+	public const PROTOCOL_897 = 897; // 1.21.130.27
+	public const PROTOCOL_898 = 898; // 1.21.130
+
+	//Bedrock Edition 1.26
+	public const PROTOCOL_924 = 924; // 26.0
+	public const PROTOCOL_944 = 944; // 26.10
+	public const PROTOCOL_975 = 975; // 26.20
+	public const PROTOCOL_1001 = 1001; // 26.3
+	/*
+	 * Starting with 26.40, Mojang switched the protocol to a new serialization model (variant types with inner type tags,
+	 * optionals and lists everywhere), which is why the protocol numbers jumped.
+	 */
+	public const PROTOCOL_2168 = 2168; // 26.40, 26.41, 26.44
+	public const PROTOCOL_2169 = 2169; // 26.45
+	public const PROTOCOL_2193 = 2193; // 26.50, 26.51, 26.52
 
 	public const LOGIN_PACKET = 0x01;
 	public const PLAY_STATUS_PACKET = 0x02;
@@ -443,7 +444,6 @@ interface ProtocolInfo
 	public const MOVEMENT_EFFECT_PACKET = 0x13e;
 	public const SET_MOVEMENT_AUTHORITY_PACKET = 0x13f;
 	public const CAMERA_AIM_ASSIST_PRESETS_PACKET = 0x140;
-
 	public const CAMERA_AIM_ASSIST_INSTRUCTION_PACKET = 0x141;
 	public const CLIENT_MOVEMENT_PREDICTION_SYNC_PACKET = 0x142;
 	public const UPDATE_CLIENT_OPTIONS_PACKET = 0x143;
@@ -452,24 +452,40 @@ interface ProtocolInfo
 	public const ITEM_REGISTRY_PACKET = 0x146;
 	public const PLAYER_LOCATION_PACKET = 0x147;
 	public const CLIENTBOUND_CONTROL_SCHEME_SET_PACKET = 0x148;
-	public const DEBUG_DRAWER_PACKET = 0x149;
+	public const PRIMITIVE_SHAPES_PACKET = 0x149;
 	public const SERVERBOUND_PACK_SETTING_CHANGE_PACKET = 0x14a;
-	public const DATA_STORE_SYNC_PACKET = 0x14b;
-	public const GRAPHICS_OVERRIDE_PARAMETER_PACKET = 0x14c;
-
-	// EXPLODE_PACKET - TICK_SYNC_PACKET
-	public const EXPLODE_PACKET = 0x100;
-
-	// 1.1
-	public const CONTAINER_SET_SLOT_PACKET = 0x101;
-	public const CONTAINER_SET_CONTENT_PACKET = 0x102;
-	public const DROP_ITEM_PACKET = 0x103;
-	public const USE_ITEM_PACKET = 0x104;
-	public const REMOVE_BLOCK_PACKET = 0x105;
-	public const COMMAND_STEP_PACKET = 0x106;
-	public const ADD_HANGING_ACTOR_PACKET = 0x107;
-	public const INVENTORY_ACTION_PACKET = 0x108;
-	public const REPLACE_ITEM_IN_SLOT_PACKET = 0x109;
-	public const ADD_ITEM_PACKET = 0x110;
-
+	public const CLIENTBOUND_DATA_STORE_PACKET = 0x14c;
+	public const GRAPHICS_OVERRIDE_PARAMETER_PACKET = 0x14d;
+	public const SERVERBOUND_DATA_STORE_PACKET = 0x14b;
+	public const EXPLODE_PACKET = 0x14e;
+	public const CONTAINER_SET_SLOT_PACKET = 0x14f;
+	public const CONTAINER_SET_CONTENT_PACKET = 0x150;
+	public const DROP_ITEM_PACKET = 0x151;
+	public const USE_ITEM_PACKET = 0x152;
+	public const REMOVE_BLOCK_PACKET = 0x153;
+	public const COMMAND_STEP_PACKET = 0x154;
+	public const ADD_HANGING_ACTOR_PACKET = 0x155;
+	public const INVENTORY_ACTION_PACKET = 0x156;
+	public const REPLACE_ITEM_IN_SLOT_PACKET = 0x157;
+	public const ADD_ITEM_PACKET = 0x158;
+	public const CLIENTBOUND_DATA_DRIVEN_UI_SHOW_SCREEN_PACKET = 0x159;
+	public const CLIENTBOUND_DATA_DRIVEN_UI_CLOSE_ALL_SCREENS_PACKET = 0x15a;
+	public const CLIENTBOUND_DATA_DRIVEN_UI_RELOAD_PACKET = 0x15b;
+	public const CLIENTBOUND_TEXTURE_SHIFT_PACKET = 0x15c;
+	public const VOXEL_SHAPES_PACKET = 0x15d;
+	public const CAMERA_SPLINE_PACKET = 0x15e;
+	public const CAMERA_AIM_ASSIST_ACTOR_PRIORITY_PACKET = 0x15f;
+	public const RESOURCE_PACKS_READY_FOR_VALIDATION_PACKET = 0x160;
+	public const LOCATOR_BAR_PACKET = 0x161;
+	public const PARTY_CHANGED_PACKET = 0x162;
+	public const SERVERBOUND_DATA_DRIVEN_SCREEN_CLOSED_PACKET = 0x163;
+	public const SYNC_WORLD_CLOCKS_PACKET = 0x164;
+	public const CLIENTBOUND_ATTRIBUTE_LAYER_SYNC_PACKET = 0x165;
+	public const SERVER_STORE_INFO_PACKET = 0x166;
+	public const SERVER_PRESENCE_INFO_PACKET = 0x167;
+	public const CLIENTBOUND_UPDATE_SOUND_DATA_PACKET = 0x168;
+	public const SEND_PARTY_DESTINATION_COOKIE_PACKET = 0x169;
+	public const PARTY_DESTINATION_COOKIE_RESPONSE_PACKET = 0x16a;
+	public const SET_PLAYER_FURNACE_OPTIONS_PACKET = 0x16b;
+	public const RECORD_STARTED_PACKET = 0x16c;
 }

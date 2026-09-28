@@ -56,16 +56,16 @@ class SerializedSkin
 
 	public static function init() : void
 	{
-		$skinIdMap = json_decode(file_get_contents(BEDROCK_DATA_PATH . "/skins/pw10_skins/skin_id_map.json"), true);
+		$skinIdMap = json_decode(\pocketmine\utils\Filesystem::resourceGetContents(BEDROCK_DATA_PATH . "/skins/pw10_skins/skin_id_map.json"), true);
 		foreach ($skinIdMap as $skinId => $item) {
-			$geometryData = file_get_contents(BEDROCK_DATA_PATH . "/skins/pw10_skins/geometry/" . $item["geometry"] . ".json");
+			$geometryData = \pocketmine\utils\Filesystem::resourceGetContents(BEDROCK_DATA_PATH . "/skins/pw10_skins/geometry/" . $item["geometry"] . ".json");
 
 			$data = [
 				"geometry" => $item["geometry"],
 				"geometryData" => $geometryData,
 			];
 			if (isset($item["cape"])) {
-				$capeData = file_get_contents(BEDROCK_DATA_PATH . "/skins/pw10_skins/capes/" . $item["cape"] . ".skindata");
+				$capeData = \pocketmine\utils\Filesystem::resourceGetContents(BEDROCK_DATA_PATH . "/skins/pw10_skins/capes/" . $item["cape"] . ".skindata");
 
 				$data["cape"] = $item["cape"];
 				$data["capeData"] = $capeData;
@@ -73,7 +73,7 @@ class SerializedSkin
 			self::$skinIdToBedrockMap[$skinId] = $data;
 		}
 
-		self::$defaultGeometryData = file_get_contents(BEDROCK_DATA_PATH . "/skins/geometry_data.json");
+		self::$defaultGeometryData = \pocketmine\utils\Filesystem::resourceGetContents(BEDROCK_DATA_PATH . "/skins/geometry_data.json");
 	}
 
 	public static function lazyInit() : void
@@ -195,6 +195,8 @@ class SerializedSkin
 	protected $isPrimaryUser = true;
 	/** @var bool */
 	protected $override = true;
+	/** Skin profile hash, sent by 1.26.40+ clients */
+	protected string $profileHash = "";
 
 	/**
 	 * @param SkinAnimation[] $animationFrames
@@ -370,6 +372,16 @@ class SerializedSkin
 		$this->isTrusted = $isTrusted;
 	}
 
+	public function getProfileHash() : string
+	{
+		return $this->profileHash;
+	}
+
+	public function setProfileHash(string $profileHash) : void
+	{
+		$this->profileHash = $profileHash;
+	}
+
 	public function toSkin() : Skin
 	{
 		if (!(
@@ -378,8 +390,8 @@ class SerializedSkin
 			($this->skinImage->getWidth() === 128 && ($this->skinImage->getHeight() === 128))
 		)) {
 			self::$defaultSkins = self::$defaultSkins ?? [
-				"steve" => new Skin("Standard_Steve", file_get_contents(RESOURCE_PATH . '/vanilla/skins/steve.skindata')),
-				"alex" => new Skin("Standard_Alex", file_get_contents(RESOURCE_PATH . '/vanilla/skins/alex.skindata')),
+				"steve" => new Skin("Standard_Steve", \pocketmine\utils\Filesystem::resourceGetContents(RESOURCE_PATH . '/vanilla/skins/steve.skindata')),
+				"alex" => new Skin("Standard_Alex", \pocketmine\utils\Filesystem::resourceGetContents(RESOURCE_PATH . '/vanilla/skins/alex.skindata')),
 			];
 
 			$skin = self::$defaultSkins[array_rand(self::$defaultSkins)];

@@ -27,11 +27,13 @@ use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\NetworkSession;
 use pocketmine\network\mcpe\protocol\types\AbilitiesData;
 use pocketmine\network\mcpe\protocol\types\AdventureSettingsData;
+use pocketmine\network\mcpe\protocol\types\command\CommandPermissions;
 use pocketmine\network\mcpe\protocol\types\DeviceOS;
 use pocketmine\network\mcpe\protocol\types\entity\PropertySyncData;
 use pocketmine\network\mcpe\protocol\types\EntityLink;
 use pocketmine\network\mcpe\protocol\types\GameMode;
 use pocketmine\network\mcpe\protocol\types\inventory\ItemStackWrapper;
+use pocketmine\network\mcpe\protocol\types\PlayerPermissions;
 use pocketmine\utils\UUID;
 
 use function count;
@@ -42,8 +44,6 @@ class AddPlayerPacket extends DataPacket
 
 	public UUID $uuid;
 	public string $username;
-	public string $thirdPartyName = "";
-	public int $platform = 0;
 	public ?int $entityUniqueId = null; //TODO
 	public int $entityRuntimeId;
 	public string $platformChatId = "";
@@ -71,8 +71,6 @@ class AddPlayerPacket extends DataPacket
 	public static function create(
 		UUID $uuid,
 		string $username,
-		string $thirdPartyName,
-		int $platform,
 		?int $entityUniqueId,
 		int $entityRuntimeId,
 		string $platformChatId,
@@ -95,8 +93,6 @@ class AddPlayerPacket extends DataPacket
 		$result = new self();
 		$result->uuid = $uuid;
 		$result->username = $username;
-		$result->thirdPartyName = $thirdPartyName;
-		$result->platform = $platform;
 		$result->entityUniqueId = $entityUniqueId;
 		$result->entityRuntimeId = $entityRuntimeId;
 		$result->platformChatId = $platformChatId;
@@ -121,15 +117,11 @@ class AddPlayerPacket extends DataPacket
 	{
 		$this->uuid = $this->getUUID();
 		$this->username = $this->getString();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_223 && $this->getProtocol() < ProtocolInfo::PROTOCOL_291) {
-			$this->thirdPartyName = $this->getString();
-			$this->platform = $this->getVarInt();
-		}
-		if ($this->getProtocol() < ProtocolInfo::PROTOCOL_534) {
+		if ($this->protocol < ProtocolInfo::PROTOCOL_534) {
 			$this->entityUniqueId = $this->getEntityUniqueId();
 		}
 		$this->entityRuntimeId = $this->getEntityRuntimeId();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_223) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->platformChatId = $this->getString();
 		}
 		$this->position = $this->getVector3();
@@ -137,33 +129,29 @@ class AddPlayerPacket extends DataPacket
 		$this->pitch = $this->getLFloat();
 		$this->yaw = $this->getLFloat();
 		$this->headYaw = $this->getLFloat();
-		$this->item = $this->getItemStackWrapper($this->getProtocol());
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_503) {
+		$this->item = $this->getItemStackWrapper();
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_503) {
 			$this->gameMode = $this->getVarInt();
 		}
-		$this->metadata = $this->getEntityMetadata($this->getProtocol());
+		$this->metadata = $this->getEntityMetadata();
 
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_137) {
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_534) {
-				if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_557) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_534) {
+				if ($this->protocol >= ProtocolInfo::PROTOCOL_557) {
 					$this->syncedProperties = PropertySyncData::read($this);
 				}
-				$this->abilitiesData = AbilitiesData::decode($this, $this->getProtocol());
+				$this->abilitiesData = AbilitiesData::decode($this);
 			} else {
-				$this->adventureSettingsData = AdventureSettingsData::decode($this, $this->getProtocol());
+				$this->adventureSettingsData = AdventureSettingsData::decode($this);
 			}
 
 			$linkCount = $this->getUnsignedVarInt();
 			for ($i = 0; $i < $linkCount; ++$i) {
-				$this->links[$i] = $this->getEntityLink($this->getProtocol());
+				$this->links[$i] = $this->getEntityLink();
 			}
 
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_282) {
-				$this->deviceId = $this->getString();
-				if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_388) {
-					$this->buildPlatform = $this->getLInt();
-				}
-			}
+			$this->deviceId = $this->getString();
+			$this->buildPlatform = $this->getLInt();
 		}
 	}
 
@@ -171,15 +159,11 @@ class AddPlayerPacket extends DataPacket
 	{
 		$this->putUUID($this->uuid);
 		$this->putString($this->username);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_223 && $this->getProtocol() < ProtocolInfo::PROTOCOL_291) {
-			$this->putString($this->thirdPartyName);
-			$this->putVarInt($this->platform);
-		}
-		if ($this->getProtocol() < ProtocolInfo::PROTOCOL_534) {
+		if ($this->protocol < ProtocolInfo::PROTOCOL_534) {
 			$this->putEntityUniqueId($this->entityUniqueId ?? $this->entityRuntimeId);
 		}
 		$this->putEntityRuntimeId($this->entityRuntimeId);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_223) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->putString($this->platformChatId);
 		}
 		$this->putVector3($this->position);
@@ -187,40 +171,36 @@ class AddPlayerPacket extends DataPacket
 		$this->putLFloat($this->pitch);
 		$this->putLFloat($this->yaw);
 		$this->putLFloat($this->headYaw ?? $this->yaw);
-		$this->putItemStackWrapper($this->item, $this->getProtocol());
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_503) {
+		$this->putItemStackWrapper($this->item);
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_503) {
 			$this->putVarInt($this->gameMode);
 		}
-		$this->putEntityMetadata($this->metadata, $this->getProtocol());
+		$this->putEntityMetadata($this->metadata);
 
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_137) {
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_534) {
-				if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_557) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_534) {
+				if ($this->protocol >= ProtocolInfo::PROTOCOL_557) {
 					if ($this->syncedProperties === null) {
 						$this->syncedProperties = new PropertySyncData([], []);
 					}
 					$this->syncedProperties->write($this);
 				}
-				$this->abilitiesData->encode($this, $this->getProtocol());
+				$this->abilitiesData->encode($this);
 			} else {
 				if ($this->adventureSettingsData === null) {
-					$this->adventureSettingsData = new AdventureSettingsData(0, 0, 0, 0, 0, 0);
+					$this->adventureSettingsData = new AdventureSettingsData(0, CommandPermissions::NORMAL, 0, PlayerPermissions::VISITOR, 0, 0);
 				}
 
-				$this->adventureSettingsData->encode($this, $this->getProtocol());
+				$this->adventureSettingsData->encode($this);
 			}
 
 			$this->putUnsignedVarInt(count($this->links));
 			foreach ($this->links as $link) {
-				$this->putEntityLink($link, $this->getProtocol());
+				$this->putEntityLink($link);
 			}
 
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_282) {
-				$this->putString($this->deviceId);
-				if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_388) {
-					$this->putLInt($this->buildPlatform);
-				}
-			}
+			$this->putString($this->deviceId);
+			$this->putLInt($this->protocol >= ProtocolInfo::PROTOCOL_2168 && $this->buildPlatform < 0 ? DeviceOS::ANDROID : $this->buildPlatform); //1.26.40+ clients disconnect on unknown platforms
 		}
 	}
 

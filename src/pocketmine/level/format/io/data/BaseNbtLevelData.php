@@ -29,7 +29,6 @@ use pocketmine\level\GameRules;
 use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\IntTag;
-
 use function file_exists;
 
 abstract class BaseNbtLevelData implements LevelData
@@ -93,10 +92,10 @@ abstract class BaseNbtLevelData implements LevelData
 		//THESE ARE DELIBERATELY HARDCODED, DO NOT CHANGE!
 		switch ($className) {
 			/** @noinspection ClassConstantCanBeUsedInspection */
-			case 'pocketmine\level\generator\normal\Normal':
+			case 'pocketmine\level\generator\dimension\Overworld':
 				return "normal";
 				/** @noinspection ClassConstantCanBeUsedInspection */
-			case 'pocketmine\level\generator\Flat':
+			case 'pocketmine\level\generator\FlatGenerator':
 				return "flat";
 		}
 

@@ -63,11 +63,15 @@ class Zombie extends Monster implements Ageable, Smite
 
 	public function getDrops() : array
 	{
-		$drops = [
-			ItemFactory::get(Item::ROTTEN_FLESH, 0, mt_rand(0, 2))
-		];
+		$looting = $this->getLootingLevel();
+		$drops = [];
 
-		if (mt_rand(0, 199) < 5) {
+		$rottenFlesh = mt_rand(0, 2 + $looting);
+		if ($rottenFlesh > 0) {
+			$drops[] = ItemFactory::get(Item::ROTTEN_FLESH, 0, $rottenFlesh);
+		}
+
+		if (mt_rand(0, 199) < 5 + $looting) {
 			switch (mt_rand(0, 2)) {
 				case 0:
 					$drops[] = ItemFactory::get(Item::IRON_INGOT, 0, 1);

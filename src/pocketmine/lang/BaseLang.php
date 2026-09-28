@@ -82,7 +82,7 @@ class BaseLang
 	/** @var string[] */
 	protected $fallbackLang = [];
 
-	public function __construct(string $lang, string $path = null, string $fallback = self::FALLBACK_LANGUAGE)
+	public function __construct(string $lang, ?string $path = null, string $fallback = self::FALLBACK_LANGUAGE)
 	{
 
 		$this->langName = strtolower($lang);
@@ -122,7 +122,7 @@ class BaseLang
 	/**
 	 * @param string[] $params
 	 */
-	public function translateString(string $str, array $params = [], string $onlyPrefix = null) : string
+	public function translateString(string $str, array $params = [], ?string $onlyPrefix = null) : string
 	{
 		$baseText = $this->get($str);
 		$baseText = $this->parseTranslation(($baseText !== null && ($onlyPrefix === null || strpos($str, $onlyPrefix) === 0)) ? $baseText : $str, $onlyPrefix);
@@ -175,7 +175,7 @@ class BaseLang
 		return $id;
 	}
 
-	protected function parseTranslation(string $text, string $onlyPrefix = null) : string
+	protected function parseTranslation(string $text, ?string $onlyPrefix = null) : string
 	{
 		$newString = "";
 

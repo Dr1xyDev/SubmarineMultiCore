@@ -24,6 +24,7 @@ namespace pocketmine\network\mcpe\protocol\types;
 
 use pocketmine\network\mcpe\NetworkBinaryStream;
 
+use pocketmine\network\mcpe\protocol\types\command\CommandPermissions;
 use function count;
 
 final class AbilitiesData
@@ -33,14 +34,14 @@ final class AbilitiesData
 	 * @phpstan-param array<int, AbilitiesLayer> $abilityLayers
 	 */
 	public function __construct(
-		private int $commandPermission,
+		private CommandPermissions $commandPermission,
 		private int $playerPermission,
 		private int $targetActorUniqueId, //This is a little-endian long, NOT a var-long. (WTF Mojang)
 		private array $abilityLayers
 	) {
 	}
 
-	public function getCommandPermission() : int
+	public function getCommandPermission() : CommandPermissions
 	{
 		return $this->commandPermission;
 	}
@@ -64,29 +65,29 @@ final class AbilitiesData
 		return $this->abilityLayers;
 	}
 
-	public static function decode(NetworkBinaryStream $in, int $protocolVersion) : self
+	public static function decode(NetworkBinaryStream $in) : self
 	{
 		$targetActorUniqueId = $in->getLLong(); //WHY IS THIS NON-STANDARD?
 		$playerPermission = $in->getByte();
-		$commandPermission = $in->getByte();
+		$commandPermission = CommandPermissions::fromPacket($in->getByte());
 
 		$abilityLayers = [];
 		for ($i = 0, $len = $in->getByte(); $i < $len; $i++) {
-			$abilityLayers[] = AbilitiesLayer::decode($in, $protocolVersion);
+			$abilityLayers[] = AbilitiesLayer::decode($in);
 		}
 
 		return new self($commandPermission, $playerPermission, $targetActorUniqueId, $abilityLayers);
 	}
 
-	public function encode(NetworkBinaryStream $out, int $protocolVersion) : void
+	public function encode(NetworkBinaryStream $out) : void
 	{
 		$out->putLLong($this->targetActorUniqueId);
 		$out->putByte($this->playerPermission);
-		$out->putByte($this->commandPermission);
+		$out->putByte($this->commandPermission->value);
 
 		$out->putByte(count($this->abilityLayers));
 		foreach ($this->abilityLayers as $abilityLayer) {
-			$abilityLayer->encode($out, $protocolVersion);
+			$abilityLayer->encode($out);
 		}
 	}
 }

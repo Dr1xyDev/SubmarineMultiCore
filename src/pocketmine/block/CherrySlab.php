@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class CherrySlab extends WoodenSlab
 {
 	protected $id = self::CHERRY_SLAB;
@@ -46,14 +44,5 @@ class CherrySlab extends WoodenSlab
 	public function getName() : string
 	{
 		return ($this->isTop() ? "Upper " : "") . "Cherry Slab";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_582) {
-			return BlockFactory::get(BlockIds::WOODEN_SLAB, ($this->isTop() ? 0x08 : 0));
-		}
-
-		return null;
 	}
 }

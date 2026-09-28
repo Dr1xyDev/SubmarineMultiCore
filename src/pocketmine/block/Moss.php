@@ -26,12 +26,11 @@ use pocketmine\item\Fertilizer;
 use pocketmine\item\Item;
 use pocketmine\level\particle\BoneMealParticle;
 use pocketmine\math\Facing;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\Player;
 
 use function mt_rand;
 
-class Moss extends Dirt
+class Moss extends Solid
 {
 	protected $id = self::MOSS_BLOCK;
 
@@ -60,7 +59,7 @@ class Moss extends Dirt
 		return "Moss Block";
 	}
 
-	public function onActivate(Item $item, Player $player = null) : bool
+	public function onActivate(Item $item, ?Player $player = null) : bool
 	{
 		$up = $this->getSide(Facing::UP);
 		if (!($item instanceof Fertilizer) || $up->getId() != self::AIR) {
@@ -105,14 +104,5 @@ class Moss extends Dirt
 	public function isAffectedBySilkTouch() : bool
 	{
 		return true;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_440) {
-			return BlockFactory::get(BlockIds::DIRT);
-		}
-
-		return null;
 	}
 }

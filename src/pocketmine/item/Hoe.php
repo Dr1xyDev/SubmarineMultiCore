@@ -51,7 +51,7 @@ class Hoe extends TieredTool
 	{
 		if ($playerProtocol < ProtocolInfo::PROTOCOL_407) {
 			if ($this->getId() === ItemIds::NETHERITE_HOE) {
-				return new TranslatedItemData(ItemIds::DIAMOND_HOE, $this->getDamage());
+				return new TranslatedItemData(ItemIds::DIAMOND_HOE, $this->getDamage(), $this->getName());
 			}
 		}
 

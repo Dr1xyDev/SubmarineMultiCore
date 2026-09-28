@@ -22,25 +22,22 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
+use pocketmine\item\TieredTool;
 
-class SandstoneWall extends Wall
-{
-	protected $id = self::SANDSTONE_WALL;
-
-	public function getName() : string
-	{
-		return "Sandstone Wall";
+class SandstoneWall extends Wall {
+	public function getToolType() : int{
+		return BlockToolType::TYPE_PICKAXE;
 	}
 
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_332) {
-			return BlockFactory::get(BlockIds::COBBLESTONE_WALL);
-		} elseif ($playerProtocol < ProtocolInfo::PROTOCOL_419) {
-			return BlockFactory::get(BlockIds::COBBLESTONE_WALL, 5);
-		}
+	public function getToolHarvestLevel() : int{
+		return TieredTool::TIER_WOODEN;
+	}
 
-		return null;
+	public function getBlastResistance() : float{
+		return 4;
+	}
+
+	public function getHardness() : float{
+		return 0.8;
 	}
 }

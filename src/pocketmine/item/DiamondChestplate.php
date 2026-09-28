@@ -43,6 +43,10 @@ class DiamondChestplate extends Armor
 		return 529;
 	}
 
+	public function getEnchantAbility() : int{
+		return 10;
+	}
+
 	public function getArmorSlot() : int
 	{
 		return ArmorSlot::SLOT_CHESTPLATE;

@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class BambooButton extends WoodenButton
 {
 	protected $id = self::BAMBOO_BUTTON;
@@ -36,14 +34,5 @@ class BambooButton extends WoodenButton
 	public function getName() : string
 	{
 		return "Bamboo Button";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_560) {
-			return BlockFactory::get(BlockIds::WOODEN_BUTTON, $this->meta);
-		}
-
-		return null;
 	}
 }

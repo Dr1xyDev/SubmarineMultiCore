@@ -25,7 +25,6 @@ namespace pocketmine\block;
 use pocketmine\item\Item;
 use pocketmine\item\Record;
 use pocketmine\math\Vector3;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\Player;
 use pocketmine\tile\Jukebox as TileJukebox;
 use pocketmine\tile\Tile;
@@ -54,7 +53,7 @@ class Jukebox extends Solid
 		return BlockToolType::TYPE_AXE;
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool
 	{
 		$this->getLevel()->setBlock($blockReplace, $this, true, true);
 
@@ -63,7 +62,7 @@ class Jukebox extends Solid
 		return true;
 	}
 
-	public function onActivate(Item $item, Player $player = null) : bool
+	public function onActivate(Item $item, ?Player $player = null) : bool
 	{
 		if ($player instanceof Player) {
 			$jb = $this->getLevel()->getTile($this);
@@ -86,7 +85,7 @@ class Jukebox extends Solid
 		return true;
 	}
 
-	public function onBreak(Item $item, Player $player = null) : bool
+	public function onBreak(Item $item, ?Player $player = null) : bool
 	{
 		$tile = $this->getLevel()->getTile($this);
 		if ($tile instanceof TileJukebox) {
@@ -94,14 +93,5 @@ class Jukebox extends Solid
 		}
 
 		return parent::onBreak($item, $player);
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_137) {
-			return BlockFactory::get(BlockIds::PLANKS);
-		}
-
-		return null;
 	}
 }

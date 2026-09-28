@@ -47,6 +47,27 @@ abstract class TieredTool extends Tool
 		return self::getDurabilityFromTier($this->tier);
 	}
 
+	public function getEnchantAbility() : int{
+		return $this->getEnchantAbilityFromTier($this->tier);
+	}
+
+	public function getEnchantAbilityFromTier(int $tier) : int{
+		static $levels = [
+			self::TIER_STONE => 5,
+			self::TIER_DIAMOND => 10,
+			self::TIER_IRON => 14,
+			self::TIER_WOODEN => 15,
+			self::TIER_NETHERITE => 15,
+			self::TIER_GOLD => 22
+		];
+
+		if (!isset($levels[$tier])) {
+			throw new InvalidArgumentException("Unknown tier '$tier'");
+		}
+
+		return $levels[$tier];
+	}
+
 	public function getTier() : int
 	{
 		return $this->tier;

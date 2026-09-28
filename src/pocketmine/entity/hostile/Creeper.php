@@ -106,7 +106,7 @@ class Creeper extends Monster implements Ageable
 		$this->behaviorPool->setBehavior(5, new LookAtPlayerBehavior($this, 8.0));
 		$this->behaviorPool->setBehavior(6, new RandomLookAroundBehavior($this));
 
-		$this->targetBehaviorPool->setBehavior(0, new NearestAttackableTargetBehavior($this, Player::class, true));
+		$this->targetBehaviorPool->setBehavior(0, new NearestAttackableTargetBehavior($this, Player::class,));
 		$this->targetBehaviorPool->setBehavior(1, new HurtByTargetBehavior($this));
 	}
 
@@ -117,9 +117,13 @@ class Creeper extends Monster implements Ageable
 
 	public function getDrops() : array
 	{
+		$looting = $this->getLootingLevel();
 		$drops = [];
 		if ($this->timeSinceIgnited !== $this->fuseTime) {
-			$drops[] = ItemFactory::get(Item::GUNPOWDER, 0, rand(0, 2));
+			$gunpowder = rand(0, 2 + $looting);
+			if ($gunpowder > 0) {
+				$drops[] = ItemFactory::get(Item::GUNPOWDER, 0, $gunpowder);
+			}
 		}
 		$attacker = $this->getRevengeTarget();
 		if ($attacker instanceof Skeleton) {
@@ -221,7 +225,10 @@ class Creeper extends Monster implements Ageable
 
 			if ($this->isValid()) {
 				$this->setIgnited(true);
-				$item->applyDamage(1);
+				if ($player->hasFiniteResources()) {
+					$item->applyDamage(1);
+					$player->getInventory()->setItemInHand($item);
+				}
 
 				return true;
 			}

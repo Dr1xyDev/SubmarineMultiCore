@@ -30,7 +30,6 @@ use pocketmine\level\sound\FlintSteelSound;
 use pocketmine\math\Facing;
 use pocketmine\math\RayTraceResult;
 use pocketmine\math\Vector3;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\Player;
 
 class Candle extends Transparent
@@ -40,7 +39,7 @@ class Candle extends Transparent
 
 	protected int $candleCakeId = BlockIds::CANDLE_CAKE;
 
-	public function __construct(int $id, int $meta = 0, string $name = null, int $itemId = null, int $candleCakeId = BlockIds::CANDLE_CAKE)
+	public function __construct(int $id, int $meta = 0, ?string $name = null, ?int $itemId = null, int $candleCakeId = BlockIds::CANDLE_CAKE)
 	{
 		parent::__construct($id, $meta, $name, $itemId);
 		$this->candleCakeId = $candleCakeId;
@@ -77,7 +76,7 @@ class Candle extends Transparent
 		return $candle !== null ? ($candle->getDamage() & self::CANDLES_BIT) < 3 : parent::canBePlacedAt($blockReplace, $clickVector, $face, $isClickedBlock);
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool
 	{
 		if ($this->getSide(Facing::DOWN)->isTransparent()) {
 			return false;
@@ -98,7 +97,7 @@ class Candle extends Transparent
 		return true;
 	}
 
-	public function onActivate(Item $item, Player $player = null) : bool
+	public function onActivate(Item $item, ?Player $player = null) : bool
 	{
 		if ($item->getId() != ItemIds::FLINT_AND_STEEL && !$item->isNull()) {
 			return false;
@@ -140,14 +139,5 @@ class Candle extends Transparent
 			$this->meta += self::LIT_BIT;
 			$this->level->setBlock($this, $this);
 		}
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_448) {
-			return BlockFactory::get(BlockIds::TORCH);
-		}
-
-		return null;
 	}
 }

@@ -35,15 +35,15 @@ class ContainerSetContentPacket extends DataPacket
 
 	public int $windowId;
 	public int $entityUniqueId;
-	/** @var Item|ItemStack[] */
+	/** @var Item[]|ItemStack[] */
 	public array $items = [];
 	/** @var int[] */
 	public array $hotbar = [];
 
 	/**
 	 * @generate-create-func
-	 * @param Item|ItemStack[] $items
-	 * @param int[]            $hotbar
+	 * @param Item[]|ItemStack[] $items
+	 * @param int[]              $hotbar
 	 */
 	public static function create(int $windowId, int $entityUniqueId, array $items, array $hotbar) : self
 	{
@@ -61,7 +61,7 @@ class ContainerSetContentPacket extends DataPacket
 		$this->entityUniqueId = $this->getEntityUniqueId();
 		$count = $this->getUnsignedVarInt();
 		for ($s = 0; $s < $count && !$this->feof(); ++$s) {
-			$this->items[$s] = $this->getItemStackWithoutStackId($this->getProtocol());
+			$this->items[$s] = $this->getItemStackWithoutStackId();
 		}
 
 		$hotbarCount = $this->getUnsignedVarInt(); //MCPE always sends this, even when it's not a player inventory
@@ -76,7 +76,7 @@ class ContainerSetContentPacket extends DataPacket
 		$this->putEntityUniqueId($this->entityUniqueId);
 		$this->putUnsignedVarInt(count($this->items));
 		foreach ($this->items as $slot) {
-			$this->putItemStackWithoutStackId($slot, $this->getProtocol());
+			$this->putItemStackWithoutStackId($slot);
 		}
 
 		if ($this->windowId === ContainerIds::INVENTORY && count($this->hotbar) > 0) {

@@ -46,8 +46,8 @@ final class CameraFadeInstruction
 
 	public static function read(NetworkBinaryStream $in) : self
 	{
-		$time = $in->readOptional(fn () => Time::read($in));
-		$color = $in->readOptional(fn () => Color::read($in));
+		$time = $in->getOptional(fn () => Time::read($in));
+		$color = $in->getOptional(fn () => Color::read($in));
 		return new self(
 			$time,
 			$color
@@ -56,7 +56,7 @@ final class CameraFadeInstruction
 
 	public function write(NetworkBinaryStream $out) : void
 	{
-		$out->writeOptional($this->time, fn (Time $v) => $v->write($out));
-		$out->writeOptional($this->color, fn (Color $v) => $v->write($out));
+		$out->putOptional($this->time, fn (Time $v) => $v->write($out));
+		$out->putOptional($this->color, fn (Color $v) => $v->write($out));
 	}
 }

@@ -24,7 +24,7 @@ namespace pocketmine\tile;
 
 use InvalidArgumentException;
 use pocketmine\event\block\SignChangeEvent;
-use pocketmine\level\Level;
+use pocketmine\level\ChunkManager;
 use pocketmine\nbt\tag\ByteTag;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\IntTag;
@@ -69,7 +69,7 @@ class Sign extends Spawnable
 
 	private static function fixTextBlob(string $blob) : array
 	{
-		return array_slice(array_pad(explode("\n", $blob), 4, ""), 0, 4);
+		return array_slice(array_pad(explode("\n", $blob, 5), 4, ""), 0, 4);
 	}
 
 	/** @var string[] */
@@ -81,8 +81,7 @@ class Sign extends Spawnable
 	protected Color $textColor;
 	private bool $glowing;
 
-	public function __construct(Level $level, CompoundTag $nbt, bool $glowing = false)
-	{
+	public function __construct(ChunkManager $level, CompoundTag $nbt, bool $glowing = false){
 		parent::__construct($level, $nbt);
 
 		$this->glowing = $glowing;
@@ -230,7 +229,7 @@ class Sign extends Spawnable
 		$this->editorEntityRuntimeId = $editorEntityRuntimeId;
 	}
 
-	protected function addAdditionalSpawnData(CompoundTag $nbt) : void
+	protected function addAdditionalSpawnData(CompoundTag $nbt, int $protocolVersion) : void
 	{
 		$getText = function (array $text) : array {
 			$line1 = $text[0] ?? "";
@@ -282,8 +281,7 @@ class Sign extends Spawnable
 		$nbt->setLong(self::TAG_LOCKED_FOR_EDITING_BY, $this->editorEntityRuntimeId ?? -1);
 	}
 
-	public function updateCompoundTag(CompoundTag $nbt, Player $player) : bool
-	{
+	public function updateCompoundTag(CompoundTag $nbt, Player $player) : bool{
 		if ($nbt->getString("id") !== Tile::SIGN) {
 			return false;
 		}
@@ -297,7 +295,7 @@ class Sign extends Spawnable
 		$lines = [];
 		if ($nbt->hasTag(self::TAG_TEXT_BLOB, StringTag::class)) {
 			$lines = self::fixTextBlob($nbt->getString(self::TAG_TEXT_BLOB));
-		} elseif ($player->getProtocolVersion() < ProtocolInfo::PROTOCOL_137) {
+		} elseif ($player->getProtocolVersion() < ProtocolInfo::PROTOCOL_407) {
 			$lines = [
 				$nbt->getString("Text1"),
 				$nbt->getString("Text2"),
@@ -305,6 +303,11 @@ class Sign extends Spawnable
 				$nbt->getString("Text4")
 			];
 		}
+
+		if($lines === $this->getText()){
+			return false;
+		}
+
 		$size = 0;
 		foreach ($lines as $line) {
 			$size += strlen($line);

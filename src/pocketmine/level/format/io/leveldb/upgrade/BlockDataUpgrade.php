@@ -31,7 +31,6 @@ use pocketmine\utils\AssumptionFailedError;
 use pocketmine\utils\Filesystem;
 use pocketmine\utils\SingletonTrait;
 use pocketmine\utils\Utils;
-
 use function array_diff;
 use function count;
 use function get_class;
@@ -41,7 +40,6 @@ use function ksort;
 use function max;
 use function scandir;
 use function sprintf;
-
 use const SORT_NUMERIC;
 
 class BlockDataUpgrade

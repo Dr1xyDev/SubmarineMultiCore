@@ -61,7 +61,7 @@ class Dirt extends Solid
 		return "Dirt";
 	}
 
-	public function onActivate(Item $item, Player $player = null) : bool
+	public function onActivate(Item $item, ?Player $player = null) : bool
 	{
 		if ($item instanceof Hoe) {
 			$up = $this->getSide(Facing::UP);

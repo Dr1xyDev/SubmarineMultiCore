@@ -22,21 +22,22 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\event\block\BlockSpreadEvent;
-use pocketmine\item\Fertilizer;
+use pocketmine\block\utils\BlockEventHelper;
 use pocketmine\item\Hoe;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
+use pocketmine\item\ItemIds;
 use pocketmine\item\Shovel;
-use pocketmine\level\generator\object\TallGrass as TallGrassObject;
+use pocketmine\level\generator\feature\FlowersFeature;
 use pocketmine\level\sound\ItemUseOnBlockSound;
 use pocketmine\math\Facing;
 use pocketmine\Player;
 use pocketmine\utils\Random;
 
+use function count;
 use function mt_rand;
 
-class Grass extends Solid
+class Grass extends Solid implements Growable
 {
 	protected $id = self::GRASS;
 
@@ -63,7 +64,7 @@ class Grass extends Solid
 	public function getDropsForCompatibleTool(Item $item) : array
 	{
 		return [
-			ItemFactory::get(Item::DIRT)
+			ItemFactory::get(ItemIds::DIRT)
 		];
 	}
 
@@ -78,11 +79,7 @@ class Grass extends Solid
 		$lightAbove = $level->getFullLightAt($this->x, $this->y + 1, $this->z);
 		if ($lightAbove < 4 && $level->getBlockAt($this->x, $this->y + 1, $this->z)->getLightFilter() >= 2) {
 			//grass dies
-			$ev = new BlockSpreadEvent($this, $this, BlockFactory::get(Block::DIRT));
-			$ev->call();
-			if (!$ev->isCancelled()) {
-				$level->setBlock($this, $ev->getNewState(), false, false);
-			}
+			BlockEventHelper::spread($this, BlockFactory::get(BlockIds::DIRT), $this);
 		} elseif ($lightAbove >= 9) {
 			//try grass spread
 			for ($i = 0; $i < 4; ++$i) {
@@ -100,38 +97,81 @@ class Grass extends Solid
 					continue;
 				}
 
-				$ev = new BlockSpreadEvent($b, $this, BlockFactory::get(Block::GRASS));
-				$ev->call();
-				if (!$ev->isCancelled()) {
-					$level->setBlock($b, $ev->getNewState(), false, false);
-				}
+				BlockEventHelper::spread($b, BlockFactory::get(BlockIds::GRASS), $this);
 			}
 		}
 	}
 
-	public function onActivate(Item $item, Player $player = null) : bool
+	public function onActivate(Item $item, ?Player $player = null) : bool
 	{
-		if ($item instanceof Fertilizer) {
-			$item->pop();
-			TallGrassObject::growGrass($this->getLevel(), $this, new Random(mt_rand()), 8, 2);
+		if($this->getSide(Facing::UP)->getId() !== BlockIds::AIR){
+			return false;
+		}
+		$level = $this->level;
+		if($item instanceof Hoe){
+			$item->applyDamage(1);
+			$newBlock = BlockFactory::get(BlockIds::FARMLAND);
+			$level->addSound(new ItemUseOnBlockSound($this->add(0.5, 0.5, 0.5), $newBlock));
+			$level->setBlock($this, $newBlock);
 
 			return true;
-		} elseif ($item instanceof Hoe) {
+		}elseif($item instanceof Shovel){
 			$item->applyDamage(1);
-			$newBlock = BlockFactory::get(Block::FARMLAND);
-			$this->level->addSound(new ItemUseOnBlockSound($this->add(0.5, 0.5, 0.5), $newBlock));
-			$this->getLevel()->setBlock($this, $newBlock);
-
-			return true;
-		} elseif ($item instanceof Shovel && $this->getSide(Facing::UP)->getId() === Block::AIR) {
-			$item->applyDamage(1);
-			$newBlock = BlockFactory::get(Block::GRASS_PATH);
-			$this->level->addSound(new ItemUseOnBlockSound($this->add(0.5, 0.5, 0.5), $newBlock));
-			$this->getLevel()->setBlock($this, $newBlock);
+			$newBlock = BlockFactory::get(BlockIds::GRASS_PATH);
+			$level->addSound(new ItemUseOnBlockSound($this->add(0.5, 0.5, 0.5), $newBlock));
+			$level->setBlock($this, $newBlock);
 
 			return true;
 		}
 
 		return false;
+	}
+
+	public function canGrow(Random $random, ?Player $player) : bool{
+		return true;
+	}
+
+	public function canUseBonemeal(Random $random, ?Player $player) : bool{
+		return true;
+	}
+
+	public function grow(Random $random, ?Player $player) : void{
+		if (BlockEventHelper::grow($this, $this, $player)) {
+			$up = $this->getSide(Facing::UP);
+			for ($i = 0; $i < 128; ++$i) {
+				$up2 = clone $up;
+				$count = 0;
+				while (true) {
+					if ($count >= $i / 16) {
+						if ($up2->getId() === BlockIds::AIR) {
+							if ($random->nextBoundedInt(8) === 0) {
+								$list = $this->level->getBiome($this->getFloorX(), $this->getFloorY())->getGenerationSettings()->getFlowerFeatures();
+
+								$placedBlock = BlockFactory::get(mt_rand(0, 1) === 0 ? BlockIds::POPPY : BlockIds::DANDELION);
+								if (count($list) !== 0) {
+									$feature = $list[0];
+									if ($feature instanceof FlowersFeature) {
+										$placedBlock = $feature->getFlowerToPlace($random, $this);
+									}
+								}
+							} else {
+								$placedBlock = BlockFactory::get(BlockIds::TALL_GRASS, TallGrass::TYPE_TALL_GRASS);
+							}
+
+							$this->level->setBlock($up2, $placedBlock, true, true);
+						}
+
+						break;
+					}
+
+					$up2 = $this->level->getBlock($up2->add($random->nextBoundedInt(3) - 1, ($random->nextBoundedInt(3) - 1) * $random->nextBoundedInt(3) / 2, $random->nextBoundedInt(3) - 1));
+					if ($up2->getSide(Facing::DOWN)->getId() !== BlockIds::GRASS || ($up2->isSolid() && $up2->isFullCube())) {
+						break;
+					}
+
+					$count++;
+				}
+			}
+		}
 	}
 }

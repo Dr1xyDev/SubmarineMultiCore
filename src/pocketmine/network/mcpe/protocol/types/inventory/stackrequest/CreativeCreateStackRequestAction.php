@@ -51,19 +51,19 @@ final class CreativeCreateStackRequestAction extends ItemStackRequestAction
 		return $this->repetitions;
 	}
 
-	public static function read(NetworkBinaryStream $in, int $playerProtocol) : self
+	public static function read(NetworkBinaryStream $in) : self
 	{
 		$creativeItemId = $in->readCreativeItemNetId();
-		if ($playerProtocol >= ProtocolInfo::PROTOCOL_712) {
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
 			$repetitions = $in->getByte();
 		}
 		return new self($creativeItemId, $repetitions ?? 1);
 	}
 
-	public function write(NetworkBinaryStream $out, int $playerProtocol) : void
+	public function write(NetworkBinaryStream $out) : void
 	{
 		$out->writeCreativeItemNetId($this->creativeItemId);
-		if ($playerProtocol >= ProtocolInfo::PROTOCOL_712) {
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
 			$out->putByte($this->repetitions);
 		}
 	}

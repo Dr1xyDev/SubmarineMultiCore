@@ -22,15 +22,14 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\item\Item;
+use pocketmine\block\utils\StaticSupportTrait;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Facing;
-use pocketmine\math\Vector3;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-use pocketmine\Player;
 
 class SporeBlossom extends Flowable
 {
+	use StaticSupportTrait;
+
 	protected $id = self::SPORE_BLOSSOM;
 
 	public function __construct(int $meta = 0)
@@ -55,32 +54,7 @@ class SporeBlossom extends Flowable
 		);
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
-	{
-		if ($this->canSupportToFullSolid($this->getSide(Facing::UP))) {
-			return parent::place($item, $blockReplace, $blockClicked, $face, $clickVector, $player);
-		}
-		return false;
-	}
-
-	public function canBePlacedAt(Block $blockReplace, Vector3 $clickVector, int $face, bool $isClickedBlock) : bool
-	{
-		return $this->canSupportToFullSolid($blockReplace->getSide(Facing::UP)) && parent::canBePlacedAt($blockReplace, $clickVector, $face, $isClickedBlock);
-	}
-
-	public function onNearbyBlockChange() : void
-	{
-		if (!$this->canSupportToFullSolid($this->getSide(Facing::UP))) {
-			$this->level->useBreakOn($this);
-		}
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_440) {
-			return BlockFactory::get(BlockIds::RED_FLOWER);
-		}
-
-		return null;
+	protected function canBeSupportedAt(Block $block) : bool{
+		return $this->canSupportToFullSolid($this->getSide(Facing::UP));
 	}
 }

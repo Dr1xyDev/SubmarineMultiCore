@@ -28,5 +28,5 @@ abstract class ItemStackRequestAction
 {
 	abstract public function getTypeId() : int;
 
-	abstract public function write(NetworkBinaryStream $out, int $playerProtocol) : void;
+	abstract public function write(NetworkBinaryStream $out) : void;
 }

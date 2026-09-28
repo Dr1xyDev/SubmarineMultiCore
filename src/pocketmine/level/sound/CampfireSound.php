@@ -35,7 +35,7 @@ final class CampfireSound extends Sound
 
 	public function encode()
 	{
-		if ($this->protocol <= ProtocolInfo::PROTOCOL_332) {
+		if ($this->protocol < ProtocolInfo::PROTOCOL_407) {
 			return [LevelSoundEventPacket::nonActorSound(LevelSoundEventPacket::SOUND_BLOCK_FURNACE_LIT, $this, false)];
 		} else {
 			return [LevelSoundEventPacket::nonActorSound(LevelSoundEventPacket::SOUND_BLOCK_CAMPFIRE_CRACKLE, $this, false)];

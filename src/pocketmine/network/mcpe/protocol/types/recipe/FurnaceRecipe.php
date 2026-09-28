@@ -54,27 +54,27 @@ final class FurnaceRecipe extends RecipeWithTypeId{
 		return $this->blockName;
 	}
 
-	public static function decode(int $typeId, NetworkBinaryStream $in, int $protocol) : self{
+	public static function decode(int $typeId, NetworkBinaryStream $in) : self{
 		$inputId = $in->getVarInt();
 		$inputData = null;
 		if($typeId === CraftingDataPacket::ENTRY_FURNACE_DATA){
 			$inputData = $in->getVarInt();
 		}
-		$output = $in->getItemStackWithoutStackId($protocol);
-		if ($protocol >= ProtocolInfo::PROTOCOL_354) {
+		$output = $in->getItemStackWithoutStackId();
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_407) {
 			$block = $in->getString();
 		}
 
 		return new self($typeId, $inputId, $inputData, $output, $block ?? FurnaceRecipeBlockName::FURNACE);
 	}
 
-	public function encode(NetworkBinaryStream $out, int $protocol) : void{
+	public function encode(NetworkBinaryStream $out) : void{
 		$out->putVarInt($this->inputId);
 		if($this->getTypeId() === CraftingDataPacket::ENTRY_FURNACE_DATA){
 			$out->putVarInt($this->inputMeta);
 		}
-		$out->putItemStackWithoutStackId($this->result, $protocol);
-		if ($protocol >= ProtocolInfo::PROTOCOL_354) {
+		$out->putItemStackWithoutStackId($this->result);
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_407) {
 			$out->putString($this->blockName);
 		}
 	}

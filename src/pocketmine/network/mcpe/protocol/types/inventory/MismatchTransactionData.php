@@ -35,14 +35,14 @@ class MismatchTransactionData extends TransactionData
 
 	public const ID = InventoryTransactionPacket::TYPE_MISMATCH;
 
-	protected function decodeData(NetworkBinaryStream $stream, int $playerProtocol) : void
+	protected function decodeData(NetworkBinaryStream $in, bool $legacyTransaction) : void
 	{
 		if (count($this->actions) > 0) {
 			throw new PacketDecodeException("Mismatch transaction type should not have any actions associated with it, but got " . count($this->actions));
 		}
 	}
 
-	protected function encodeData(NetworkBinaryStream $stream, int $playerProtocol) : void
+	protected function encodeData(NetworkBinaryStream $out, bool $legacyTransaction) : void
 	{
 
 	}

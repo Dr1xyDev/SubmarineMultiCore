@@ -46,13 +46,17 @@ class UpdateClientInputLocksPacket extends DataPacket
 	protected function decodePayload() : void
 	{
 		$this->flags = $this->getUnsignedVarInt();
-		$this->position = $this->getVector3();
+		if ($this->protocol < ProtocolInfo::PROTOCOL_944) {
+			$this->position = $this->getVector3();
+		}
 	}
 
 	protected function encodePayload() : void
 	{
 		$this->putUnsignedVarInt($this->flags);
-		$this->putVector3($this->position);
+		if ($this->protocol < ProtocolInfo::PROTOCOL_944) {
+			$this->putVector3($this->position);
+		}
 	}
 
 	public function mustBeDecoded() : bool

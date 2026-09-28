@@ -43,6 +43,10 @@ class DiamondBoots extends Armor
 		return 430;
 	}
 
+	public function getEnchantAbility() : int{
+		return 10;
+	}
+
 	public function getArmorSlot() : int
 	{
 		return ArmorSlot::SLOT_BOOTS;

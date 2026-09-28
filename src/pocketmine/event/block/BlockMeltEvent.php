@@ -25,6 +25,5 @@ namespace pocketmine\event\block;
 /**
  * Called when a block melts, e.g. if the light level is too high
  */
-class BlockMeltEvent extends BlockGrowEvent
-{
+class BlockMeltEvent extends BaseBlockChangeEvent{
 }

@@ -50,14 +50,14 @@ final class BeaconPaymentStackRequestAction extends ItemStackRequestAction
 		return $this->secondaryEffectId;
 	}
 
-	public static function read(NetworkBinaryStream $in, int $playerProtocol) : self
+	public static function read(NetworkBinaryStream $in) : self
 	{
 		$primary = $in->getVarInt();
 		$secondary = $in->getVarInt();
 		return new self($primary, $secondary);
 	}
 
-	public function write(NetworkBinaryStream $out, int $playerProtocol) : void
+	public function write(NetworkBinaryStream $out) : void
 	{
 		$out->putVarInt($this->primaryEffectId);
 		$out->putVarInt($this->secondaryEffectId);

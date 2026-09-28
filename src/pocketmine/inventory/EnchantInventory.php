@@ -22,15 +22,30 @@ declare(strict_types=1);
 
 namespace pocketmine\inventory;
 
+use pocketmine\event\player\PlayerEnchantingOptionsRequestEvent;
+use pocketmine\item\enchantment\EnchantingHelper as Helper;
+use pocketmine\item\enchantment\EnchantingOption;
+use pocketmine\item\Item;
 use pocketmine\level\Position;
 use pocketmine\network\mcpe\protocol\types\inventory\UIInventorySlotOffset;
 use pocketmine\network\mcpe\protocol\types\inventory\WindowTypes;
 use pocketmine\Player;
+use function array_values;
+use function count;
 
 class EnchantInventory extends ContainerInventory implements FakeInventory
 {
+	public const SLOT_INPUT = 0;
+	public const SLOT_LAPIS = 1;
+
 	/** @var Position */
 	protected $holder;
+
+	/**
+	 * @var EnchantingOption[] $options
+	 * @phpstan-var list<EnchantingOption>
+	 */
+	private array $options = [];
 
 	public function __construct(Position $pos)
 	{
@@ -74,5 +89,41 @@ class EnchantInventory extends ContainerInventory implements FakeInventory
 			$who->dropItem($item);
 		}
 		$this->clearAll();
+	}
+
+	public function onSlotChange(int $index, Item $before, bool $send) : void{
+		if($index === self::SLOT_INPUT){
+			foreach($this->viewers as $viewer){
+				$this->options = [];
+				$item = $this->getInput();
+				$options = Helper::generateOptions($this->holder, $item, $viewer->getEnchantmentSeed());
+
+				$event = new PlayerEnchantingOptionsRequestEvent($viewer, $this, $options);
+				$event->call();
+				if(!$event->isCancelled() && count($event->getOptions()) > 0){
+					$this->options = array_values($event->getOptions());
+					$viewer->syncEnchantingTableOptions($this->options);
+				}
+			}
+		}
+
+		parent::onSlotChange($index, $before, $send);
+	}
+
+	public function getInput() : Item{
+		return $this->getItem(self::SLOT_INPUT);
+	}
+
+	public function getLapis() : Item{
+		return $this->getItem(self::SLOT_LAPIS);
+	}
+
+	public function getOutput(int $optionId) : ?Item{
+		$option = $this->getOption($optionId);
+		return $option === null ? null : Helper::enchantItem($this->getInput(), $option->getEnchantments());
+	}
+
+	public function getOption(int $optionId) : ?EnchantingOption{
+		return $this->options[$optionId] ?? null;
 	}
 }

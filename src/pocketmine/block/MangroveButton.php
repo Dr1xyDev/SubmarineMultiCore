@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class MangroveButton extends WoodenButton
 {
 	protected $id = self::MANGROVE_BUTTON;
@@ -36,14 +34,5 @@ class MangroveButton extends WoodenButton
 	public function getName() : string
 	{
 		return "Mangrove Button";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_527) {
-			return BlockFactory::get(BlockIds::WOODEN_BUTTON, $this->meta);
-		}
-
-		return null;
 	}
 }

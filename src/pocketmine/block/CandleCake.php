@@ -30,7 +30,6 @@ use pocketmine\level\sound\FlintSteelSound;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Facing;
 use pocketmine\math\Vector3;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\Player;
 
 class CandleCake extends Transparent
@@ -41,7 +40,7 @@ class CandleCake extends Transparent
 
 	protected $itemId = Item::CAKE;
 
-	public function __construct(int $id, int $meta = 0, string $name = null, int $itemId = null, int $candleId = BlockIds::CANDLE)
+	public function __construct(int $id, int $meta = 0, ?string $name = null, ?int $itemId = null, int $candleId = BlockIds::CANDLE)
 	{
 		parent::__construct($id, $meta, $name, $itemId);
 		$this->candleId = $candleId;
@@ -72,7 +71,7 @@ class CandleCake extends Transparent
 		);
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool
 	{
 		$down = $this->getSide(Facing::DOWN);
 		if ($down->getId() !== self::AIR) {
@@ -84,7 +83,7 @@ class CandleCake extends Transparent
 		return false;
 	}
 
-	public function onActivate(Item $item, Player $player = null) : bool
+	public function onActivate(Item $item, ?Player $player = null) : bool
 	{
 		if ($this->isLit() && $item->getId() != ItemIds::FLINT_AND_STEEL) {
 			$this->meta = 0;
@@ -130,14 +129,5 @@ class CandleCake extends Transparent
 	public function isLit() : bool
 	{
 		return ($this->meta & self::LIT_BIT) !== 0;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_448) {
-			return BlockFactory::get(BlockIds::CAKE_BLOCK);
-		}
-
-		return null;
 	}
 }

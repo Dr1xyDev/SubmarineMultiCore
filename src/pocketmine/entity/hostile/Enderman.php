@@ -101,9 +101,13 @@ class Enderman extends Monster
 
 	public function getDrops() : array
 	{
-		$drops = [
-			ItemFactory::get(Item::ENDER_PEARL, 0, mt_rand(0, 1))
-		];
+		$looting = $this->getLootingLevel();
+		$drops = [];
+
+		if (mt_rand(0, 1) === 1) {
+			$pearls = 1 + ($looting > 0 ? mt_rand(0, $looting) : 0);
+			$drops[] = ItemFactory::get(Item::ENDER_PEARL, 0, $pearls);
+		}
 
 		return $drops;
 	}

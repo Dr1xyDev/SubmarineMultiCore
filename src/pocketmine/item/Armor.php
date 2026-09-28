@@ -25,9 +25,14 @@ namespace pocketmine\item;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\item\enchantment\Enchantment;
 use pocketmine\item\enchantment\ProtectionEnchantment;
+use pocketmine\item\trim\ItemTrimMaterialType;
+use pocketmine\item\trim\ItemTrimPatternType;
+use pocketmine\item\trim\TrimData;
 use pocketmine\level\sound\Sound;
 use pocketmine\math\Vector3;
+use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\IntTag;
+use pocketmine\nbt\tag\StringTag;
 use pocketmine\Player;
 use pocketmine\utils\Binary;
 use pocketmine\utils\Color;
@@ -38,6 +43,10 @@ use function mt_rand;
 abstract class Armor extends Durable implements ArmorSlot
 {
 	public const TAG_CUSTOM_COLOR = "customColor"; //TAG_Int
+
+	public const TAG_TRIM = "Trim"; //TAG_Compound
+	public const TAG_TRIM_PATTERN = "Pattern"; //TAG_String
+	public const TAG_TRIM_MATERIAL = "Material"; //TAG_String
 
 	public function getMaxStackSize() : int
 	{
@@ -74,6 +83,32 @@ abstract class Armor extends Durable implements ArmorSlot
 	public function clearCustomColor() : void
 	{
 		$this->removeNamedTagEntry(self::TAG_CUSTOM_COLOR);
+	}
+
+	public function getTrim() : ?TrimData {
+		if ($this->getNamedTag()->hasTag(self::TAG_TRIM, CompoundTag::class)) {
+			$trimTag = $this->getNamedTag()->getCompoundTag(self::TAG_TRIM);
+			if ($trimTag->hasTag(self::TAG_TRIM_PATTERN, StringTag::class) && $trimTag->hasTag(self::TAG_TRIM_MATERIAL, StringTag::class)) {
+				$patternType = ItemTrimPatternType::tryFrom($trimTag->getString(self::TAG_TRIM_PATTERN));
+				$materialType = ItemTrimMaterialType::tryFrom($trimTag->getString(self::TAG_TRIM_MATERIAL));
+				if ($patternType !== null && $materialType !== null) {
+					return new TrimData($patternType, $materialType);
+				}
+			}
+		}
+
+		return null;
+	}
+
+	public function setTrim(TrimData $trimData) : void {
+		$this->setNamedTagEntry(new CompoundTag(self::TAG_TRIM, [
+			new StringTag(self::TAG_TRIM_PATTERN, $trimData->patternType->value),
+			new StringTag(self::TAG_TRIM_MATERIAL, $trimData->materialType->value),
+		]));
+	}
+
+	public function clearTrim() : void{
+		$this->removeNamedTagEntry(self::TAG_TRIM);
 	}
 
 	/**

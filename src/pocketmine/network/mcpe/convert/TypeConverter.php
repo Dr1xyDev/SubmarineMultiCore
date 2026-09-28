@@ -25,8 +25,12 @@ namespace pocketmine\network\mcpe\convert;
 use pocketmine\block\Block;
 use pocketmine\block\BlockIds;
 use pocketmine\inventory\EnchantInventory;
+use pocketmine\inventory\ExactRecipeIngredient;
 use pocketmine\inventory\FakeInventory;
 use pocketmine\inventory\FakeResultInventory;
+use pocketmine\inventory\MetaWildcardRecipeIngredient;
+use pocketmine\inventory\RecipeIngredient;
+use pocketmine\inventory\TagWildcardRecipeIngredient;
 use pocketmine\inventory\transaction\action\CreativeInventoryAction;
 use pocketmine\inventory\transaction\action\DropItemAction;
 use pocketmine\inventory\transaction\action\EnchantAction;
@@ -40,16 +44,16 @@ use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\IntTag;
 use pocketmine\nbt\tag\LongTag;
 use pocketmine\nbt\tag\StringTag;
+use pocketmine\network\mcpe\convert\block\RuntimeBlockMapping;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\types\GameMode as ProtocolGameMode;
 use pocketmine\network\mcpe\protocol\types\inventory\ItemStack;
 use pocketmine\network\mcpe\protocol\types\inventory\NetworkInventoryAction;
 use pocketmine\network\mcpe\protocol\types\recipe\IntIdMetaItemDescriptor;
-use pocketmine\network\mcpe\protocol\types\recipe\RecipeIngredient;
-use pocketmine\network\mcpe\protocol\types\recipe\StringIdMetaItemDescriptor;
+use pocketmine\network\mcpe\protocol\types\recipe\RecipeIngredient as ProtocolRecipeIngredient;
+use pocketmine\network\mcpe\protocol\types\recipe\TagItemDescriptor;
 use pocketmine\Player;
 use pocketmine\utils\SingletonTrait;
-
 use function get_class;
 
 class TypeConverter
@@ -60,6 +64,8 @@ class TypeConverter
 	private const DAMAGE_TAG_CONFLICT_RESOLUTION = "___Damage_ProtocolCollisionResolution___";
 	private const PM_ID_TAG = "___Id___";
 	private const PM_META_TAG = "___Meta___";
+	private const string HAS_CONVERTED_NAME_TAG = "HasConvertedName";
+	private const string REAL_CUSTOM_NAME_TAG = "RealName";
 
 	private const RECIPE_INPUT_WILDCARD_META = 0x7fff;
 
@@ -96,58 +102,53 @@ class TypeConverter
 		};
 	}
 
-	public function coreItemStackToRecipeIngredient(Item $itemStack, int $protocol) : RecipeIngredient{
-		$internalId = $itemStack->getId();
-		$internalMeta = $itemStack->getDamage();
-		$protocolItem = $itemStack->getItemProtocol($protocol);
-		if ($protocolItem !== null) {
-			$internalId = $protocolItem->getId();
-			$internalMeta = $protocolItem->getMeta();
+	public function coreRecipeIngredientToNet(?RecipeIngredient $ingredient, int $protocol) : ProtocolRecipeIngredient{
+		if($ingredient === null){
+			return new ProtocolRecipeIngredient(null, 0);
 		}
 
-		if($itemStack->isNull()){
-			return new RecipeIngredient(null, 0);
-		}
-
-		if ($protocol >= ProtocolInfo::PROTOCOL_419) {
-			if ($internalMeta === -1) {
-				[$id,] = ItemTranslator::getInstance($protocol)->toNetworkId($internalId, 0);
-				$meta = 0x7fff;
+		if ($ingredient instanceof MetaWildcardRecipeIngredient || $ingredient instanceof ExactRecipeIngredient) {
+			if ($ingredient instanceof MetaWildcardRecipeIngredient) {
+				$item = ItemFactory::get($ingredient->getItemId(), -1);
 			} else {
-				[$id, $meta] = ItemTranslator::getInstance($protocol)->toNetworkId($internalId, $internalMeta);
+				$item = $ingredient->getItem();
 			}
-		} else {
-			[$id, $meta] = [$internalId, $internalMeta & 0x7fff];
-		}
 
-		return new RecipeIngredient(new IntIdMetaItemDescriptor($id, $meta), $itemStack->getCount());
-	}
+			$internalId = $item->getId();
+			$internalMeta = $item->getDamage();
+			$protocolItem = $item->getItemProtocol($protocol);
+			if ($protocolItem !== null) {
+				$internalId = $protocolItem->getId();
+				$internalMeta = $protocolItem->getMeta();
+			}
 
-	public function recipeIngredientToCoreItemStack(RecipeIngredient $ingredient, int $protocol) : Item{
-		$descriptor = $ingredient->getDescriptor();
-		if ($descriptor === null) {
-			return ItemFactory::air();
-		}
-		if ($descriptor instanceof IntIdMetaItemDescriptor) {
+			if ($ingredient instanceof MetaWildcardRecipeIngredient) {
+				$internalMeta = -1;
+			}
+
+			if($internalId === 0){
+				return new ProtocolRecipeIngredient(null, 0);
+			}
+
 			if ($protocol >= ProtocolInfo::PROTOCOL_419) {
-				[$id, $meta] = ItemTranslator::getInstance($protocol)->fromNetworkIdWithWildcardHandling($descriptor->getId(), $descriptor->getMeta());
-			} else {
-				[$id, $meta] = [$descriptor->getId(), $descriptor->getMeta()];
-
-				if($meta === 0x7fff){
-					$meta = -1;
+				if ($internalMeta === -1) {
+					[$id,] = ItemTranslator::getInstance($protocol)->toNetworkId($internalId, 0);
+					$meta = self::RECIPE_INPUT_WILDCARD_META;
+				} else {
+					[$id, $meta] = ItemTranslator::getInstance($protocol)->toNetworkId($internalId, $internalMeta);
 				}
+			} else {
+				[$id, $meta] = [$internalId, $internalMeta & self::RECIPE_INPUT_WILDCARD_META];
 			}
 
-			return ItemFactory::get($id, $meta, $ingredient->getCount());
-		}
-		if ($descriptor instanceof StringIdMetaItemDescriptor) {
-			$intId = GlobalItemTypeDictionary::getInstance($protocol)->getDictionary()->fromStringId($descriptor->getId());
-			[$id, $meta] = ItemTranslator::getInstance($protocol)->fromNetworkIdWithWildcardHandling($intId, $descriptor->getMeta());
-			return ItemFactory::get($id, $meta, $ingredient->getCount());
+			$descriptor = new IntIdMetaItemDescriptor($id, $meta);
+		}elseif($ingredient instanceof TagWildcardRecipeIngredient){
+			$descriptor = new TagItemDescriptor($ingredient->getTagName());
+		}else{
+			throw new \LogicException("Unsupported recipe ingredient type " . get_class($ingredient) . ", only " . ExactRecipeIngredient::class . " and " . MetaWildcardRecipeIngredient::class . " are supported");
 		}
 
-		throw new \LogicException("Unsupported conversion of recipe ingredient to core item stack");
+		return new ProtocolRecipeIngredient($descriptor, 1);
 	}
 
 	public function coreItemStackToNet(Item $itemStack, int $protocol) : ItemStack{
@@ -174,6 +175,22 @@ class TypeConverter
 			}
 			$nbt->setInt(self::PM_ID_TAG, $internalId);
 			$nbt->setInt(self::PM_META_TAG, $internalMeta);
+
+			if($protocolItem->hasName()){
+				$nbt->setByte(self::HAS_CONVERTED_NAME_TAG, 1);
+
+				if($nbt->hasTag(Item::TAG_DISPLAY, CompoundTag::class)){
+					$nbt->getCompoundTag(Item::TAG_DISPLAY)->setString(Item::TAG_DISPLAY_NAME, $protocolItem->getName());
+				}else{
+					$nbt->setTag(new CompoundTag(Item::TAG_DISPLAY, [
+						new StringTag(Item::TAG_DISPLAY_NAME, $protocolItem->getName()),
+					]));
+				}
+
+				if($itemStack->hasCustomName()){
+					$nbt->setString(self::REAL_CUSTOM_NAME_TAG, $itemStack->getCustomName());
+				}
+			}
 
 			[$internalId, $internalMeta] = [$protocolItem->getId(), $protocolItem->getMeta()];
 		}
@@ -214,11 +231,15 @@ class TypeConverter
 			$nbt->setInt(self::DAMAGE_TAG, $itemStack->getDamage());
 		}
 
-		if ($protocol < ProtocolInfo::PROTOCOL_137 && $itemStack->getId() === ItemIds::FILLED_MAP && $nbt !== null) {
+		if ($protocol < ProtocolInfo::PROTOCOL_407 && $itemStack->getId() === ItemIds::FILLED_MAP && $nbt !== null) {
 			if ($nbt->hasTag("map_uuid", LongTag::class)) {
 				$uuid = $nbt->getLong("map_uuid");
 				$nbt->setString("map_uuid", (string) $uuid, true);
 			}
+		}
+
+		if ($nbt !== null && $nbt->getName() !== "tag") {
+			$nbt->setName("tag");
 		}
 
 		$blockRuntimeId = 0;
@@ -268,7 +289,7 @@ class TypeConverter
 		} else {
 			[$id, $meta] = [$itemStack->getId(), $itemStack->getMeta()];
 
-			if($meta === 0x7fff){
+			if($meta === self::RECIPE_INPUT_WILDCARD_META){
 				$meta = -1;
 			}
 		}
@@ -293,12 +314,28 @@ class TypeConverter
 				$compound->removeTag(self::PM_META_TAG);
 			}
 
-			if ($protocol < ProtocolInfo::PROTOCOL_137 && $id === ItemIds::FILLED_MAP && $compound->hasTag("map_uuid", StringTag::class)) {
+			if($compound->getByte(self::HAS_CONVERTED_NAME_TAG, 0) === 1 && $compound->hasTag(Item::TAG_DISPLAY, CompoundTag::class)){
+				$compound->removeTag(self::HAS_CONVERTED_NAME_TAG);
+
+				if($compound->hasTag(self::REAL_CUSTOM_NAME_TAG, StringTag::class)){
+					$compound->getCompoundTag(Item::TAG_DISPLAY)->setString(Item::TAG_DISPLAY_NAME, $compound->getString(self::REAL_CUSTOM_NAME_TAG));
+					$compound->removeTag(self::REAL_CUSTOM_NAME_TAG);
+				}else{
+					$compound->getCompoundTag(Item::TAG_DISPLAY)->removeTag(Item::TAG_DISPLAY_NAME);
+					if($compound->getCompoundTag(Item::TAG_DISPLAY)->count() === 0){
+						$compound->removeTag(Item::TAG_DISPLAY);
+					}
+				}
+			}
+
+			if ($protocol < ProtocolInfo::PROTOCOL_407 && $id === ItemIds::FILLED_MAP && $compound->hasTag("map_uuid", StringTag::class)) {
 				$compound->setLong("map_uuid", (int) $compound->getString("map_uuid"), true);
 			}
 
 			if($compound->count() === 0){
 				$compound = null;
+			} else {
+				$compound->setName("");
 			}
 		}
 
@@ -319,7 +356,7 @@ class TypeConverter
 	 */
 	public function createInventoryAction(NetworkInventoryAction $action, Player $player) : ?InventoryAction
 	{
-		if($player->getProtocolVersion() >= ProtocolInfo::PROTOCOL_370 && $action->oldItem->getItemStack()->equals($action->newItem->getItemStack())){
+		if($action->oldItem->getItemStack()->equals($action->newItem->getItemStack())){
 			//filter out useless noise in 1.13
 			return null;
 		}

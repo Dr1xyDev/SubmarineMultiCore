@@ -37,7 +37,7 @@ class GuiDataPickItemPacket extends DataPacket
 
 	protected function decodePayload() : void
 	{
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_137) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->itemDescription = $this->getString();
 			$this->itemEffects = $this->getString();
 		}
@@ -46,7 +46,7 @@ class GuiDataPickItemPacket extends DataPacket
 
 	protected function encodePayload() : void
 	{
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_137) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->putString($this->itemDescription);
 			$this->putString($this->itemEffects);
 		}

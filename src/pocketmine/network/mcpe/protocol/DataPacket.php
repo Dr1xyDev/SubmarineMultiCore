@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace pocketmine\network\mcpe\protocol;
 
 use Error;
-use InvalidArgumentException;
 use OutOfBoundsException;
 use pocketmine\network\mcpe\convert\PacketIdTranslator;
 use pocketmine\network\mcpe\NetworkBinaryStream;
@@ -53,7 +52,39 @@ abstract class DataPacket extends NetworkBinaryStream
 
 	public int $senderSubId = 0;
 	public int $recipientSubId = 0;
-	private ?int $packetProtocol = null;
+
+	/**
+	 * Encoded buffers by protocol of a packet which never changes (crafting data, creative content...).
+	 * It is an object so the clones made while sending share it and every protocol is encoded only once.
+	 * @var \ArrayObject<int, string>|null
+	 */
+	private ?\ArrayObject $encodedBuffers = null;
+
+	/**
+	 * Marks this packet as immutable: it will be encoded only once per protocol version. The packet must not be
+	 * modified afterwards (create a new packet instead).
+	 */
+	public function enableEncodedCache() : static
+	{
+		$this->encodedBuffers ??= new \ArrayObject();
+		return $this;
+	}
+
+	/**
+	 * Returns the encoded packet for the protocol set on it, using the cache if enabled
+	 */
+	public function getEncoded() : string
+	{
+		if ($this->encodedBuffers !== null && isset($this->encodedBuffers[$this->protocol])) {
+			return $this->encodedBuffers[$this->protocol];
+		}
+		$this->encode();
+		$buffer = $this->getBuffer();
+		if ($this->encodedBuffers !== null) {
+			$this->encodedBuffers[$this->protocol] = $buffer;
+		}
+		return $buffer;
+	}
 
 	public function pid() : int
 	{
@@ -63,23 +94,6 @@ abstract class DataPacket extends NetworkBinaryStream
 	public function getName() : string
 	{
 		return (new ReflectionClass($this))->getShortName();
-	}
-
-	public function setProtocol(int $protocol) : void
-	{
-		$this->packetProtocol = $protocol;
-	}
-
-	public function getProtocol() : int
-	{
-		return $this->packetProtocol;
-	}
-
-	public function checkProtocol() : void
-	{
-		if ($this->packetProtocol === null) {
-			throw new InvalidArgumentException('Protocol has not passed. Please use $packet->setProtocol(int $protocol)->... for fix it.');
-		}
 	}
 
 	public function canBeSentBeforeLogin() : bool
@@ -107,7 +121,6 @@ abstract class DataPacket extends NetworkBinaryStream
 	public function decode() : void
 	{
 		$this->rewind();
-		$this->checkProtocol();
 		$this->decodeHeader();
 		$this->decodePayload();
 		$this->wasDecoded = true;
@@ -119,15 +132,8 @@ abstract class DataPacket extends NetworkBinaryStream
 	 */
 	protected function decodeHeader() : void
 	{
-		if ($this->packetProtocol < ProtocolInfo::PROTOCOL_282) {
+		if ($this->protocol < ProtocolInfo::PROTOCOL_407) {
 			$this->getByte();
-			if ($this->packetProtocol >= ProtocolInfo::PROTOCOL_137) {
-				$this->senderSubId = $this->getByte();
-				$this->recipientSubId = $this->getByte();
-				if ($this->senderSubId > 0x4 || $this->recipientSubId > 0x4) {
-					throw new PacketDecodeException(($this->getName()) . ": Packet decode headers error");
-				}
-			}
 		} else {
 			$pid = $this->getUnsignedVarInt();
 			$this->senderSubId = ($pid >> self::SENDER_SUBCLIENT_ID_SHIFT) & self::SUBCLIENT_ID_MASK;
@@ -149,7 +155,6 @@ abstract class DataPacket extends NetworkBinaryStream
 	public function encode() : void
 	{
 		$this->reset();
-		$this->checkProtocol();
 		$this->encodeHeader();
 		$this->encodePayload();
 		$this->isEncoded = true;
@@ -157,13 +162,9 @@ abstract class DataPacket extends NetworkBinaryStream
 
 	protected function encodeHeader() : void
 	{
-		$pid = PacketIdTranslator::getInstance()->toNetworkId($this->packetProtocol, $this->pid());
-		if ($this->packetProtocol < ProtocolInfo::PROTOCOL_282) {
+		$pid = PacketIdTranslator::getInstance()->toNetworkId($this->protocol, $this->pid());
+		if ($this->protocol < ProtocolInfo::PROTOCOL_407) {
 			$this->putByte($pid);
-			if ($this->packetProtocol >= ProtocolInfo::PROTOCOL_137) {
-				$this->putByte($this->senderSubId);
-				$this->putByte($this->recipientSubId);
-			}
 		} else {
 			$this->putUnsignedVarInt(
 				$pid |

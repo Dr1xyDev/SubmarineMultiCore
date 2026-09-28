@@ -49,7 +49,7 @@ class PlayerUIInventory extends BaseInventory
 				$window = $this->holder->findWindow(FakeInventory::class) ?? $this->holder->getCraftingGrid();
 
 				if ($window instanceof FakeInventory) {
-					$slot = $window->getUIOffsets(null)[$index] ?? -1;
+					$slot = $window->getUIOffsets($this->holder)[$index] ?? -1;
 
 					if ($window->slotExists($slot)) {
 						$window->setItem($slot, $item, $send);

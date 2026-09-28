@@ -44,7 +44,8 @@ final class EntityAttackSound extends Sound
 			"minecraft:player",
 			false,
 			false,
-			-1
+			-1,
+			null
 		)];
 	}
 }

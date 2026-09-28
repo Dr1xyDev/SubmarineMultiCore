@@ -43,25 +43,25 @@ final class FullContainerName
 		return $this->dynamicId;
 	}
 
-	public static function read(NetworkBinaryStream $in, int $playerProtocol) : self
+	public static function read(NetworkBinaryStream $in) : self
 	{
 		$containerId = $in->getByte();
-		if ($playerProtocol >= ProtocolInfo::PROTOCOL_712) {
-			if ($playerProtocol >= ProtocolInfo::PROTOCOL_729) {
-				$dynamicId = $in->readOptional($in->getLInt(...));
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
+			if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_729) {
+				$dynamicId = $in->getOptional($in->getLInt(...));
 			} else {
 				$dynamicId = $in->getLInt();
 			}
 		}
-		return new self($containerId, $dynamicId ?? 0);
+		return new self($containerId, $dynamicId ?? null);
 	}
 
-	public function write(NetworkBinaryStream $out, int $playerProtocol) : void
+	public function write(NetworkBinaryStream $out) : void
 	{
 		$out->putByte($this->containerId);
-		if ($playerProtocol >= ProtocolInfo::PROTOCOL_712) {
-			if ($playerProtocol >= ProtocolInfo::PROTOCOL_729) {
-				$out->writeOptional($this->dynamicId, $out->putLInt(...));
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
+			if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_729) {
+				$out->putOptional($this->dynamicId, $out->putLInt(...));
 			} else {
 				$out->putLInt($this->dynamicId ?? 0);
 			}

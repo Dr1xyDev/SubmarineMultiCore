@@ -39,12 +39,14 @@ class AnimatePacket extends DataPacket
 	public int $actorRuntimeId;
 	public float $data = 0.0;
 	public float $rowingTime = 0.0;
+	public ?string $swingSource = null;
 
-	public static function create(int $actorRuntimeId, int $actionId, float $data = 0.0) : self{
+	public static function create(int $actorRuntimeId, int $action, float $data = 0.0, ?string $swingSource = null) : self{
 		$result = new self();
 		$result->actorRuntimeId = $actorRuntimeId;
-		$result->action = $actionId;
+		$result->action = $action;
 		$result->data = $data;
+		$result->swingSource = $swingSource;
 		return $result;
 	}
 
@@ -60,27 +62,45 @@ class AnimatePacket extends DataPacket
 
 	protected function decodePayload() : void
 	{
-		$this->action = $this->getVarInt();
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_897) {
+			$this->action = $this->getByte();
+		} else {
+			$this->action = $this->getVarInt();
+		}
+
 		$this->actorRuntimeId = $this->getEntityRuntimeId();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_859) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_859) {
 			$this->data = $this->getLFloat();
 		}
 
-		if($this->action === self::ACTION_ROW_LEFT || $this->action === self::ACTION_ROW_RIGHT){
-			$this->rowingTime = $this->getLFloat();
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_897) {
+			$this->swingSource = $this->getOptional($this->getString(...));
+		} else {
+			if ($this->action === self::ACTION_ROW_LEFT || $this->action === self::ACTION_ROW_RIGHT) {
+				$this->rowingTime = $this->getLFloat();
+			}
 		}
 	}
 
 	protected function encodePayload() : void
 	{
-		$this->putVarInt($this->action);
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_897) {
+			$this->putByte($this->action);
+		} else {
+			$this->putVarInt($this->action);
+		}
+
 		$this->putEntityRuntimeId($this->actorRuntimeId);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_859) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_859) {
 			$this->putLFloat($this->data);
 		}
 
-		if($this->action === self::ACTION_ROW_LEFT || $this->action === self::ACTION_ROW_RIGHT){
-			$this->putLFloat($this->rowingTime);
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_897) {
+			$this->putOptional($this->swingSource, $this->putString(...));
+		} else {
+			if ($this->action === self::ACTION_ROW_LEFT || $this->action === self::ACTION_ROW_RIGHT) {
+				$this->putLFloat($this->rowingTime);
+			}
 		}
 	}
 

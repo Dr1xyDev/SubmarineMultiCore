@@ -55,7 +55,7 @@ class Jukebox extends Spawnable
 		if ($this->getRecordItem() instanceof Record) {
 			$this->level->broadcastLevelSoundEvent($this, $this->getRecordItem()->getSoundId());
 
-			if ($player instanceof Player && $player->getProtocolVersion() >= ProtocolInfo::PROTOCOL_137) {
+			if ($player instanceof Player && $player->getProtocolVersion() >= ProtocolInfo::PROTOCOL_407) {
 				$pk = new TextPacket();
 				$pk->type = TextPacket::TYPE_JUKEBOX_POPUP;
 				$pk->needsTranslation = true;
@@ -115,7 +115,7 @@ class Jukebox extends Spawnable
 		}
 	}
 
-	protected function addAdditionalSpawnData(CompoundTag $nbt) : void
+	protected function addAdditionalSpawnData(CompoundTag $nbt, int $protocolVersion) : void
 	{
 		$this->writeSaveData($nbt);
 	}

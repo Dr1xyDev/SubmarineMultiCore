@@ -32,7 +32,7 @@ class ItemStackResponsePacket extends DataPacket
 	public const NETWORK_ID = ProtocolInfo::ITEM_STACK_RESPONSE_PACKET;
 
 	/** @var ItemStackResponse[] */
-	public array $responses;
+	public array $responses = [];
 
 	/**
 	 * @param ItemStackResponse[] $responses
@@ -54,7 +54,7 @@ class ItemStackResponsePacket extends DataPacket
 	{
 		$this->responses = [];
 		for ($i = 0, $len = $this->getUnsignedVarInt(); $i < $len; ++$i) {
-			$this->responses[] = ItemStackResponse::read($this, $this->getProtocol());
+			$this->responses[] = ItemStackResponse::read($this);
 		}
 	}
 
@@ -62,7 +62,7 @@ class ItemStackResponsePacket extends DataPacket
 	{
 		$this->putUnsignedVarInt(count($this->responses));
 		foreach ($this->responses as $response) {
-			$response->write($this, $this->getProtocol());
+			$response->write($this);
 		}
 	}
 

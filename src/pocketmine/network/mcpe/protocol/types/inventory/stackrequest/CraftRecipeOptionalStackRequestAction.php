@@ -54,14 +54,14 @@ final class CraftRecipeOptionalStackRequestAction extends ItemStackRequestAction
 		return $this->filterStringIndex;
 	}
 
-	public static function read(NetworkBinaryStream $in, int $playerProtocol) : self
+	public static function read(NetworkBinaryStream $in) : self
 	{
 		$recipeId = $in->readRecipeNetId();
 		$filterStringIndex = $in->getLInt();
 		return new self($recipeId, $filterStringIndex);
 	}
 
-	public function write(NetworkBinaryStream $out, int $playerProtocol) : void
+	public function write(NetworkBinaryStream $out) : void
 	{
 		$out->writeRecipeNetId($this->recipeId);
 		$out->putLInt($this->filterStringIndex);

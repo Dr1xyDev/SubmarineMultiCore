@@ -62,7 +62,7 @@ class EditorNetworkPacket extends DataPacket
 
 	protected function decodePayload() : void
 	{
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_712) {
 			$this->isRouteToManager = $this->getBool();
 		}
 		$this->payload = $this->getNbtCompoundRoot();
@@ -70,7 +70,7 @@ class EditorNetworkPacket extends DataPacket
 
 	protected function encodePayload() : void
 	{
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_712) {
 			$this->putBool($this->isRouteToManager);
 		}
 		$this->put((new NetworkLittleEndianNBTStream())->write($this->payload));

@@ -22,8 +22,7 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\block\utils\TreeType;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
+use pocketmine\block\utils\TreeGrower;
 
 class CherrySapling extends Sapling
 {
@@ -39,9 +38,9 @@ class CherrySapling extends Sapling
 		return "Cherry Sapling";
 	}
 
-	public function getTreeType() : ?TreeType
+	public function getTreeGrower() : ?TreeGrower
 	{
-		return TreeType::CHERRY();
+		return TreeGrower::CHERRY();
 	}
 
 	public function getVariantBitmask() : int
@@ -51,14 +50,5 @@ class CherrySapling extends Sapling
 
 	public function getReadyBitmask() : int {
 		return 0x01;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_582) {
-			return BlockFactory::get(BlockIds::SAPLING);
-		}
-
-		return null;
 	}
 }

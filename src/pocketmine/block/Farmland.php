@@ -24,15 +24,17 @@ namespace pocketmine\block;
 
 use pocketmine\entity\Entity;
 use pocketmine\entity\Living;
-use pocketmine\event\block\BlockFormEvent;
+use pocketmine\event\entity\EntityTrampleFarmlandEvent;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
-use pocketmine\level\GameRules;
+use pocketmine\item\ItemIds;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Facing;
+use pocketmine\utils\Utils;
 
 class Farmland extends Transparent
 {
+
 	protected $id = self::FARMLAND;
 
 	public function __construct(int $meta = 0)
@@ -67,43 +69,52 @@ class Farmland extends Transparent
 		);
 	}
 
-	public function onNearbyBlockChange() : void
-	{
-		if ($this->getSide(Facing::UP)->isSolid()) {
-			$this->level->setBlock($this, BlockFactory::get(Block::DIRT), true);
+	public function onNearbyBlockChange() : void{
+		if($this->getSide(Facing::UP)->isSolid()){
+			$this->level->setBlock($this, BlockFactory::get(BlockIds::DIRT));
 		}
 	}
 
-	public function ticksRandomly() : bool
-	{
+	public function getMoisture() : int{
+		return $this->meta;
+	}
+
+	public function ticksRandomly() : bool{
 		return true;
 	}
 
-	public function onRandomTick() : void
-	{
-		if (!$this->canHydrate()) {
-			if ($this->meta > 0) {
-				$this->meta--;
-				$this->level->setBlock($this, $this, false, false);
-			} else {
-				$this->level->setBlock($this, BlockFactory::get(Block::DIRT), false, true);
+	public function onRandomTick() : void{
+		$moisture = $this->getMoisture();
+		if (!$this->hasWater()) { //TODO: check rain
+			if ($moisture > 0) {
+				$this->meta = $moisture - 1;
+				$this->level->setBlock($this, $this);
+			} elseif (!$this->hasCrops()) {
+				$this->level->setBlock($this, BlockFactory::get(BlockIds::DIRT));
 			}
-		} elseif ($this->meta < 7) {
+		} elseif ($moisture < 7) {
 			$this->meta = 7;
-			$this->level->setBlock($this, $this, false, false);
+			$this->level->setBlock($this, $this);
 		}
 	}
 
-	protected function canHydrate() : bool
-	{
-		//TODO: check rain
-		$start = $this->add(-4, 0, -4);
-		$end = $this->add(4, 1, 4);
-		for ($y = $start->y; $y <= $end->y; ++$y) {
-			for ($z = $start->z; $z <= $end->z; ++$z) {
-				for ($x = $start->x; $x <= $end->x; ++$x) {
-					$id = $this->level->getBlockAt($x, $y, $z)->getId();
-					if ($id === Block::STILL_WATER || $id === Block::FLOWING_WATER) {
+	public function onEntityFallenUpon(Entity $entity, float $fallDistance) : void{
+		if($entity instanceof Living && Utils::getRandomFloat() < $fallDistance - 0.5){
+			$ev = new EntityTrampleFarmlandEvent($entity, $this);
+			$ev->call();
+			if(!$ev->isCancelled()){
+				$this->level->setBlock($this, BlockFactory::get(BlockIds::DIRT));
+			}
+		}
+	}
+
+	protected function hasWater() : bool {
+		for ($dx = -4; $dx <= 4; $dx++) {
+			for ($dy = 0; $dy <= 1; $dy++) {
+				for ($dz = -4; $dz <= 4; $dz++) {
+					$checkPos = $this->add($dx, $dy, $dz);
+					$block = $this->level->getBlock($checkPos);
+					if ($block instanceof Water) {
 						return true;
 					}
 				}
@@ -113,38 +124,17 @@ class Farmland extends Transparent
 		return false;
 	}
 
-	public function getDropsForCompatibleTool(Item $item) : array
-	{
+	protected function hasCrops() : bool {
+		return $this->getSide(Facing::DOWN) instanceof Crops;
+	}
+
+	public function getDropsForCompatibleTool(Item $item) : array{
 		return [
-			ItemFactory::get(Item::DIRT)
+			ItemFactory::get(ItemIds::DIRT)
 		];
 	}
 
-	public function isAffectedBySilkTouch() : bool
-	{
-		return false;
-	}
-
-	public function getPickedItem(bool $addUserData = false) : Item
-	{
-		return ItemFactory::get(Item::DIRT);
-	}
-
-	public function onEntityFallenUpon(Entity $entity, float $fallDistance) : void
-	{
-		if ($entity instanceof Living) {
-			if ($this->level->random->nextFloat() < ($fallDistance - 0.5)) {
-				$ev = new BlockFormEvent($this, BlockFactory::get(Block::DIRT));
-
-				if (!$this->level->getGameRules()->getBool(GameRules::RULE_MOB_GRIEFING, true)) {
-					$ev->setCancelled();
-				}
-				$ev->call();
-
-				if (!$ev->isCancelled()) {
-					$this->level->setBlock($this, $ev->getNewState(), true);
-				}
-			}
-		}
+	public function getPickedItem(bool $addUserData = false) : Item{
+		return ItemFactory::get(ItemIds::DIRT);
 	}
 }

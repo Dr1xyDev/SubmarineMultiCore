@@ -90,8 +90,8 @@ class EmotePacket extends DataPacket
 	{
 		$this->entityRuntimeId = $this->getEntityRuntimeId();
 		$this->emoteId = $this->getString();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_589) {
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_729) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_589) {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_729) {
 				$this->emoteLengthTicks = $this->getUnsignedVarInt();
 			}
 			$this->xboxUserId = $this->getString();
@@ -104,8 +104,8 @@ class EmotePacket extends DataPacket
 	{
 		$this->putEntityRuntimeId($this->entityRuntimeId);
 		$this->putString($this->emoteId);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_589) {
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_729) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_589) {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_729) {
 				$this->putUnsignedVarInt($this->emoteLengthTicks);
 			}
 			$this->putString($this->xboxUserId);

@@ -23,11 +23,10 @@ declare(strict_types=1);
 namespace pocketmine\level\generator;
 
 use InvalidArgumentException;
-use pocketmine\level\generator\end\End;
-use pocketmine\level\generator\hell\Nether;
-use pocketmine\level\generator\normal\Normal;
+use pocketmine\level\generator\dimension\Nether;
+use pocketmine\level\generator\dimension\Overworld;
+use pocketmine\level\generator\dimension\TheEnd;
 use pocketmine\utils\Utils;
-
 use function array_keys;
 use function strtolower;
 
@@ -42,14 +41,14 @@ final class GeneratorManager
 	/**
 	 * Registers the default known generators.
 	 */
-	public static function registerDefaultGenerators() : void
-	{
-		self::addGenerator(Flat::class, "flat");
-		self::addGenerator(Normal::class, "normal");
-		self::addGenerator(Normal::class, "default");
+	public static function registerDefaultGenerators() : void{
+		self::addGenerator(FlatGenerator::class, "flat");
+		self::addGenerator(Overworld::class, "overworld");
+		self::addGenerator(Overworld::class, "normal");
+		self::addGenerator(Overworld::class, "default");
 		self::addGenerator(Nether::class, "hell");
 		self::addGenerator(Nether::class, "nether");
-		self::addGenerator(End::class, "end");
+		self::addGenerator(TheEnd::class, "end");
 		self::addGenerator(VoidGenerator::class, "void");
 	}
 
@@ -94,7 +93,7 @@ final class GeneratorManager
 		if ($throwOnMissing) {
 			throw new InvalidArgumentException("Alias \"$name\" does not map to any known generator");
 		}
-		return Normal::class;
+		return Overworld::class;
 	}
 
 	/**

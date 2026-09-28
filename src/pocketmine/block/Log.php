@@ -25,7 +25,6 @@ namespace pocketmine\block;
 use pocketmine\block\utils\PillarRotationHelper;
 use pocketmine\item\Item;
 use pocketmine\math\Vector3;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\Player;
 
 class Log extends Solid
@@ -35,13 +34,6 @@ class Log extends Solid
 	public const BIRCH = 2;
 	public const JUNGLE = 3;
 
-	protected $id = self::LOG;
-
-	public function __construct(int $meta = 0)
-	{
-		$this->meta = $meta;
-	}
-
 	public function getHardness() : float
 	{
 		return 2;
@@ -50,19 +42,18 @@ class Log extends Solid
 	public function getName() : string
 	{
 		static $names = [
-			self::OAK => "Oak Wood",
-			self::SPRUCE => "Spruce Wood",
-			self::BIRCH => "Birch Wood",
-			self::JUNGLE => "Jungle Wood"
+			self::OAK => "Oak Log",
+			self::SPRUCE => "Spruce Log",
+			self::BIRCH => "Birch Log",
+			self::JUNGLE => "Jungle Log"
 		];
 		return $names[$this->getVariant()] ?? "Unknown";
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool
 	{
 		$this->meta = PillarRotationHelper::getMetaFromFace($this->meta, $face);
-		$this->getLevel()->setBlock($blockReplace, $this, true, true);
-		return true;
+		return parent::place($item, $blockReplace, $blockClicked, $face, $clickVector, $player);
 	}
 
 	public function getVariantBitmask() : int
@@ -88,13 +79,5 @@ class Log extends Solid
 	public function getFlammability() : int
 	{
 		return 5;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block{
-		if ($playerProtocol >= ProtocolInfo::PROTOCOL_340 && $this->meta >= 12) {
-			return BlockFactory::get(BlockIds::WOOD, $this->getVariant());
-		}
-
-		return null;
 	}
 }

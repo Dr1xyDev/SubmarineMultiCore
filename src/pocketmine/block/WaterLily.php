@@ -22,14 +22,17 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\item\Item;
+use pocketmine\block\utils\StaticSupportTrait;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Facing;
 use pocketmine\math\Vector3;
-use pocketmine\Player;
 
 class WaterLily extends Flowable
 {
+	use StaticSupportTrait {
+		canBePlacedAt as supportedWhenPlacedAt;
+	}
+
 	protected $id = self::WATER_LILY;
 
 	public function __construct(int $meta = 0)
@@ -59,28 +62,11 @@ class WaterLily extends Flowable
 		);
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
-	{
-		if ($blockClicked instanceof Water) {
-			$up = $blockClicked->getSide(Facing::UP);
-			if ($up->getId() === Block::AIR) {
-				$this->getLevel()->setBlock($up, $this, true, true);
-				return true;
-			}
-		}
-
-		return false;
+	public function canBePlacedAt(Block $blockReplace, Vector3 $clickVector, int $face, bool $isClickedBlock) : bool{
+		return !$blockReplace instanceof Water && $this->supportedWhenPlacedAt($blockReplace, $clickVector, $face, $isClickedBlock);
 	}
 
-	public function onNearbyBlockChange() : void
-	{
-		if (!($this->getSide(Facing::DOWN) instanceof Water)) {
-			$this->getLevel()->useBreakOn($this);
-		}
-	}
-
-	public function getVariantBitmask() : int
-	{
-		return 0;
+	protected function canBeSupportedAt(Block $block) : bool{
+		return $block->getSide(Facing::DOWN) instanceof Water;
 	}
 }

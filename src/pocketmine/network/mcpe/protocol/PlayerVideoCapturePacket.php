@@ -74,9 +74,6 @@ class PlayerVideoCapturePacket extends DataPacket
 		$this->recording = $this->getBool();
 		if ($this->recording) {
 			$this->frameRate = $this->getLInt();
-			$this->getByte();
-			$this->getByte();
-			$this->getByte();
 			$this->filePrefix = $this->getString();
 		}
 	}
@@ -94,9 +91,6 @@ class PlayerVideoCapturePacket extends DataPacket
 			}
 
 			$this->putLInt($this->frameRate);
-			$this->putByte(0);
-			$this->putByte(0);
-			$this->putByte(0);
 			$this->putString($this->filePrefix);
 		}
 	}

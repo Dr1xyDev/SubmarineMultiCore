@@ -162,9 +162,9 @@ class Skin
 	public function getClientFriendlySkinData(int $protocol) : string
 	{
 		static $sizes = [
-			128 * 128 * 4 => ProtocolInfo::PROTOCOL_261,
-			64 * 64 * 4 => ProtocolInfo::PROTOCOL_110,
-			64 * 32 * 4 => ProtocolInfo::PROTOCOL_110,
+			128 * 128 * 4 => ProtocolInfo::PROTOCOL_407,
+			64 * 64 * 4 => ProtocolInfo::PROTOCOL_113,
+			64 * 32 * 4 => ProtocolInfo::PROTOCOL_113,
 		];
 
 		$skinSize = strlen($this->skinData);

@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace pocketmine\level\format\io\region;
 
 use InvalidArgumentException;
-
 use function range;
 
 class RegionLocationTableEntry

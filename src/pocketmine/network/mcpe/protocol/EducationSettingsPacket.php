@@ -120,10 +120,10 @@ class EducationSettingsPacket extends DataPacket
 	protected function decodePayload() : void
 	{
 		$this->codeBuilderDefaultUri = $this->getString();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_407) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->codeBuilderTitle = $this->getString();
 			$this->canResizeCodeBuilder = $this->getBool();
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_465) {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_465) {
 				$this->disableLegacyTitleBar = $this->getBool();
 				$this->postProcessFilter = $this->getString();
 				$this->screenshotBorderResourcePath = $this->getString();
@@ -135,9 +135,9 @@ class EducationSettingsPacket extends DataPacket
 				$this->codeBuilderOverrideUri = null;
 			}
 		}
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_388) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->hasQuiz = $this->getBool();
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_465) {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_465) {
 				$this->linkSettings = $this->getBool() ? EducationSettingsExternalLinkSettings::read($this) : null;
 			}
 		}
@@ -146,10 +146,10 @@ class EducationSettingsPacket extends DataPacket
 	protected function encodePayload() : void
 	{
 		$this->putString($this->codeBuilderDefaultUri);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_407) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->putString($this->codeBuilderTitle);
 			$this->putBool($this->canResizeCodeBuilder);
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_465) {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_465) {
 				$this->putBool($this->disableLegacyTitleBar);
 				$this->putString($this->postProcessFilter);
 				$this->putString($this->screenshotBorderResourcePath);
@@ -166,9 +166,9 @@ class EducationSettingsPacket extends DataPacket
 				$this->putString($this->codeBuilderOverrideUri);
 			}
 		}
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_388) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->putBool($this->hasQuiz);
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_465) {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_465) {
 				$linkSettings = $this->linkSettings;
 				if ($linkSettings !== null) {
 					$this->putBool(true);

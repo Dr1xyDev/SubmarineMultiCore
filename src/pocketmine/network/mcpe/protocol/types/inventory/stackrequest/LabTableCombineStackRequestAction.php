@@ -35,12 +35,12 @@ final class LabTableCombineStackRequestAction extends ItemStackRequestAction
 
 	public const ID = ItemStackRequestActionType::LAB_TABLE_COMBINE;
 
-	public static function read(NetworkBinaryStream $in, int $playerProtocol) : self
+	public static function read(NetworkBinaryStream $in) : self
 	{
 		return new self();
 	}
 
-	public function write(NetworkBinaryStream $out, int $playerProtocol) : void
+	public function write(NetworkBinaryStream $out) : void
 	{
 		//NOOP
 	}

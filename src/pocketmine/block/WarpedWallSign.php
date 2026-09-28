@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace pocketmine\block;
 
 use pocketmine\item\ItemIds;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 class WarpedWallSign extends WallSign
 {
@@ -40,14 +39,5 @@ class WarpedWallSign extends WallSign
 	public function getName() : string
 	{
 		return "Warped Wall Sign";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_419) {
-			return BlockFactory::get(BlockIds::WALL_SIGN, $this->meta);
-		}
-
-		return null;
 	}
 }

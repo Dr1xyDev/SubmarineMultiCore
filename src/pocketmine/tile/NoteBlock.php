@@ -179,7 +179,7 @@ class NoteBlock extends Spawnable
 		$nbt->setByte(self::TAG_POWERED, intval($this->powered));
 	}
 
-	public function addAdditionalSpawnData(CompoundTag $nbt) : void
+	public function addAdditionalSpawnData(CompoundTag $nbt, int $protocolVersion) : void
 	{
 
 	}

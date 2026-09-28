@@ -61,7 +61,7 @@ class Shovel extends TieredTool
 	{
 		if ($playerProtocol < ProtocolInfo::PROTOCOL_407) {
 			if ($this->getId() === ItemIds::NETHERITE_SHOVEL) {
-				return new TranslatedItemData(ItemIds::DIAMOND_SHOVEL, $this->getDamage());
+				return new TranslatedItemData(ItemIds::DIAMOND_SHOVEL, $this->getDamage(), $this->getName());
 			}
 		}
 

@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace pocketmine\block;
 
 use pocketmine\item\ItemIds;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 class BambooSignPost extends SignPost
 {
@@ -40,14 +39,5 @@ class BambooSignPost extends SignPost
 	public function getName() : string
 	{
 		return "Bamboo Sign Post";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_560) {
-			return BlockFactory::get(BlockIds::SIGN_POST, $this->meta);
-		}
-
-		return null;
 	}
 }

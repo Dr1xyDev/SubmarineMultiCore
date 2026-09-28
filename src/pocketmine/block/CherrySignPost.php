@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace pocketmine\block;
 
 use pocketmine\item\Item;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 class CherrySignPost extends SignPost
 {
@@ -40,14 +39,5 @@ class CherrySignPost extends SignPost
 	public function getName() : string
 	{
 		return "Cherry Sign Post";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_582) {
-			return BlockFactory::get(BlockIds::SIGN_POST, $this->meta);
-		}
-
-		return null;
 	}
 }

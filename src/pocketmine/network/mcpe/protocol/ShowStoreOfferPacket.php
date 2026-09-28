@@ -30,20 +30,20 @@ class ShowStoreOfferPacket extends DataPacket
 {
 	public const NETWORK_ID = ProtocolInfo::SHOW_STORE_OFFER_PACKET;
 
+	/** A UUID since 1.21.120, a string before (either form is accepted and converted when encoding) */
 	public string|UUID $offerId;
-	public bool $showAll;
-	public ShowStoreOfferRedirectType $redirectType;
+	public bool $showAll = false;
+	public ShowStoreOfferRedirectType $redirectType = ShowStoreOfferRedirectType::MARKETPLACE;
 
 	protected function decodePayload() : void
 	{
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_859) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_859) {
 			$this->offerId = $this->getUUID();
 		} else {
 			$this->offerId = $this->getString();
 		}
 
-		$this->offerId = $this->getString();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_630) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_630) {
 			$this->redirectType = ShowStoreOfferRedirectType::fromPacket($this->getByte());
 		} else {
 			$this->showAll = $this->getBool();
@@ -52,14 +52,17 @@ class ShowStoreOfferPacket extends DataPacket
 
 	protected function encodePayload() : void
 	{
-
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_859) {
-			$this->putUUID($this->offerId);
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_859) {
+			$offerId = $this->offerId;
+			if (is_string($offerId)) {
+				$offerId = preg_match('/^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}$/i', $offerId) === 1 ? UUID::fromString($offerId) : UUID::fromData($offerId);
+			}
+			$this->putUUID($offerId);
 		} else {
-			$this->putString($this->offerId);
+			$this->putString($this->offerId instanceof UUID ? $this->offerId->toString() : $this->offerId);
 		}
 
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_630) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_630) {
 			$this->putByte($this->redirectType->value);
 		} else {
 			$this->putBool($this->showAll);

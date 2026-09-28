@@ -180,10 +180,15 @@ class RCONInstance extends Thread
 									$disconnect[$id] = $sock;
 									break;
 								}
-                                socket_getpeername($sock, $addr, $port);
-                                $this->logger->info("Successful Rcon connection from: /$addr:$port");
-                                $this->writePacket($sock, $requestID, 2, "");
-                                $authenticated[$id] = true;
+								if ($payload === $this->password) {
+									socket_getpeername($sock, $addr, $port);
+									$this->logger->info("Successful Rcon connection from: /$addr:$port");
+									$this->writePacket($sock, $requestID, 2, "");
+									$authenticated[$id] = true;
+								} else {
+									$disconnect[$id] = $sock;
+									$this->writePacket($sock, -1, 2, "");
+								}
 								break;
 							case 2: //Command
 								if (!$authenticated[$id]) {

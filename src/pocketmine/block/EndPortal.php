@@ -24,6 +24,7 @@ namespace pocketmine\block;
 
 use pocketmine\entity\Entity;
 use pocketmine\item\Item;
+use pocketmine\math\AxisAlignedBB;
 use pocketmine\network\mcpe\protocol\types\DimensionIds;
 use pocketmine\Player;
 use pocketmine\Server;
@@ -69,16 +70,25 @@ class EndPortal extends Transparent
 
 	public function onEntityCollide(Entity $entity) : void
 	{
-		if (Server::getInstance()->isAllowTheEnd()) {
-			if ($entity->getLevel()->getDimension() === DimensionIds::THE_END) {
-				$entity->travelToDimension(DimensionIds::OVERWORLD);
-			} else {
-				$entity->travelToDimension(DimensionIds::THE_END);
-			}
+		$server = Server::getInstance();
+		if (!$server->isAllowTheEnd() || !$this->getBoundingBox()->isVectorInside($entity)) {
+			return;
 		}
+
+		$currentLevel = $entity->getLevel();
+		if ($currentLevel === null || $currentLevel->isClosed() || $entity->getPortalTravel() !== null) {
+			return;
+		}
+		if ($entity->hasPortalCooldown()) {
+			$entity->resetPortalCooldown();
+			return;
+		}
+
+		//the exit portal of the end leads back to the spawn point, every other end portal into the end
+		$entity->travelToDimension($currentLevel->getDimension() === DimensionIds::THE_END ? DimensionIds::OVERWORLD : DimensionIds::THE_END);
 	}
 
-	public function onBreak(Item $item, Player $player = null) : bool
+	public function onBreak(Item $item, ?Player $player = null) : bool
 	{
 		$result = parent::onBreak($item, $player);
 
@@ -89,5 +99,16 @@ class EndPortal extends Transparent
 		}
 
 		return $result;
+	}
+
+	protected function recalculateBoundingBox() : ?AxisAlignedBB{
+		return new AxisAlignedBB(
+			$this->x,
+			$this->y,
+			$this->z,
+			$this->x + 1,
+			$this->y + 0.75,
+			$this->z + 1
+		);
 	}
 }

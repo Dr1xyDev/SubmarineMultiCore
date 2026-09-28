@@ -24,7 +24,6 @@ namespace pocketmine\level\format;
 
 use pocketmine\block\Block;
 use pocketmine\world\format\PalettedBlockArray;
-
 use function array_values;
 use function assert;
 use function chr;
@@ -149,7 +148,7 @@ class SubChunk implements SubChunkInterface
 		if ($data !== null) {
 			$fullBlock = $this->getFullBlock($x, $y, $z);
 			if ($data !== ($fullBlock & Block::INTERNAL_METADATA_MASK)) {
-				$this->setFullBlock($x, $y, $z, (($fullBlock >> Block::INTERNAL_METADATA_BITS) << 4) | $data);
+				$this->setFullBlock($x, $y, $z, (($fullBlock >> Block::INTERNAL_METADATA_BITS) << Block::INTERNAL_METADATA_BITS) | ($data & Block::INTERNAL_METADATA_MASK));
 				$changed = true;
 			}
 		}

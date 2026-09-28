@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace pocketmine\network\mcpe\protocol\types\recipe;
 
 use pocketmine\network\mcpe\NetworkBinaryStream;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\types\GetTypeIdFromConstTrait;
 
 final class MolangItemDescriptor implements ItemDescriptor{
@@ -41,13 +42,17 @@ final class MolangItemDescriptor implements ItemDescriptor{
 
 	public static function read(NetworkBinaryStream $in) : self{
 		$expression = $in->getString();
-		$version = $in->getByte();
+		$version = $in->getProtocol() >= ProtocolInfo::PROTOCOL_2168 ? $in->getLShort() : $in->getByte();
 
 		return new self($expression, $version);
 	}
 
 	public function write(NetworkBinaryStream $out) : void{
 		$out->putString($this->molangExpression);
-		$out->putByte($this->molangVersion);
+		if($out->getProtocol() >= ProtocolInfo::PROTOCOL_2168){
+			$out->putLShort($this->molangVersion);
+		}else{
+			$out->putByte($this->molangVersion);
+		}
 	}
 }

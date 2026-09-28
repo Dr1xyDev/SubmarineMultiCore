@@ -74,7 +74,7 @@ class CameraShakePacket extends DataPacket
 		$this->intensity = $this->getLFloat();
 		$this->duration = $this->getLFloat();
 		$this->shakeType = $this->getByte();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_428) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_428) {
 			$this->shakeAction = $this->getByte();
 		}
 	}
@@ -84,7 +84,7 @@ class CameraShakePacket extends DataPacket
 		$this->putLFloat($this->intensity);
 		$this->putLFloat($this->duration);
 		$this->putByte($this->shakeType);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_428) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_428) {
 			$this->putByte($this->shakeAction);
 		}
 	}

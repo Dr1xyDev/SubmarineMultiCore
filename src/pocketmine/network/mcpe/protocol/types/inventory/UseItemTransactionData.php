@@ -25,6 +25,7 @@ namespace pocketmine\network\mcpe\protocol\types\inventory;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\NetworkBinaryStream;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
+use pocketmine\network\mcpe\protocol\PacketDecodeException;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\types\GetTypeIdFromConstTrait;
 
@@ -48,7 +49,27 @@ class UseItemTransactionData extends TransactionData
 	private Vector3 $playerPos;
 	private Vector3 $clickPos;
 	private int $blockRuntimeId;
-	private PredictedResult $clientInteractPrediction;
+	private PredictedResult $clientInteractPrediction = PredictedResult::SUCCESS;
+	private int $clientCooldownState;
+	/** @since 1.26.50: 0 = main hand, 1 = off hand */
+	private int $hand = self::HAND_MAIN;
+
+	public const HAND_MAIN = 0;
+	public const HAND_OFF = 1;
+
+	/**
+	 * Since 1.26.30, the transaction data uses signed/byte fields and the network item descriptor, both in
+	 * InventoryTransactionPacket and in PlayerAuthInputPacket's item interaction data.
+	 */
+	private static function usesNewDataFormat(int $protocol) : bool
+	{
+		return $protocol >= ProtocolInfo::PROTOCOL_1001;
+	}
+
+	public function getHand() : int
+	{
+		return $this->hand;
+	}
 
 	public function getActionType() : int
 	{
@@ -60,7 +81,7 @@ class UseItemTransactionData extends TransactionData
 		return $this->triggerType;
 	}
 
-	public function getBlockPos() : Vector3
+	public function getBlockPosition() : Vector3
 	{
 		return $this->blockPos;
 	}
@@ -80,12 +101,12 @@ class UseItemTransactionData extends TransactionData
 		return $this->itemInHand;
 	}
 
-	public function getPlayerPos() : Vector3
+	public function getPlayerPosition() : Vector3
 	{
 		return $this->playerPos;
 	}
 
-	public function getClickPos() : Vector3
+	public function getClickPosition() : Vector3
 	{
 		return $this->clickPos;
 	}
@@ -100,44 +121,83 @@ class UseItemTransactionData extends TransactionData
 		return $this->clientInteractPrediction;
 	}
 
-	protected function decodeData(NetworkBinaryStream $stream, int $playerProtocol) : void
+	public function getClientCooldownState() : int{
+		return $this->clientCooldownState;
+	}
+
+	protected function decodeData(NetworkBinaryStream $in, bool $legacyTransaction) : void
 	{
-		$this->actionType = $stream->getUnsignedVarInt();
-		if ($playerProtocol >= ProtocolInfo::PROTOCOL_712) {
-			$this->triggerType = TriggerType::fromPacket($stream->getUnsignedVarInt());
+		$this->actionType = self::usesNewDataFormat($in->getProtocol()) ? $in->getVarInt() : $in->getUnsignedVarInt();
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
+			$this->triggerType = TriggerType::fromPacket(self::usesNewDataFormat($in->getProtocol()) ? $in->getByte() : $in->getUnsignedVarInt());
 		}
 		$x = $y = $z = 0;
-		$stream->getBlockPosition($x, $y, $z);
+		$in->getBlockPosition($x, $y, $z);
 		$this->blockPos = new Vector3($x, $y, $z);
-		$this->face = $stream->getVarInt();
-		$this->hotbarSlot = $stream->getVarInt();
-		$this->itemInHand = $stream->getItemStackWrapper($playerProtocol);
-		$this->playerPos = $stream->getVector3();
-		$this->clickPos = $stream->getVector3();
-		if ($playerProtocol >= ProtocolInfo::PROTOCOL_340) {
-			$this->blockRuntimeId = $stream->getUnsignedVarInt();
-			if ($playerProtocol >= ProtocolInfo::PROTOCOL_712) {
-				$this->clientInteractPrediction = PredictedResult::fromPacket($stream->getUnsignedVarInt());
+		$this->face = self::usesNewDataFormat($in->getProtocol()) ? $in->getByte() : $in->getVarInt();
+		$this->hotbarSlot = $in->getVarInt();
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_2193) {
+			$this->hand = $in->getByte();
+			if ($this->hand !== self::HAND_MAIN && $this->hand !== self::HAND_OFF) {
+				throw new PacketDecodeException("Invalid hand slot $this->hand");
+			}
+		}
+		$this->itemInHand = self::usesNewDataFormat($in->getProtocol()) ? $in->getNetworkItemStackDescriptor() : $in->getItemStackWrapper();
+		$this->playerPos = $in->getVector3();
+		$this->clickPos = $in->getVector3();
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_407) {
+			$this->blockRuntimeId = $in->getUnsignedVarInt();
+			if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
+				$this->clientInteractPrediction = PredictedResult::fromPacket(self::usesNewDataFormat($in->getProtocol()) ? $in->getByte() : $in->getUnsignedVarInt());
+				if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_944) {
+					$this->clientCooldownState = $in->getByte();
+				}
 			}
 		}
 	}
 
-	protected function encodeData(NetworkBinaryStream $stream, int $playerProtocol) : void
+	protected function encodeData(NetworkBinaryStream $out, bool $legacyTransaction) : void
 	{
-		$stream->putUnsignedVarInt($this->actionType);
-		if ($playerProtocol >= ProtocolInfo::PROTOCOL_712) {
-			$stream->putUnsignedVarInt($this->triggerType->value);
+		if (self::usesNewDataFormat($out->getProtocol())) {
+			$out->putVarInt($this->actionType);
+		} else {
+			$out->putUnsignedVarInt($this->actionType);
 		}
-		$stream->putBlockPosition($this->blockPos->x, $this->blockPos->y, $this->blockPos->z);
-		$stream->putVarInt($this->face);
-		$stream->putVarInt($this->hotbarSlot);
-		$stream->putItemStackWrapper($this->itemInHand, $playerProtocol);
-		$stream->putVector3($this->playerPos);
-		$stream->putVector3($this->clickPos);
-		if ($playerProtocol >= ProtocolInfo::PROTOCOL_340) {
-			$stream->putUnsignedVarInt($this->blockRuntimeId);
-			if ($playerProtocol >= ProtocolInfo::PROTOCOL_712) {
-				$stream->putUnsignedVarInt($this->clientInteractPrediction->value);
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
+			if (self::usesNewDataFormat($out->getProtocol())) {
+				$out->putByte($this->triggerType->value);
+			} else {
+				$out->putUnsignedVarInt($this->triggerType->value);
+			}
+		}
+		$out->putBlockPosition($this->blockPos->x, $this->blockPos->y, $this->blockPos->z);
+		if (self::usesNewDataFormat($out->getProtocol())) {
+			$out->putByte($this->face);
+		} else {
+			$out->putVarInt($this->face);
+		}
+		$out->putVarInt($this->hotbarSlot);
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_2193) {
+			$out->putByte($this->hand);
+		}
+		if (self::usesNewDataFormat($out->getProtocol())) {
+			$out->putNetworkItemStackDescriptor($this->itemInHand);
+		} else {
+			$out->putItemStackWrapper($this->itemInHand);
+		}
+		$out->putVector3($this->playerPos);
+		$out->putVector3($this->clickPos);
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_407) {
+			$out->putUnsignedVarInt($this->blockRuntimeId);
+			if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
+				if (self::usesNewDataFormat($out->getProtocol())) {
+					$out->putByte($this->clientInteractPrediction->value);
+				} else {
+					$out->putUnsignedVarInt($this->clientInteractPrediction->value);
+				}
+				if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_944) {
+					$out->putByte($this->clientCooldownState);
+				}
 			}
 		}
 	}
@@ -145,7 +205,7 @@ class UseItemTransactionData extends TransactionData
 	/**
 	 * @param NetworkInventoryAction[] $actions
 	 */
-	public static function new(array $actions, int $actionType, TriggerType $triggerType, Vector3 $blockPos, int $face, int $hotbarSlot, ItemStackWrapper $itemInHand, Vector3 $playerPos, Vector3 $clickPos, int $blockRuntimeId, PredictedResult $clientPrediction) : self
+	public static function new(array $actions, int $actionType, TriggerType $triggerType, Vector3 $blockPos, int $face, int $hotbarSlot, ItemStackWrapper $itemInHand, Vector3 $playerPos, Vector3 $clickPos, int $blockRuntimeId, PredictedResult $clientPrediction, int $clientCooldownState) : self
 	{
 		$result = new self();
 		$result->actions = $actions;
@@ -159,6 +219,7 @@ class UseItemTransactionData extends TransactionData
 		$result->clickPos = $clickPos;
 		$result->blockRuntimeId = $blockRuntimeId;
 		$result->clientInteractPrediction = $clientPrediction;
+		$result->clientCooldownState = $clientCooldownState;
 		return $result;
 	}
 }

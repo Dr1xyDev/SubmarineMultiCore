@@ -53,7 +53,7 @@ class MobEquipmentPacket extends DataPacket
 	protected function decodePayload() : void
 	{
 		$this->entityRuntimeId = $this->getEntityRuntimeId();
-		$this->item = $this->getItemStackWrapper($this->getProtocol());
+		$this->item = $this->getNetworkItemStackDescriptor(ProtocolInfo::PROTOCOL_975);
 		$this->inventorySlot = $this->getByte();
 		$this->hotbarSlot = $this->getByte();
 		$this->windowId = $this->getByte();
@@ -62,7 +62,7 @@ class MobEquipmentPacket extends DataPacket
 	protected function encodePayload() : void
 	{
 		$this->putEntityRuntimeId($this->entityRuntimeId);
-		$this->putItemStackWrapper($this->item, $this->getProtocol());
+		$this->putNetworkItemStackDescriptor($this->item, ProtocolInfo::PROTOCOL_975);
 		$this->putByte($this->inventorySlot);
 		$this->putByte($this->hotbarSlot);
 		$this->putByte($this->windowId);

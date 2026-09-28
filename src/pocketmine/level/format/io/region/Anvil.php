@@ -24,7 +24,6 @@ namespace pocketmine\level\format\io\region;
 
 use pocketmine\block\Block;
 use pocketmine\block\BlockIds;
-use pocketmine\level\format\io\FormatConverter;
 use pocketmine\level\format\SubChunk;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\utils\BinaryStream;
@@ -43,7 +42,7 @@ class Anvil extends RegionLevelProvider
 			)]);
 		} else {
 			$stream = new BinaryStream($subChunk->getByteArray("Blocks"));
-			[$emptyBlockId, $blockLayers] = FormatConverter::deserializeBlockLayers($stream);
+			[$emptyBlockId, $blockLayers] = $this->deserializeBlockLayers($stream);
 			return new SubChunk($emptyBlockId, [$this->translatePalette($blockLayers[0] ?? new PalettedBlockArray($emptyBlockId))]);
 		}
 		//ignore legacy light information

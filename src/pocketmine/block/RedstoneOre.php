@@ -22,8 +22,10 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
+use pocketmine\block\utils\FortuneDropHelper;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
+use pocketmine\item\ItemIds;
 use pocketmine\item\TieredTool;
 use pocketmine\math\Vector3;
 use pocketmine\Player;
@@ -49,13 +51,13 @@ class RedstoneOre extends Solid
 		return 3;
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool
 	{
 		$this->getLevel()->setBlock($this, $this, true, false);
 		return true;
 	}
 
-	public function onActivate(Item $item, Player $player = null) : bool
+	public function onActivate(Item $item, ?Player $player = null) : bool
 	{
 		$this->getLevel()->setBlock($this, BlockFactory::get(Block::GLOWING_REDSTONE_ORE, $this->meta));
 		return false; //this shouldn't prevent block placement
@@ -78,13 +80,16 @@ class RedstoneOre extends Solid
 
 	public function getDropsForCompatibleTool(Item $item) : array
 	{
-		return [
-			ItemFactory::get(Item::REDSTONE_DUST, 0, mt_rand(4, 5))
-		];
+		return [ItemFactory::get(ItemIds::REDSTONE_DUST)->setCount(FortuneDropHelper::weighted($item, 4, 5))];
 	}
 
 	protected function getXpDropAmount() : int
 	{
 		return mt_rand(1, 5);
+	}
+
+	public function isAffectedBySilkTouch() : bool
+	{
+		return true;
 	}
 }

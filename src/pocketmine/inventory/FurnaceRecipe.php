@@ -26,16 +26,23 @@ use pocketmine\item\Item;
 
 class FurnaceRecipe{
 
+	private RecipeIngredient $ingredient;
+
 	public function __construct(
 		private Item $result,
-		private Item $ingredient
+		RecipeIngredient|Item $ingredient
 	){
 		$this->result = clone $result;
+
+		if ($ingredient instanceof Item) {
+			$ingredient = new ExactRecipeIngredient($ingredient);
+		}
+
 		$this->ingredient = clone $ingredient;
 	}
 
-	public function getInput() : Item{
-		return clone $this->ingredient;
+	public function getInput() : RecipeIngredient{
+		return $this->ingredient;
 	}
 
 	public function getResult() : Item{

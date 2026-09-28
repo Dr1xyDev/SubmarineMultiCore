@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace pocketmine\inventory\transaction\action;
 
 use pocketmine\network\mcpe\cache\CreativeInventoryCache;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\Player;
 
 /**
@@ -60,7 +61,16 @@ class ContainerDropItemAction extends DropItemAction
 		}
 
 		if (!$source->dropItem($this->targetItem)) {
+			$source->getCraftingGrid()->removeItem($this->targetItem);
 			$source->getInventory()->addItem($this->targetItem);
+
+			$source->getInventory()->sendHeldItem($source->getViewers());
+			if ($source->getProtocolVersion() < ProtocolInfo::PROTOCOL_407) {
+				$source->getInventory()->sendContents($source);
+			} else {
+				$source->getInventory()->sendHeldItem($source);
+			}
+
 			return;
 		}
 

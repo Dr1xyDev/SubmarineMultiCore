@@ -25,6 +25,7 @@ namespace pocketmine\network\mcpe\protocol\types\inventory;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\NetworkBinaryStream;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\types\GetTypeIdFromConstTrait;
 
 class UseItemOnEntityTransactionData extends TransactionData
@@ -74,24 +75,32 @@ class UseItemOnEntityTransactionData extends TransactionData
 		return $this->clickPosition;
 	}
 
-	protected function decodeData(NetworkBinaryStream $stream, int $playerProtocol) : void
+	protected function decodeData(NetworkBinaryStream $in, bool $legacyTransaction) : void
 	{
-		$this->actorRuntimeId = $stream->getEntityRuntimeId();
-		$this->actionType = $stream->getUnsignedVarInt();
-		$this->hotbarSlot = $stream->getVarInt();
-		$this->itemInHand = $stream->getItemStackWrapper($playerProtocol);
-		$this->playerPosition = $stream->getVector3();
-		$this->clickPosition = $stream->getVector3();
+		$this->actorRuntimeId = $in->getEntityRuntimeId();
+		$this->actionType = $in->getProtocol() >= ProtocolInfo::PROTOCOL_1001 && $legacyTransaction ? $in->getVarInt() : $in->getUnsignedVarInt();
+		$this->hotbarSlot = $in->getVarInt();
+		$this->itemInHand = $in->getProtocol() >= ProtocolInfo::PROTOCOL_1001 && $legacyTransaction ? $in->getNetworkItemStackDescriptor() : $in->getItemStackWrapper();
+		$this->playerPosition = $in->getVector3();
+		$this->clickPosition = $in->getVector3();
 	}
 
-	protected function encodeData(NetworkBinaryStream $stream, int $playerProtocol) : void
+	protected function encodeData(NetworkBinaryStream $out, bool $legacyTransaction) : void
 	{
-		$stream->putEntityRuntimeId($this->actorRuntimeId);
-		$stream->putUnsignedVarInt($this->actionType);
-		$stream->putVarInt($this->hotbarSlot);
-		$stream->putItemStackWrapper($this->itemInHand, $playerProtocol);
-		$stream->putVector3($this->playerPosition);
-		$stream->putVector3($this->clickPosition);
+		$out->putEntityRuntimeId($this->actorRuntimeId);
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_1001 && $legacyTransaction) {
+			$out->putVarInt($this->actionType);
+		} else {
+			$out->putUnsignedVarInt($this->actionType);
+		}
+		$out->putVarInt($this->hotbarSlot);
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_1001 && $legacyTransaction) {
+			$out->putNetworkItemStackDescriptor($this->itemInHand);
+		} else {
+			$out->putItemStackWrapper($this->itemInHand);
+		}
+		$out->putVector3($this->playerPosition);
+		$out->putVector3($this->clickPosition);
 	}
 
 	/**

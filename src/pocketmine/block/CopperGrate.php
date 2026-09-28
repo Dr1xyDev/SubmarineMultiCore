@@ -25,7 +25,6 @@ namespace pocketmine\block;
 use pocketmine\block\utils\CopperMaterial;
 use pocketmine\block\utils\CopperOxidation;
 use pocketmine\item\TieredTool;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 class CopperGrate extends Solid implements CopperMaterial
 {
@@ -87,14 +86,5 @@ class CopperGrate extends Solid implements CopperMaterial
 	public function getToolHarvestLevel() : int
 	{
 		return TieredTool::TIER_STONE;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_630) {
-			return BlockFactory::get(BlockIds::STONE, Stone::POLISHED_ANDESITE);
-		}
-
-		return null;
 	}
 }

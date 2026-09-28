@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class PaleOakDoor extends WoodenDoor
 {
 	protected $id = self::PALE_OAK_DOOR;
@@ -36,14 +34,5 @@ class PaleOakDoor extends WoodenDoor
 	public function getName() : string
 	{
 		return "Pale Oak Door";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_766) {
-			return BlockFactory::get(BlockIds::WOODEN_DOOR_BLOCK, $this->meta);
-		}
-
-		return null;
 	}
 }

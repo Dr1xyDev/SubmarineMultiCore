@@ -55,7 +55,7 @@ final class BiomeReplacementData{
 		$biome = $in->getSignedLShort();
 		$dimension = $in->getVarInt();
 		$targetBiomes = [];
-		for($i = 0; $i < $in->getUnsignedVarInt(); ++$i){
+		for($i = 0, $count = $in->getUnsignedVarInt(); $i < $count; ++$i){
 			$targetBiomes[] = $in->getSignedLShort();
 		}
 		$amount = $in->getLFloat();
@@ -64,11 +64,11 @@ final class BiomeReplacementData{
 	}
 
 	public function write(NetworkBinaryStream $out) : void{
-		$out->putShort($this->biome);
+		$out->putLShort($this->biome);
 		$out->putVarInt($this->dimension);
 		$out->putUnsignedVarInt(count($this->targetBiomes));
 		foreach($this->targetBiomes as $biome){
-			$out->putShort($biome);
+			$out->putLShort($biome);
 		}
 		$out->putLFloat($this->amount);
 		$out->putLInt($this->replacementIndex);

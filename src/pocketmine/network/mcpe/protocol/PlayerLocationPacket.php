@@ -73,8 +73,17 @@ class PlayerLocationPacket extends DataPacket
 
 	protected function decodePayload() : void
 	{
-		$this->type = PlayerLocationType::fromPacket($this->getLInt());
-		$this->actorUniqueId = $this->getEntityUniqueId();
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_2168) {
+			$this->actorUniqueId = $this->getEntityUniqueId();
+			$this->type = PlayerLocationType::fromPacket($this->getUnsignedVarInt());
+			$innerType = $this->getVarInt();
+			if ($innerType !== $this->type->value) {
+				throw new PacketDecodeException("Unexpected inner type, expected {$this->type->value}, got $innerType");
+			}
+		} else {
+			$this->type = PlayerLocationType::fromPacket($this->getLInt());
+			$this->actorUniqueId = $this->getEntityUniqueId();
+		}
 
 		if ($this->type === PlayerLocationType::PLAYER_LOCATION_COORDINATES) {
 			$this->position = $this->getVector3();
@@ -83,8 +92,14 @@ class PlayerLocationPacket extends DataPacket
 
 	protected function encodePayload() : void
 	{
-		$this->putLInt($this->type->value);
-		$this->putEntityUniqueId($this->actorUniqueId);
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_2168) {
+			$this->putEntityUniqueId($this->actorUniqueId);
+			$this->putUnsignedVarInt($this->type->value);
+			$this->putVarInt($this->type->value); //inner type
+		} else {
+			$this->putLInt($this->type->value);
+			$this->putEntityUniqueId($this->actorUniqueId);
+		}
 
 		if ($this->type === PlayerLocationType::PLAYER_LOCATION_COORDINATES) {
 			if ($this->position === null) { // this should never be the case

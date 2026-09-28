@@ -41,10 +41,10 @@ class CameraPresetsPacket extends DataPacket
 
 	protected function decodePayload() : void
 	{
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_618) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_618) {
 			$this->presets = [];
 			for ($i = 0, $count = $this->getUnsignedVarInt(); $i < $count; $i++) {
-				$this->presets[] = CameraPreset::read($this, $this->getProtocol());
+				$this->presets[] = CameraPreset::read($this);
 			}
 		} else {
 			$this->data = $this->getNbtCompoundRoot();
@@ -53,10 +53,10 @@ class CameraPresetsPacket extends DataPacket
 
 	protected function encodePayload() : void
 	{
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_618) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_618) {
 			$this->putUnsignedVarInt(count($this->presets));
 			foreach ($this->presets as $preset) {
-				$preset->write($this, $this->getProtocol());
+				$preset->write($this);
 			}
 		} else {
 			$this->put((new NetworkLittleEndianNBTStream())->write($this->data));

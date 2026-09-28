@@ -24,7 +24,8 @@ namespace pocketmine\level\sound;
 
 use pocketmine\block\Block;
 use pocketmine\math\Vector3;
-use pocketmine\network\mcpe\convert\RuntimeBlockMapping;
+use pocketmine\network\mcpe\convert\block\BlockProtocolConvertor;
+use pocketmine\network\mcpe\convert\block\RuntimeBlockMapping;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
@@ -40,7 +41,7 @@ final class PressurePlateDeactivateSound extends Sound
 	public function encode()
 	{
 		if ($this->protocol >= ProtocolInfo::PROTOCOL_560) {
-			$block = $this->block->getBlockProtocol($this->protocol) ?? $this->block;
+			$block = BlockProtocolConvertor::getInstance()->get($this->block, $this->protocol) ?? $this->block;
 			return [LevelSoundEventPacket::nonActorSound(
 				LevelSoundEventPacket::SOUND_PRESSURE_PLATE_CLICK_OFF,
 				$this,

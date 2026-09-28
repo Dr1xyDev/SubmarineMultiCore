@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class BambooFenceGate extends FenceGate
 {
 	protected $id = self::BAMBOO_FENCE_GATE;
@@ -36,14 +34,5 @@ class BambooFenceGate extends FenceGate
 	public function getName() : string
 	{
 		return "Bamboo Fence Gate";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_560) {
-			return BlockFactory::get(BlockIds::FENCE_GATE, $this->meta);
-		}
-
-		return null;
 	}
 }

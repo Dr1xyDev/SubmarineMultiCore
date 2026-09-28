@@ -25,9 +25,7 @@ namespace pocketmine\level\format\io\leveldb\upgrade;
 use pocketmine\nbt\tag\ByteTag;
 use pocketmine\nbt\tag\IntTag;
 use pocketmine\nbt\tag\StringTag;
-
 use function ksort;
-
 use const SORT_STRING;
 
 final class BlockStateUpgradeSchemaFlattenInfo

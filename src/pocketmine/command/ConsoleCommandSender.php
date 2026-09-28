@@ -66,7 +66,7 @@ class ConsoleCommandSender implements CommandSender
 		return $this->perm->hasPermission($name);
 	}
 
-	public function addAttachment(Plugin $plugin, string $name = null, bool $value = null) : PermissionAttachment
+	public function addAttachment(Plugin $plugin, ?string $name = null, ?bool $value = null) : PermissionAttachment
 	{
 		return $this->perm->addAttachment($plugin, $name, $value);
 	}
@@ -146,7 +146,7 @@ class ConsoleCommandSender implements CommandSender
 		return $this->lineHeight ?? PHP_INT_MAX;
 	}
 
-	public function setScreenLineHeight(int $height = null)
+	public function setScreenLineHeight(?int $height = null)
 	{
 		if ($height !== null && $height < 1) {
 			throw new InvalidArgumentException("Line height must be at least 1");

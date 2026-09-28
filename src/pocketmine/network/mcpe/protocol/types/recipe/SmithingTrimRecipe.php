@@ -50,11 +50,11 @@ final class SmithingTrimRecipe extends RecipeWithTypeId{
 
 	public function getRecipeNetId() : int{ return $this->recipeNetId; }
 
-	public static function decode(int $typeId, NetworkBinaryStream $in, int $protocol) : self{
+	public static function decode(int $typeId, NetworkBinaryStream $in) : self{
 		$recipeId = $in->getString();
-		$template = $in->getRecipeIngredient($protocol);
-		$input = $in->getRecipeIngredient($protocol);
-		$addition = $in->getRecipeIngredient($protocol);
+		$template = $in->getRecipeIngredient();
+		$input = $in->getRecipeIngredient();
+		$addition = $in->getRecipeIngredient();
 		$blockName = $in->getString();
 		$recipeNetId = $in->readRecipeNetId();
 
@@ -69,11 +69,11 @@ final class SmithingTrimRecipe extends RecipeWithTypeId{
 		);
 	}
 
-	public function encode(NetworkBinaryStream $out, int $protocol) : void{
+	public function encode(NetworkBinaryStream $out) : void{
 		$out->putString($this->recipeId);
-		$out->putRecipeIngredient($this->template, $protocol);
-		$out->putRecipeIngredient($this->input, $protocol);
-		$out->putRecipeIngredient($this->addition, $protocol);
+		$out->putRecipeIngredient($this->template);
+		$out->putRecipeIngredient($this->input);
+		$out->putRecipeIngredient($this->addition);
 		$out->putString($this->blockName);
 		$out->writeRecipeNetId($this->recipeNetId);
 	}

@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class ClosedEyeblossom extends Eyeblossom
 {
 	protected $id = self::CLOSED_EYEBLOSSOM;
@@ -31,14 +29,5 @@ class ClosedEyeblossom extends Eyeblossom
 	public function getName() : string
 	{
 		return "Closed Eyeblossom";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_766) {
-			return BlockFactory::get(BlockIds::RED_FLOWER);
-		}
-
-		return null;
 	}
 }

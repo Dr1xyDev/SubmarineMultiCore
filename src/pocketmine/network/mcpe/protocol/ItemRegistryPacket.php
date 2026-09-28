@@ -36,7 +36,7 @@ class ItemRegistryPacket extends DataPacket
 	 * @var ItemTypeEntry[]
 	 * @phpstan-var list<ItemTypeEntry>
 	 */
-	private array $entries;
+	private array $entries = [];
 
 	/**
 	 * @generate-create-func

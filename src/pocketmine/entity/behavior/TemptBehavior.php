@@ -75,7 +75,14 @@ class TemptBehavior extends Behavior
 				return false;
 			}
 		}
-		return $this->canStart();
+
+		if ($this->temptingPlayer === null || !$this->temptingPlayer->isAlive() || $this->temptingPlayer->isClosed()) {
+			return false;
+		}
+		if ($this->temptingPlayer->distanceSquared($this->mob) > 100) {
+			return false;
+		}
+		return in_array($this->temptingPlayer->getInventory()->getItemInHand()->getId(), $this->temptItems, true);
 	}
 
 	public function onTick() : void

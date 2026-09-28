@@ -24,7 +24,6 @@ namespace pocketmine\level;
 
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\StringTag;
-
 use function floatval;
 use function intval;
 use function is_bool;

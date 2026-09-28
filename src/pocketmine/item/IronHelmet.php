@@ -43,6 +43,10 @@ class IronHelmet extends Armor
 		return 166;
 	}
 
+	public function getEnchantAbility() : int{
+		return 9;
+	}
+
 	public function getArmorSlot() : int
 	{
 		return ArmorSlot::SLOT_HELMET;

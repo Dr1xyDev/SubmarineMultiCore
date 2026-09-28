@@ -38,7 +38,6 @@ use pocketmine\item\enchantment\EnchantmentInstance;
 use pocketmine\math\Vector3;
 use pocketmine\nbt\LittleEndianNBTStream;
 use pocketmine\nbt\NBT;
-use pocketmine\nbt\tag\ByteTag;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\IntTag;
 use pocketmine\nbt\tag\ListTag;
@@ -48,12 +47,14 @@ use pocketmine\nbt\tag\StringTag;
 use pocketmine\network\mcpe\cache\CreativeCategory;
 use pocketmine\network\mcpe\cache\CreativeGroup;
 use pocketmine\network\mcpe\cache\CreativeInventoryCache;
-use pocketmine\network\mcpe\convert\LegacyItemIdToStringIdMap;
+use pocketmine\network\mcpe\convert\block\BlockProtocolConvertor;
+use pocketmine\network\mcpe\convert\block\RuntimeBlockMapping;
+use pocketmine\network\mcpe\convert\GlobalItemTypeDictionary;
+use pocketmine\network\mcpe\convert\ItemTranslator;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\Player;
 use pocketmine\utils\AssumptionFailedError;
 use pocketmine\utils\Binary;
-
 use function array_map;
 use function base64_decode;
 use function base64_encode;
@@ -436,6 +437,10 @@ class Item implements ItemIds, JsonSerializable
 		return 0;
 	}
 
+	public function getEnchantAbility() : int{
+		return 0;
+	}
+
 	public function hasCustomName() : bool
 	{
 		$display = $this->getNamedTagEntry(self::TAG_DISPLAY);
@@ -786,8 +791,7 @@ class Item implements ItemIds, JsonSerializable
 	 * Called when a player is using this item and releases it. Used to handle bow shoot actions.
 	 * Returns whether the item was changed, for example count decrease or durability change.
 	 */
-	public function onReleaseUsing(Player $player) : bool
-	{
+	public function onReleaseUsing(Player $player) : bool{
 		return false;
 	}
 
@@ -940,20 +944,33 @@ class Item implements ItemIds, JsonSerializable
 	{
 		$id = $this->id;
 		$meta = $this->meta;
-
-		$idTag = new ShortTag("id", $id);
-		if ($this->id !== 0 && $playerProtocol !== null && $playerProtocol >= ProtocolInfo::PROTOCOL_419) {
-			$lts = LegacyItemIdToStringIdMap::getInstance($playerProtocol)->legacyToString($id);
-			if ($lts !== null) {
-				$idTag = new StringTag("Name", $lts);
+		if ($playerProtocol !== null) {
+			$itemProtocol = $this->getItemProtocol($playerProtocol);
+			if ($itemProtocol !== null) {
+				[$id, $meta] = [$itemProtocol->getId(), $itemProtocol->getMeta()];
 			}
 		}
 
-		$result = new CompoundTag($tagName, [
-			$idTag,
-			new ByteTag("Count", Binary::signByte($this->count)),
-			new ShortTag("Damage", $meta)
-		]);
+		$result = new CompoundTag($tagName);
+		if ($playerProtocol !== null && $playerProtocol >= ProtocolInfo::PROTOCOL_419) {
+			[$netId, $netMeta] = ItemTranslator::getInstance($playerProtocol)->toNetworkId($id, $meta);
+			$result->setString("Name", GlobalItemTypeDictionary::getInstance($playerProtocol)->getDictionary()->fromIntId($netId));
+
+			if ($this instanceof ItemBlock) {
+				$block = $this->getBlock();
+				$blockProtocol = BlockProtocolConvertor::getInstance()->get($block, $playerProtocol) ?? $block;
+
+				$runtimeBlockMapping = RuntimeBlockMapping::getInstance($playerProtocol);
+				$nbtBlock = $runtimeBlockMapping->toNbtBlock($runtimeBlockMapping->toRuntimeId($blockProtocol->getFullId()));
+				$nbtBlock->setName("Block");
+				$result->setTag($nbtBlock);
+			}
+		} else {
+			$result->setShort("id", $id);
+		}
+
+		$result->setByte("Count", Binary::signByte($this->count));
+		$result->setShort("Damage", $meta);
 
 		if ($this->hasCompoundTag()) {
 			$itemNBT = clone $this->getNamedTag();
@@ -973,7 +990,7 @@ class Item implements ItemIds, JsonSerializable
 	 */
 	public static function nbtDeserialize(CompoundTag $tag) : Item
 	{
-		if (!$tag->hasTag("id") || !$tag->hasTag("Count")) {
+		if (!$tag->hasTag("id") || !$tag->hasTag("Count")) { //TODO: name
 			return ItemFactory::get(0);
 		}
 

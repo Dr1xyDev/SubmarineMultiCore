@@ -24,11 +24,9 @@ namespace pocketmine\level\format\io\region;
 
 use InvalidArgumentException;
 use pocketmine\utils\AssumptionFailedError;
-
 use function end;
 use function ksort;
 use function time;
-
 use const SORT_NUMERIC;
 
 final class RegionGarbageMap

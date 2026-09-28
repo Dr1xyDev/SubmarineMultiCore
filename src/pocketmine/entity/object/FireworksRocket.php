@@ -24,6 +24,7 @@ namespace pocketmine\entity\object;
 
 use pocketmine\entity\Entity;
 use pocketmine\item\Fireworks;
+use pocketmine\level\ChunkManager;
 use pocketmine\level\Level;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\protocol\ActorEventPacket;
@@ -39,7 +40,7 @@ class FireworksRocket extends Entity
 	/** @var int */
 	protected $lifeTime = 0;
 
-	public function __construct(Level $level, CompoundTag $nbt, ?Fireworks $fireworks = null)
+	public function __construct(ChunkManager $level, CompoundTag $nbt, ?Fireworks $fireworks = null)
 	{
 		parent::__construct($level, $nbt);
 
@@ -48,7 +49,9 @@ class FireworksRocket extends Entity
 			$this->setLifeTime($fireworks->getRandomizedFlightDuration());
 		}
 
-		$level->broadcastLevelSoundEvent($this, LevelSoundEventPacket::SOUND_LAUNCH);
+		if ($level instanceof Level) {
+			$level->broadcastLevelSoundEvent($this, LevelSoundEventPacket::SOUND_LAUNCH);
+		}
 	}
 
 	protected function tryChangeMovement() : void

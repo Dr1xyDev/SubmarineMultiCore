@@ -25,10 +25,8 @@ namespace pocketmine\level\generator;
 use pocketmine\block\Air;
 use pocketmine\block\Grass;
 use pocketmine\level\format\Chunk;
-use pocketmine\math\Vector3;
 
-class VoidGenerator extends Generator
-{
+class VoidGenerator extends Generator {
 	private Chunk $chunk;
 	private ?Chunk $emptyChunk = null;
 
@@ -37,8 +35,7 @@ class VoidGenerator extends Generator
 		return "void";
 	}
 
-	public function generateChunk(int $chunkX, int $chunkZ) : void
-	{
+	public function generateChunk(int $chunkX, int $chunkZ) : void{
 		if ($this->emptyChunk === null) {
 			$this->chunk = clone $this->level->getChunk($chunkX, $chunkZ);
 
@@ -51,9 +48,8 @@ class VoidGenerator extends Generator
 				}
 			}
 
-			$spawn = $this->getSpawn();
-			if ($spawn->getFloorX() >> Chunk::COORD_BIT_SIZE === $chunkX && $spawn->getFloorZ() >> Chunk::COORD_BIT_SIZE === $chunkZ) {
-				$this->chunk->setFullBlock($spawn->getFloorX(), $spawn->getFloorY() - 10, $spawn->getFloorZ(), (new Grass())->getFullId());
+			if (0 >> Chunk::COORD_BIT_SIZE === $chunkX && 0 >> Chunk::COORD_BIT_SIZE === $chunkZ) {
+				$this->chunk->setFullBlock(0, 62, 0, (new Grass())->getFullId());
 			} else {
 				$this->emptyChunk = clone $this->chunk;
 			}
@@ -67,13 +63,7 @@ class VoidGenerator extends Generator
 		$this->level->setChunk($chunkX, $chunkZ, $chunk);
 	}
 
-	public function populateChunk(int $chunkX, int $chunkZ) : void
-	{
+	public function populateChunk(int $chunkX, int $chunkZ) : void{
 		// NOOP
-	}
-
-	public function getSpawn() : Vector3
-	{
-		return new Vector3(0, 72, 0);
 	}
 }

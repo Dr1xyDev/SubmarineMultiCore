@@ -59,11 +59,8 @@ class UpdateTradePacket extends DataPacket
 		$this->windowId = $this->getByte();
 		$this->windowType = $this->getByte();
 		$this->thisIsAlwaysZero = $this->getVarInt();
-		if ($this->getProtocol() < ProtocolInfo::PROTOCOL_354) {
+		if ($this->protocol < ProtocolInfo::PROTOCOL_407) {
 			$this->uvarint = $this->getVarInt();
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_313) {
-				$this->tradeTier = $this->getVarInt();
-			}
 			$this->isWilling = $this->getBool();
 		} else {
 			$this->tradeTier = $this->getVarInt();
@@ -71,7 +68,7 @@ class UpdateTradePacket extends DataPacket
 		$this->traderEid = $this->getEntityUniqueId();
 		$this->playerEid = $this->getEntityUniqueId();
 		$this->displayName = $this->getString();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_354) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->isWilling = $this->getBool();
 			$this->isV2Trading = $this->getBool();
 		}
@@ -83,12 +80,8 @@ class UpdateTradePacket extends DataPacket
 		$this->putByte($this->windowId);
 		$this->putByte($this->windowType);
 		$this->putVarInt($this->thisIsAlwaysZero);
-		if ($this->getProtocol() < ProtocolInfo::PROTOCOL_354) {
+		if ($this->protocol < ProtocolInfo::PROTOCOL_407) {
 			$this->putVarInt($this->uvarint);
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_313) {
-				$this->putVarInt($this->tradeTier);
-			}
-
 			$this->putBool($this->isWilling);
 		} else {
 			$this->putVarInt($this->tradeTier);
@@ -96,7 +89,7 @@ class UpdateTradePacket extends DataPacket
 		$this->putEntityUniqueId($this->traderEid);
 		$this->putEntityUniqueId($this->playerEid);
 		$this->putString($this->displayName);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_354) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->putBool($this->isWilling);
 			$this->putBool($this->isV2Trading);
 		}

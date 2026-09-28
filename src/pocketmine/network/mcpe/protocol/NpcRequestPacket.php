@@ -45,7 +45,7 @@ class NpcRequestPacket extends DataPacket
 		$this->requestType = $this->getByte();
 		$this->commandString = $this->getString();
 		$this->actionType = $this->getByte();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_448) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_448) {
 			$this->sceneName = $this->getString();
 		}
 	}
@@ -56,7 +56,7 @@ class NpcRequestPacket extends DataPacket
 		$this->putByte($this->requestType);
 		$this->putString($this->commandString);
 		$this->putByte($this->actionType);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_448) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_448) {
 			$this->putString($this->sceneName);
 		}
 	}

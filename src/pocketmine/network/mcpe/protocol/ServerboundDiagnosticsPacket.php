@@ -23,92 +23,50 @@ declare(strict_types=1);
 namespace pocketmine\network\mcpe\protocol;
 
 use pocketmine\network\mcpe\NetworkSession;
+use pocketmine\network\mcpe\protocol\types\EntityDiagnosticTimingInfo;
+use pocketmine\network\mcpe\protocol\types\MemoryCategoryCounter;
+use pocketmine\network\mcpe\protocol\types\SystemDiagnosticTimingInfo;
+use pocketmine\network\mcpe\protocol\types\WhiskerScopeDataSummary;
+use function count;
 
 class ServerboundDiagnosticsPacket extends DataPacket
 {
 	public const NETWORK_ID = ProtocolInfo::SERVERBOUND_DIAGNOSTICS_PACKET;
 
-	private float $avgFps;
-	private float $avgServerSimTickTimeMS;
-	private float $avgClientSimTickTimeMS;
-	private float $avgBeginFrameTimeMS;
-	private float $avgInputTimeMS;
-	private float $avgRenderTimeMS;
-	private float $avgEndFrameTimeMS;
-	private float $avgRemainderTimePercent;
-	private float $avgUnaccountedTimePercent;
-
+	public float $avgFps;
+	public float $avgServerSimTickTimeMS;
+	public float $avgClientSimTickTimeMS;
+	public float $avgBeginFrameTimeMS;
+	public float $avgInputTimeMS;
+	public float $avgRenderTimeMS;
+	public float $avgEndFrameTimeMS;
+	public float $avgRemainderTimePercent;
+	public float $avgUnaccountedTimePercent;
 	/**
-	 * @generate-create-func
+	 * @var MemoryCategoryCounter[]
+	 * @phpstan-var list<MemoryCategoryCounter>
 	 */
-	public static function create(
-		float $avgFps,
-		float $avgServerSimTickTimeMS,
-		float $avgClientSimTickTimeMS,
-		float $avgBeginFrameTimeMS,
-		float $avgInputTimeMS,
-		float $avgRenderTimeMS,
-		float $avgEndFrameTimeMS,
-		float $avgRemainderTimePercent,
-		float $avgUnaccountedTimePercent,
-	) : self {
-		$result = new self();
-		$result->avgFps = $avgFps;
-		$result->avgServerSimTickTimeMS = $avgServerSimTickTimeMS;
-		$result->avgClientSimTickTimeMS = $avgClientSimTickTimeMS;
-		$result->avgBeginFrameTimeMS = $avgBeginFrameTimeMS;
-		$result->avgInputTimeMS = $avgInputTimeMS;
-		$result->avgRenderTimeMS = $avgRenderTimeMS;
-		$result->avgEndFrameTimeMS = $avgEndFrameTimeMS;
-		$result->avgRemainderTimePercent = $avgRemainderTimePercent;
-		$result->avgUnaccountedTimePercent = $avgUnaccountedTimePercent;
-		return $result;
-	}
-
-	public function getAvgFps() : float
-	{
-		return $this->avgFps;
-	}
-
-	public function getAvgServerSimTickTimeMS() : float
-	{
-		return $this->avgServerSimTickTimeMS;
-	}
-
-	public function getAvgClientSimTickTimeMS() : float
-	{
-		return $this->avgClientSimTickTimeMS;
-	}
-
-	public function getAvgBeginFrameTimeMS() : float
-	{
-		return $this->avgBeginFrameTimeMS;
-	}
-
-	public function getAvgInputTimeMS() : float
-	{
-		return $this->avgInputTimeMS;
-	}
-
-	public function getAvgRenderTimeMS() : float
-	{
-		return $this->avgRenderTimeMS;
-	}
-
-	public function getAvgEndFrameTimeMS() : float
-	{
-		return $this->avgEndFrameTimeMS;
-	}
-
-	public function getAvgRemainderTimePercent() : float
-	{
-		return $this->avgRemainderTimePercent;
-	}
-
-	public function getAvgUnaccountedTimePercent() : float
-	{
-		return $this->avgUnaccountedTimePercent;
-	}
+	public array $memoryCategoryValues = [];
+	/**
+	 * @var EntityDiagnosticTimingInfo[]
+	 * @phpstan-var list<EntityDiagnosticTimingInfo>
+	 */
+	public array $entityDiagnostics = [];
+	/**
+	 * @var SystemDiagnosticTimingInfo[]
+	 * @phpstan-var list<SystemDiagnosticTimingInfo>
+	 */
+	public array $systemDiagnostics = [];
+	/**
+	 * @var WhiskerScopeDataSummary[]
+	 * @phpstan-var list<WhiskerScopeDataSummary>
+	 */
+	public array $whiskerScopes = [];
+	/**
+	 * System categories, since 1.26.40: [category name, system index]
+	 * @phpstan-var list<array{string, int}>
+	 */
+	public array $systemCategories = [];
 
 	protected function decodePayload() : void
 	{
@@ -121,6 +79,36 @@ class ServerboundDiagnosticsPacket extends DataPacket
 		$this->avgEndFrameTimeMS = $this->getLFloat();
 		$this->avgRemainderTimePercent = $this->getLFloat();
 		$this->avgUnaccountedTimePercent = $this->getLFloat();
+
+		$this->memoryCategoryValues = [];
+		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_924) {
+			for($i = 0, $count = $this->getUnsignedVarInt(); $i < $count; $i++){
+				$this->memoryCategoryValues[] = MemoryCategoryCounter::read($this);
+			}
+		}
+
+		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_975) {
+			$this->entityDiagnostics = [];
+			for($i = 0, $count = $this->getUnsignedVarInt(); $i < $count; $i++){
+				$this->entityDiagnostics[] = EntityDiagnosticTimingInfo::read($this);
+			}
+
+			$this->systemDiagnostics = [];
+			for($i = 0, $count = $this->getUnsignedVarInt(); $i < $count; $i++){
+				$this->systemDiagnostics[] = SystemDiagnosticTimingInfo::read($this);
+			}
+
+			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_2168) {
+				$this->systemCategories = $this->getList(fn() => [$this->getString(), $this->getLLong()], 4096);
+			}
+
+			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_1001) {
+				$this->whiskerScopes = [];
+				for ($i = 0, $count = $this->getUnsignedVarInt(); $i < $count; $i++) {
+					$this->whiskerScopes[] = WhiskerScopeDataSummary::read($this);
+				}
+			}
+		}
 	}
 
 	protected function encodePayload() : void
@@ -134,6 +122,39 @@ class ServerboundDiagnosticsPacket extends DataPacket
 		$this->putLFloat($this->avgEndFrameTimeMS);
 		$this->putLFloat($this->avgRemainderTimePercent);
 		$this->putLFloat($this->avgUnaccountedTimePercent);
+
+		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_924) {
+			$this->putUnsignedVarInt(count($this->memoryCategoryValues));
+			foreach($this->memoryCategoryValues as $value){
+				$value->write($this);
+			}
+		}
+
+		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_975) {
+			$this->putUnsignedVarInt(count($this->entityDiagnostics));
+			foreach($this->entityDiagnostics as $value){
+				$value->write($this);
+			}
+
+			$this->putUnsignedVarInt(count($this->systemDiagnostics));
+			foreach($this->systemDiagnostics as $value){
+				$value->write($this);
+			}
+
+			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_2168) {
+				$this->putList($this->systemCategories, function(array $category) : void{
+					$this->putString($category[0]);
+					$this->putLLong($category[1]);
+				});
+			}
+
+			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_1001) {
+				$this->putUnsignedVarInt(count($this->whiskerScopes));
+				foreach($this->whiskerScopes as $value){
+					$value->write($this);
+				}
+			}
+		}
 	}
 
 	public function handle(NetworkSession $session) : bool

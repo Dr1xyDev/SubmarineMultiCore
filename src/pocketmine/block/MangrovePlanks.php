@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class MangrovePlanks extends Planks
 {
 	protected $id = self::MANGROVE_PLANKS;
@@ -36,13 +34,5 @@ class MangrovePlanks extends Planks
 	public function getName() : string
 	{
 		return "Mangrove Planks";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_527) {
-			return BlockFactory::get(BlockIds::PLANKS);
-		}
-
-		return null;
 	}
 }

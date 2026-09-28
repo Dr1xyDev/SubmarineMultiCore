@@ -25,6 +25,7 @@ namespace pocketmine\network\mcpe\protocol\types\inventory;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\NetworkBinaryStream;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\types\GetTypeIdFromConstTrait;
 
 class ReleaseItemTransactionData extends TransactionData
@@ -61,20 +62,28 @@ class ReleaseItemTransactionData extends TransactionData
 		return $this->headPosition;
 	}
 
-	protected function decodeData(NetworkBinaryStream $stream, int $playerProtocol) : void
+	protected function decodeData(NetworkBinaryStream $in, bool $legacyTransaction) : void
 	{
-		$this->actionType = $stream->getUnsignedVarInt();
-		$this->hotbarSlot = $stream->getVarInt();
-		$this->itemInHand = $stream->getItemStackWrapper($playerProtocol);
-		$this->headPosition = $stream->getVector3();
+		$this->actionType = $in->getProtocol() >= ProtocolInfo::PROTOCOL_1001 && $legacyTransaction ? $in->getVarInt() : $in->getUnsignedVarInt();
+		$this->hotbarSlot = $in->getVarInt();
+		$this->itemInHand = $in->getProtocol() >= ProtocolInfo::PROTOCOL_1001 && $legacyTransaction ? $in->getNetworkItemStackDescriptor() : $in->getItemStackWrapper();
+		$this->headPosition = $in->getVector3();
 	}
 
-	protected function encodeData(NetworkBinaryStream $stream, int $playerProtocol) : void
+	protected function encodeData(NetworkBinaryStream $out, bool $legacyTransaction) : void
 	{
-		$stream->putUnsignedVarInt($this->actionType);
-		$stream->putVarInt($this->hotbarSlot);
-		$stream->putItemStackWrapper($this->itemInHand, $playerProtocol);
-		$stream->putVector3($this->headPosition);
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_1001 && $legacyTransaction) {
+			$out->putVarInt($this->actionType);
+		} else {
+			$out->putUnsignedVarInt($this->actionType);
+		}
+		$out->putVarInt($this->hotbarSlot);
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_1001 && $legacyTransaction) {
+			$out->putNetworkItemStackDescriptor($this->itemInHand);
+		} else {
+			$out->putItemStackWrapper($this->itemInHand);
+		}
+		$out->putVector3($this->headPosition);
 	}
 
 	/**

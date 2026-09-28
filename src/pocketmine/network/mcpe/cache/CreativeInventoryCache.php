@@ -29,14 +29,11 @@ use pocketmine\network\mcpe\convert\TypeConverter;
 use pocketmine\network\mcpe\protocol\ContainerSetContentPacket;
 use pocketmine\network\mcpe\protocol\CreativeContentPacket;
 use pocketmine\network\mcpe\protocol\DataPacket;
-use pocketmine\network\mcpe\protocol\InventoryContentPacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\types\inventory\ContainerIds;
 use pocketmine\network\mcpe\protocol\types\inventory\CreativeGroupEntry;
 use pocketmine\network\mcpe\protocol\types\inventory\CreativeItemEntry;
-use pocketmine\network\mcpe\protocol\types\inventory\FullContainerName;
 use pocketmine\network\mcpe\protocol\types\inventory\ItemStack;
-use pocketmine\network\mcpe\protocol\types\inventory\ItemStackWrapper;
 use pocketmine\Player;
 use pocketmine\utils\Filesystem;
 use pocketmine\utils\SingletonTrait;
@@ -58,11 +55,11 @@ final class CreativeInventoryCache
 
 	private static function make() : self
 	{
-		/** @var CreativeInventoryEntry[][] $items */
+		/** @var CreativeInventoryEntry[][] $creativeInventoryEntries */
 		$creativeInventoryEntries = [];
 
 		$itemDeserializerFunc = function (array $data) : Item {
-			$nbt = "";
+			$nbt = null;
 			//Backwards compatibility
 			if (isset($data["nbt"])) {
 				$nbt = $data["nbt"];
@@ -99,13 +96,13 @@ final class CreativeInventoryCache
 					"items" => CreativeCategory::ITEMS,
 				] as $categoryName => $categoryId) {
 					$categoryFilePath = BEDROCK_DATA_PATH . 'creative/' . $protocol . '/' . $categoryName . '.json';
-					if (!file_exists($categoryFilePath)) {
+					if (!Filesystem::resourceExists($categoryFilePath)) {
 						$categoryFilePath = BEDROCK_DATA_PATH . 'creative/' . ($protocolCategories[$categoryName] ?? ProtocolInfo::PROTOCOL_776) . '/' . $categoryName . '.json';
 					} else {
 						$protocolCategories[$categoryName] = $protocol;
 					}
 
-					foreach (json_decode(Filesystem::fileGetContents($categoryFilePath), true) as $groupData) {
+					foreach (json_decode(Filesystem::resourceGetContents($categoryFilePath), true) as $groupData) {
 						$icon = $groupData["group_icon"] === null ? null : $itemDeserializerFunc($groupData["group_icon"]);
 						$group = $icon === null ? null : new CreativeGroup($groupData["group_name"], $icon);
 
@@ -120,7 +117,7 @@ final class CreativeInventoryCache
 					}
 				}
 			} else {
-				foreach (json_decode(Filesystem::fileGetContents(BEDROCK_DATA_PATH . 'creative/' . $protocol . '/creative_items.json'), true) as $itemData) {
+				foreach (json_decode(Filesystem::resourceGetContents(BEDROCK_DATA_PATH . 'creative/' . $protocol . '/creative_items.json'), true) as $itemData) {
 					$item = $itemDeserializerFunc($itemData);
 					if ($item->getName() === "Unknown") {
 						continue;
@@ -290,35 +287,26 @@ final class CreativeInventoryCache
 		}
 
 		if ($protocolVersion >= ProtocolInfo::PROTOCOL_407) {
-			$packet = CreativeContentPacket::create($groupEntries, $itemsEntries);
+			$packet = CreativeContentPacket::create($groupEntries, $itemsEntries)->enableEncodedCache();
 		} else {
 			$items = [];
 			foreach ($itemsEntries as $entry) {
-				if ($protocolVersion >= ProtocolInfo::PROTOCOL_137) {
-					$items[] = ItemStackWrapper::legacy($entry->getItem());
-				} else {
-					$items[] = $entry->getItem();
-				}
+				$items[] = $entry->getItem();
 			}
 
-			if ($protocolVersion >= ProtocolInfo::PROTOCOL_137) {
-				$packet = InventoryContentPacket::create(ContainerIds::CREATIVE, $items, new FullContainerName($player->getCurrentWindowType()), new ItemStackWrapper(0, ItemStack::null()));
-			} else {
-				$packet = ContainerSetContentPacket::create(ContainerIds::CREATIVE, $player->getId(), $items, []);
-			}
+			$packet = ContainerSetContentPacket::create(ContainerIds::CREATIVE, $player->getId(), $items, []);
 		}
 
 		return $this->caches[$protocolVersion] = $packet;
 	}
 
 	public function clearCache(?int $protocolVersion = null) : void{
-		foreach ($this->caches as $protocol => $items) {
-			if ($protocolVersion === null) {
-				$this->caches[$protocol] = [];
-			} else {
-				if ($protocolVersion >= $protocol) {
-					unset($this->caches[$protocol][$protocolVersion]);
-					return;
+		if ($protocolVersion === null) {
+			$this->caches = [];
+		} else {
+			foreach ($this->caches as $protocol => $_) {
+				if ($protocol >= $protocolVersion) {
+					unset($this->caches[$protocol]);
 				}
 			}
 		}

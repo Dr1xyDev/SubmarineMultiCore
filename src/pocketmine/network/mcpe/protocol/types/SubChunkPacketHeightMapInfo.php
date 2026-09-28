@@ -23,6 +23,8 @@ declare(strict_types=1);
 namespace pocketmine\network\mcpe\protocol\types;
 
 use pocketmine\network\mcpe\NetworkBinaryStream;
+use pocketmine\network\mcpe\protocol\PacketDecodeException;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\utils\Binary;
 
 use function array_fill;
@@ -54,8 +56,16 @@ class SubChunkPacketHeightMapInfo
 
 	public static function read(NetworkBinaryStream $in) : self
 	{
+		//since 1.26.50 the heightmap is a list of 16 rows, each one a list of 16 heights
+		$rows = $in->getProtocol() >= ProtocolInfo::PROTOCOL_2193;
 		$heights = [];
 		for ($i = 0; $i < 256; ++$i) {
+			if ($rows && ($i & 0xf) === 0) {
+				$rowLength = $in->getUnsignedVarInt();
+				if ($rowLength !== 16) {
+					throw new PacketDecodeException("Expected height map row to hold exactly 16 heights, got $rowLength");
+				}
+			}
 			$heights[] = Binary::signByte($in->getByte());
 		}
 		return new self($heights);
@@ -63,7 +73,11 @@ class SubChunkPacketHeightMapInfo
 
 	public function write(NetworkBinaryStream $out) : void
 	{
+		$rows = $out->getProtocol() >= ProtocolInfo::PROTOCOL_2193;
 		for ($i = 0; $i < 256; ++$i) {
+			if ($rows && ($i & 0xf) === 0) {
+				$out->putUnsignedVarInt(16);
+			}
 			$out->putByte(Binary::unsignByte($this->heights[$i]));
 		}
 	}

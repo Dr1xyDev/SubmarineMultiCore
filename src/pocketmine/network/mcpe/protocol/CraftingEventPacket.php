@@ -48,12 +48,12 @@ class CraftingEventPacket extends DataPacket
 
 		$size = $this->getUnsignedVarInt();
 		for ($i = 0; $i < $size && $i < 128; ++$i) {
-			$this->input[] = $this->getItemStackWrapper($this->getProtocol());
+			$this->input[] = $this->getItemStackWrapper();
 		}
 
 		$size = $this->getUnsignedVarInt();
 		for ($i = 0; $i < $size && $i < 128; ++$i) {
-			$this->output[] = $this->getItemStackWrapper($this->getProtocol());
+			$this->output[] = $this->getItemStackWrapper();
 		}
 	}
 
@@ -65,12 +65,12 @@ class CraftingEventPacket extends DataPacket
 
 		$this->putUnsignedVarInt(count($this->input));
 		foreach ($this->input as $item) {
-			$this->putItemStackWrapper($item, $this->getProtocol());
+			$this->putItemStackWrapper($item);
 		}
 
 		$this->putUnsignedVarInt(count($this->output));
 		foreach ($this->output as $item) {
-			$this->putItemStackWrapper($item, $this->getProtocol());
+			$this->putItemStackWrapper($item);
 		}
 	}
 

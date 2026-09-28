@@ -69,11 +69,30 @@ class PlayerUpdateEntityOverridesPacket extends DataPacket
 		return self::create($actorRuntimeId, $propertyIndex, OverrideUpdateType::REMOVE_OVERRIDE, null, null);
 	}
 
+	/** Update type names used since 1.26.40, by ordinal */
+	private const UPDATE_TYPE_NAMES_V2168 = [
+		"clearoverrides",
+		"removeoverride",
+		"setintoverride",
+		"setfloatoverride",
+	];
+
 	protected function decodePayload() : void
 	{
-		$this->actorRuntimeId = $this->getEntityRuntimeId();
-		$this->propertyIndex = $this->getUnsignedVarInt();
-		$this->updateType = OverrideUpdateType::fromPacket($this->getByte());
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_2168) {
+			//since 1.26.40 the actor is identified by its unique ID, and the type is an ordinal + name
+			$this->actorRuntimeId = $this->getEntityUniqueId();
+			$this->propertyIndex = $this->getUnsignedVarInt();
+			$this->updateType = OverrideUpdateType::fromPacket($this->getUnsignedVarInt());
+			$typeName = $this->getString();
+			if ($typeName !== self::UPDATE_TYPE_NAMES_V2168[$this->updateType->value]) {
+				throw new PacketDecodeException("Unexpected inner type $typeName for override update type {$this->updateType->value}");
+			}
+		} else {
+			$this->actorRuntimeId = $this->getEntityRuntimeId();
+			$this->propertyIndex = $this->getUnsignedVarInt();
+			$this->updateType = OverrideUpdateType::fromPacket($this->getByte());
+		}
 		if ($this->updateType === OverrideUpdateType::SET_INT_OVERRIDE) {
 			$this->intOverrideValue = $this->getLInt();
 		} elseif ($this->updateType === OverrideUpdateType::SET_FLOAT_OVERRIDE) {
@@ -83,9 +102,17 @@ class PlayerUpdateEntityOverridesPacket extends DataPacket
 
 	protected function encodePayload() : void
 	{
-		$this->putEntityUniqueId($this->actorRuntimeId);
-		$this->putUnsignedVarInt($this->propertyIndex);
-		$this->putByte($this->updateType->value);
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_2168) {
+			$this->putEntityUniqueId($this->actorRuntimeId);
+			$this->putUnsignedVarInt($this->propertyIndex);
+			$this->putUnsignedVarInt($this->updateType->value);
+			$this->putString(self::UPDATE_TYPE_NAMES_V2168[$this->updateType->value]);
+		} else {
+			//before 1.26.40 this was a runtime ID (unsigned varlong), not a unique ID (signed varlong)
+			$this->putEntityRuntimeId($this->actorRuntimeId);
+			$this->putUnsignedVarInt($this->propertyIndex);
+			$this->putByte($this->updateType->value);
+		}
 		if ($this->updateType === OverrideUpdateType::SET_INT_OVERRIDE) {
 			if ($this->intOverrideValue === null) { // this should never be the case
 				throw new \LogicException("PlayerUpdateEntityOverridesPacket with type SET_INT_OVERRIDE require an intOverrideValue to be provided");

@@ -31,7 +31,7 @@ interface CommandMap
 	 */
 	public function registerAll(string $fallbackPrefix, array $commands);
 
-	public function register(string $fallbackPrefix, Command $command, string $label = null) : bool;
+	public function register(string $fallbackPrefix, Command $command, ?string $label = null) : bool;
 
 	public function dispatch(CommandSender $sender, string $cmdLine) : bool;
 

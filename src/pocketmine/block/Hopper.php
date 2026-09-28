@@ -70,7 +70,7 @@ class Hopper extends Transparent
 		return 0;
 	}
 
-	public function onActivate(Item $item, Player $player = null) : bool
+	public function onActivate(Item $item, ?Player $player = null) : bool
 	{
 		if ($player instanceof Player) {
 			$hopper = $this->getLevel()->getTile($this);
@@ -87,7 +87,7 @@ class Hopper extends Transparent
 		return true;
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool
 	{
 		static $faces = [
 			0 => Facing::DOWN,
@@ -106,8 +106,7 @@ class Hopper extends Transparent
 		return true;
 	}
 
-	public function onScheduledUpdate() : void
-	{
+	public function onScheduledUpdate() : void{
 		$level = $this->getLevel();
 		$furnace = $level->getTile($this);
 		if ($furnace instanceof TileHopper && $furnace->onUpdate()) {

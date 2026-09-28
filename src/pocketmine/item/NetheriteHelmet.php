@@ -44,6 +44,10 @@ class NetheriteHelmet extends Armor
 		return 408;
 	}
 
+	public function getEnchantAbility() : int{
+		return 15;
+	}
+
 	public function getArmorSlot() : int
 	{
 		return ArmorSlot::SLOT_HELMET;
@@ -57,7 +61,7 @@ class NetheriteHelmet extends Armor
 	public function getItemProtocol(int $playerProtocol) : ?TranslatedItemData
 	{
 		if ($playerProtocol < ProtocolInfo::PROTOCOL_407) {
-			return new TranslatedItemData(ItemIds::DIAMOND_HELMET, $this->getDamage());
+			return new TranslatedItemData(ItemIds::DIAMOND_HELMET, $this->getDamage(), $this->getName());
 		}
 
 		return parent::getItemProtocol($playerProtocol);

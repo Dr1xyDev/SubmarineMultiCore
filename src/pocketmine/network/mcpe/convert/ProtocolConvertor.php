@@ -35,6 +35,11 @@ class ProtocolConvertor
 	use SingletonTrait;
 
 	public const array PROTOCOL_CHUNK_VERSIONS = [
+		ProtocolInfo::PROTOCOL_2193,
+		ProtocolInfo::PROTOCOL_2168,
+		ProtocolInfo::PROTOCOL_1001,
+		ProtocolInfo::PROTOCOL_975,
+		ProtocolInfo::PROTOCOL_944,
 		ProtocolInfo::PROTOCOL_844,
 		ProtocolInfo::PROTOCOL_827,
 		ProtocolInfo::PROTOCOL_800,
@@ -70,19 +75,7 @@ class ProtocolConvertor
 		ProtocolInfo::PROTOCOL_419,
 		ProtocolInfo::PROTOCOL_408,
 		ProtocolInfo::PROTOCOL_407,
-		ProtocolInfo::PROTOCOL_389,
-		ProtocolInfo::PROTOCOL_370,
-		ProtocolInfo::PROTOCOL_361,
-		ProtocolInfo::PROTOCOL_354,
-		ProtocolInfo::PROTOCOL_340,
-		ProtocolInfo::PROTOCOL_332,
-		ProtocolInfo::PROTOCOL_332,
-		ProtocolInfo::PROTOCOL_313,
-		ProtocolInfo::PROTOCOL_282,
-		ProtocolInfo::PROTOCOL_274,
-		ProtocolInfo::PROTOCOL_261,
-		ProtocolInfo::PROTOCOL_137,
-		ProtocolInfo::PROTOCOL_110,
+		ProtocolInfo::PROTOCOL_113,
 	];
 
 	public function getChunkProtocol(int $protocolVersion) : int
@@ -97,6 +90,13 @@ class ProtocolConvertor
 	}
 
 	public const array PROTOCOL_CRAFTING_VERSIONS = [
+		ProtocolInfo::PROTOCOL_2193,
+		ProtocolInfo::PROTOCOL_2168,
+		ProtocolInfo::PROTOCOL_1001,
+		ProtocolInfo::PROTOCOL_975,
+		ProtocolInfo::PROTOCOL_944,
+		ProtocolInfo::PROTOCOL_924,
+		ProtocolInfo::PROTOCOL_897,
 		ProtocolInfo::PROTOCOL_859,
 		ProtocolInfo::PROTOCOL_844,
 		ProtocolInfo::PROTOCOL_827,
@@ -136,14 +136,7 @@ class ProtocolConvertor
 		ProtocolInfo::PROTOCOL_428,
 		ProtocolInfo::PROTOCOL_419,
 		ProtocolInfo::PROTOCOL_407,
-		ProtocolInfo::PROTOCOL_388,
-		ProtocolInfo::PROTOCOL_361,
-		ProtocolInfo::PROTOCOL_354,
-		ProtocolInfo::PROTOCOL_332,
-		ProtocolInfo::PROTOCOL_313,
-		ProtocolInfo::PROTOCOL_282,
-		ProtocolInfo::PROTOCOL_137,
-		ProtocolInfo::PROTOCOL_110
+		ProtocolInfo::PROTOCOL_113
 	];
 
 	public function getCratingProtocol(int $playerProtocol) : int
@@ -158,6 +151,11 @@ class ProtocolConvertor
 	}
 
 	public const array PROTOCOL_BLOCK_PALETTE_VERSIONS = [
+		ProtocolInfo::PROTOCOL_2193,
+		ProtocolInfo::PROTOCOL_2168,
+		ProtocolInfo::PROTOCOL_1001,
+		ProtocolInfo::PROTOCOL_975,
+		ProtocolInfo::PROTOCOL_944,
 		ProtocolInfo::PROTOCOL_844,
 		ProtocolInfo::PROTOCOL_827,
 		ProtocolInfo::PROTOCOL_800,
@@ -190,16 +188,7 @@ class ProtocolConvertor
 		ProtocolInfo::PROTOCOL_440,
 		ProtocolInfo::PROTOCOL_428,
 		ProtocolInfo::PROTOCOL_419,
-		ProtocolInfo::PROTOCOL_370,
-		ProtocolInfo::PROTOCOL_361,
-		ProtocolInfo::PROTOCOL_354,
-		ProtocolInfo::PROTOCOL_340,
-		ProtocolInfo::PROTOCOL_332,
-		ProtocolInfo::PROTOCOL_313,
-		ProtocolInfo::PROTOCOL_282,
-		ProtocolInfo::PROTOCOL_274,
-		ProtocolInfo::PROTOCOL_261,
-		ProtocolInfo::PROTOCOL_223
+		ProtocolInfo::PROTOCOL_407
 	];
 
 	public function getBlockPaletteProtocol(int $playerProtocol) : int
@@ -214,6 +203,13 @@ class ProtocolConvertor
 	}
 
 	public const array PROTOCOL_ITEM_PALETTE_VERSIONS = [
+		ProtocolInfo::PROTOCOL_2193,
+		ProtocolInfo::PROTOCOL_2168,
+		ProtocolInfo::PROTOCOL_1001,
+		ProtocolInfo::PROTOCOL_975,
+		ProtocolInfo::PROTOCOL_944,
+		ProtocolInfo::PROTOCOL_924,
+		ProtocolInfo::PROTOCOL_897,
 		ProtocolInfo::PROTOCOL_859,
 		ProtocolInfo::PROTOCOL_844,
 		ProtocolInfo::PROTOCOL_827,
@@ -262,6 +258,12 @@ class ProtocolConvertor
 	}
 
 	public const array PROTOCOL_ITEM_LEGACY_VERSIONS = [
+		ProtocolInfo::PROTOCOL_2193,
+		ProtocolInfo::PROTOCOL_2168,
+		ProtocolInfo::PROTOCOL_1001,
+		ProtocolInfo::PROTOCOL_975,
+		ProtocolInfo::PROTOCOL_944,
+		ProtocolInfo::PROTOCOL_897,
 		ProtocolInfo::PROTOCOL_844,
 		ProtocolInfo::PROTOCOL_827,
 		ProtocolInfo::PROTOCOL_819,
@@ -290,17 +292,7 @@ class ProtocolConvertor
 		ProtocolInfo::PROTOCOL_448,
 		ProtocolInfo::PROTOCOL_440,
 		ProtocolInfo::PROTOCOL_407,
-		ProtocolInfo::PROTOCOL_389,
-		ProtocolInfo::PROTOCOL_370,
-		ProtocolInfo::PROTOCOL_361,
-		ProtocolInfo::PROTOCOL_340,
-		ProtocolInfo::PROTOCOL_332,
-		ProtocolInfo::PROTOCOL_313,
-		ProtocolInfo::PROTOCOL_282,
-		ProtocolInfo::PROTOCOL_274,
-		ProtocolInfo::PROTOCOL_261,
-		ProtocolInfo::PROTOCOL_137,
-		ProtocolInfo::PROTOCOL_110
+		ProtocolInfo::PROTOCOL_113
 	];
 
 	public function getLegacyItemProtocol(int $playerProtocol) : int
@@ -315,6 +307,11 @@ class ProtocolConvertor
 	}
 
 	public const array PROTOCOL_BLOCK_LEGACY_VERSIONS = [
+		ProtocolInfo::PROTOCOL_2193,
+		ProtocolInfo::PROTOCOL_2168,
+		ProtocolInfo::PROTOCOL_1001,
+		ProtocolInfo::PROTOCOL_975,
+		ProtocolInfo::PROTOCOL_944,
 		ProtocolInfo::PROTOCOL_844,
 		ProtocolInfo::PROTOCOL_827,
 		ProtocolInfo::PROTOCOL_800,
@@ -347,18 +344,7 @@ class ProtocolConvertor
 		ProtocolInfo::PROTOCOL_428,
 		ProtocolInfo::PROTOCOL_419,
 		ProtocolInfo::PROTOCOL_407,
-		ProtocolInfo::PROTOCOL_370,
-		ProtocolInfo::PROTOCOL_361,
-		ProtocolInfo::PROTOCOL_354,
-		ProtocolInfo::PROTOCOL_340,
-		ProtocolInfo::PROTOCOL_332,
-		ProtocolInfo::PROTOCOL_313,
-		ProtocolInfo::PROTOCOL_282,
-		ProtocolInfo::PROTOCOL_274,
-		ProtocolInfo::PROTOCOL_261,
-		ProtocolInfo::PROTOCOL_223,
-		ProtocolInfo::PROTOCOL_137,
-		ProtocolInfo::PROTOCOL_110
+		ProtocolInfo::PROTOCOL_113
 	];
 
 	public function getLegacyBlockProtocol(int $playerProtocol) : int
@@ -374,10 +360,8 @@ class ProtocolConvertor
 
 	public const array PROTOCOL_ITEM_MAP_VERSIONS = [
 		ProtocolInfo::PROTOCOL_544,
-		ProtocolInfo::PROTOCOL_354,
-		ProtocolInfo::PROTOCOL_141,
-		ProtocolInfo::PROTOCOL_137,
-		ProtocolInfo::PROTOCOL_110,
+		ProtocolInfo::PROTOCOL_407,
+		ProtocolInfo::PROTOCOL_113,
 	];
 
 	public function getItemMapProtocol(int $playerProtocol) : int
@@ -396,7 +380,7 @@ class ProtocolConvertor
 		$protocols = [];
 		foreach (array_diff(scandir($path), ["..", "."]) as $protocol) {
 			$fullFile = $path . "/" . $protocol . "/" . $file;
-			if (file_exists($fullFile)) {
+			if (\pocketmine\utils\Filesystem::resourceExists($fullFile)) {
 				$protocols[] = (int) $protocol;
 			}
 		}

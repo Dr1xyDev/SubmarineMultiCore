@@ -55,15 +55,15 @@ final class SmithingTransformRecipe extends RecipeWithTypeId{
 
 	public function getRecipeNetId() : int{ return $this->recipeNetId; }
 
-	public static function decode(int $typeId, NetworkBinaryStream $in, int $protocol) : self{
+	public static function decode(int $typeId, NetworkBinaryStream $in) : self{
 		$recipeId = $in->getString();
-		if ($protocol >= ProtocolInfo::PROTOCOL_582) {
-			$template = $in->getRecipeIngredient($protocol);
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_582) {
+			$template = $in->getRecipeIngredient();
 		}
 
-		$input = $in->getRecipeIngredient($protocol);
-		$addition = $in->getRecipeIngredient($protocol);
-		$output = $in->getItemStackWithoutStackId($protocol);
+		$input = $in->getRecipeIngredient();
+		$addition = $in->getRecipeIngredient();
+		$output = $in->getItemStackWithoutStackId();
 		$blockName = $in->getString();
 		$recipeNetId = $in->readRecipeNetId();
 
@@ -79,15 +79,15 @@ final class SmithingTransformRecipe extends RecipeWithTypeId{
 		);
 	}
 
-	public function encode(NetworkBinaryStream $out, int $protocol) : void{
+	public function encode(NetworkBinaryStream $out) : void{
 		$out->putString($this->recipeId);
-		if ($protocol >= ProtocolInfo::PROTOCOL_582) {
-			$out->putRecipeIngredient($this->template, $protocol);
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_582) {
+			$out->putRecipeIngredient($this->template);
 		}
 
-		$out->putRecipeIngredient($this->input, $protocol);
-		$out->putRecipeIngredient($this->addition, $protocol);
-		$out->putItemStackWithoutStackId($this->output, $protocol);
+		$out->putRecipeIngredient($this->input);
+		$out->putRecipeIngredient($this->addition);
+		$out->putItemStackWithoutStackId($this->output);
 		$out->putString($this->blockName);
 		$out->writeRecipeNetId($this->recipeNetId);
 	}

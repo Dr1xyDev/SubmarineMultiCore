@@ -25,6 +25,7 @@ namespace pocketmine\resourcepacks;
 use Ahc\Json\Comment as CommentedJsonDecoder;
 use stdClass;
 
+use function array_key_first;
 use function assert;
 use function count;
 use function fclose;
@@ -42,6 +43,8 @@ use function strlen;
 
 class ZippedResourcePack implements ResourcePack
 {
+	protected const MAX_CACHE_SIZE = 64;
+
 	/**
 	 * Performs basic validation checks on a resource pack's manifest.json.
 	 * TODO: add more manifest validation
@@ -61,20 +64,16 @@ class ZippedResourcePack implements ResourcePack
 			count($manifest->header->version) === 3;
 	}
 
-	/** @var string */
-	protected $path;
-
+	protected string $path;
 	/** @var stdClass */
 	protected $manifest;
-
-	/** @var string|null */
-	protected $sha256 = null;
-
+	protected ?string $sha256 = null;
 	/** @var resource */
 	protected $fileResource;
+	protected string $encryptionKey;
 
-	/** @var string */
-	protected $encryptionKey;
+	/** @var array<string, string>  */
+	protected array $chunkCache = [];
 
 	/**
 	 * @param string $zipPath Path to the resource pack zip
@@ -174,13 +173,28 @@ class ZippedResourcePack implements ResourcePack
 		return $this->sha256;
 	}
 
-	public function getPackChunk(int $start, int $length) : string
+	public function getPackChunk(int $start, int $length, bool $useCache = true) : string
 	{
+		$cacheKey = $start . ':' . $length;
+		if ($useCache && isset($this->chunkCache[$cacheKey])) {
+			return $this->chunkCache[$cacheKey];
+		}
+
 		fseek($this->fileResource, $start);
 		if (feof($this->fileResource)) {
 			throw new \InvalidArgumentException("Requested a resource pack chunk with invalid start offset");
 		}
-		return fread($this->fileResource, $length);
+
+		$chunk = fread($this->fileResource, $length);
+		if ($useCache) {
+			if (count($this->chunkCache) >= self::MAX_CACHE_SIZE) {
+				unset($this->chunkCache[array_key_first($this->chunkCache)]);
+			}
+
+			$this->chunkCache[$cacheKey] = $chunk;
+		}
+
+		return $chunk;
 	}
 
 	public function getEncryptionKey() : ?string
@@ -188,7 +202,7 @@ class ZippedResourcePack implements ResourcePack
 		return $this->encryptionKey ?? null;
 	}
 
-	public function setEncryptionKey(string $key)
+	public function setEncryptionKey(string $key) : void
 	{
 		$this->encryptionKey = $key;
 	}

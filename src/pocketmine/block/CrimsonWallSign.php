@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace pocketmine\block;
 
 use pocketmine\item\Item;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 class CrimsonWallSign extends WallSign
 {
@@ -40,14 +39,5 @@ class CrimsonWallSign extends WallSign
 	public function getName() : string
 	{
 		return "Crimson Wall Sign";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_419) {
-			return BlockFactory::get(Block::WALL_SIGN, $this->meta);
-		}
-
-		return null;
 	}
 }

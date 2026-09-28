@@ -90,7 +90,7 @@ class SignPost extends Transparent
 		$player->sendDataPacket($pk);
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool
 	{
 		if ($face !== Facing::DOWN) {
 
@@ -117,7 +117,7 @@ class SignPost extends Transparent
 		return false;
 	}
 
-	public function onActivate(Item $item, Player $player = null) : bool
+	public function onActivate(Item $item, ?Player $player = null) : bool
 	{
 		if (!$player instanceof Player) {
 			return false;
@@ -183,14 +183,5 @@ class SignPost extends Transparent
 	public function getVariantBitmask() : int
 	{
 		return 0;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_332) {
-			return BlockFactory::get(BlockIds::SIGN_POST, $this->meta);
-		}
-
-		return null;
 	}
 }

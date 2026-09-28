@@ -81,7 +81,7 @@ final class CommandListJson implements JsonSerializable
 	{
 		$data = [
 			"description" => $commandData->description,
-			"permission" => self::permName($commandData->permission)
+			"permission" => self::permName($commandData->permission->value)
 		];
 
 		if ($commandData->aliases instanceof CommandEnum) {

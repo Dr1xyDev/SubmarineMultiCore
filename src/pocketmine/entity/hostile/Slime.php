@@ -275,7 +275,12 @@ class Slime extends Monster
 
 	public function getDrops() : array
 	{
-		return $this->getSlimeSize() === 1 ? [ItemFactory::get(Item::SLIME_BALL)] : [];
+		if ($this->getSlimeSize() !== 1) {
+			return [];
+		}
+
+		$looting = $this->getLootingLevel();
+		return [ItemFactory::get(Item::SLIME_BALL, 0, 1 + ($looting > 0 ? $this->random->nextBoundedInt($looting + 1) : 0))];
 	}
 
 	public function getXpDropAmount() : int

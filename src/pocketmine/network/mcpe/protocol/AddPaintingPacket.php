@@ -65,7 +65,7 @@ class AddPaintingPacket extends DataPacket
 	{
 		$this->entityUniqueId = $this->getEntityUniqueId();
 		$this->entityRuntimeId = $this->getEntityRuntimeId();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_361) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$position = $this->getVector3();
 			$this->x = $position->x;
 			$this->y = $position->y;
@@ -81,7 +81,7 @@ class AddPaintingPacket extends DataPacket
 	{
 		$this->putEntityUniqueId($this->entityUniqueId ?? $this->entityRuntimeId);
 		$this->putEntityRuntimeId($this->entityRuntimeId);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_361) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->putVector3(new Vector3($this->x, $this->y, $this->z));
 		} else {
 			$this->putBlockPosition($this->x, $this->y, $this->z);

@@ -126,7 +126,7 @@ abstract class Fence extends Transparent
 		return $block instanceof static || $block instanceof FenceGate || ($block->isSolid() && !$block->isTransparent());
 	}
 
-	public function onActivate(Item $item, Player $player = null) : bool
+	public function onActivate(Item $item, ?Player $player = null) : bool
 	{
 		if ($player !== null) {
 			$knot = LeashKnot::getKnotFromPosition($player->level, $this);

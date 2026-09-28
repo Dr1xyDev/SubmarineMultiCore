@@ -24,9 +24,9 @@ namespace pocketmine\block;
 
 use pocketmine\block\utils\CopperMaterial;
 use pocketmine\block\utils\CopperOxidation;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
+use pocketmine\item\TieredTool;
 
-class CutCopperDoubleSlab extends DoubleStoneSlab implements CopperMaterial
+class CutCopperDoubleSlab extends DoubleSlab implements CopperMaterial
 {
 	protected int $slabId;
 
@@ -87,12 +87,18 @@ class CutCopperDoubleSlab extends DoubleStoneSlab implements CopperMaterial
 		};
 	}
 
-	public function getBlockProtocol(int $playerProtocol) : ?Block
+	public function getHardness() : float
 	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_440) {
-			return BlockFactory::get(BlockIds::DOUBLE_STONE_SLAB);
-		}
+		return 3;
+	}
 
-		return null;
+	public function getToolType() : int
+	{
+		return BlockToolType::TYPE_PICKAXE;
+	}
+
+	public function getToolHarvestLevel() : int
+	{
+		return TieredTool::TIER_STONE;
 	}
 }

@@ -22,15 +22,8 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe;
 
-use pocketmine\network\mcpe\protocol\DataPacket;
-
 interface PacketSender
 {
-	/**
-	 * Sends a DataPacket to the interface, returns an unique identifier for the packet if $needACK is true
-	 */
-	public function putPacket(int $sessionId, DataPacket $packet, bool $needACK = false, bool $immediate = true) : ?int;
-
 	/**
 	 * Sends a DataPacket to the interface, returns an unique identifier for the packet if $needACK is true
 	 */

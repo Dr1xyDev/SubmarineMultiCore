@@ -41,9 +41,9 @@ class SetActorDataPacket extends DataPacket
 	protected function decodePayload() : void
 	{
 		$this->entityRuntimeId = $this->getEntityRuntimeId();
-		$this->metadata = $this->getEntityMetadata($this->getProtocol());
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_419) {
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_557) {
+		$this->metadata = $this->getEntityMetadata();
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_419) {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_557) {
 				$this->syncedProperties = PropertySyncData::read($this);
 			}
 			$this->tick = $this->getUnsignedVarLong();
@@ -53,9 +53,9 @@ class SetActorDataPacket extends DataPacket
 	protected function encodePayload() : void
 	{
 		$this->putEntityRuntimeId($this->entityRuntimeId);
-		$this->putEntityMetadata($this->metadata, $this->getProtocol());
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_419) {
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_557) {
+		$this->putEntityMetadata($this->metadata);
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_419) {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_557) {
 				if ($this->syncedProperties === null) {
 					$this->syncedProperties = new PropertySyncData([], []);
 				}

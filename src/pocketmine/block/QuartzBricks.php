@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class QuartzBricks extends Quartz
 {
 	protected $id = self::QUARTZ_BRICKS;
@@ -41,14 +39,5 @@ class QuartzBricks extends Quartz
 	public function getVariantBitmask() : int
 	{
 		return 0;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_419) {
-			return BlockFactory::get(BlockIds::QUARTZ_BLOCK);
-		}
-
-		return null;
 	}
 }

@@ -43,6 +43,10 @@ class LeatherTunic extends Armor
 		return 81;
 	}
 
+	public function getEnchantAbility() : int{
+		return 15;
+	}
+
 	public function getArmorSlot() : int
 	{
 		return ArmorSlot::SLOT_CHESTPLATE;

@@ -100,13 +100,13 @@ final class AbilitiesLayer
 		return $this->walkSpeed;
 	}
 
-	public static function decode(NetworkBinaryStream $in, int $protocolVersion) : self
+	public static function decode(NetworkBinaryStream $in) : self
 	{
 		$layerId = $in->getLShort();
 		$setAbilities = $in->getLInt();
 		$setAbilityValues = $in->getLInt();
 		$flySpeed = $in->getLFloat();
-		if ($protocolVersion >= ProtocolInfo::PROTOCOL_776) {
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_776) {
 			$verticalFlySpeed = $in->getLFloat();
 		}
 		$walkSpeed = $in->getLFloat();
@@ -126,7 +126,7 @@ final class AbilitiesLayer
 			}
 			$flySpeed = null;
 		}
-		if ($protocolVersion >= ProtocolInfo::PROTOCOL_776) {
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_776) {
 			if (($setAbilities & (1 << self::ABILITY_VERTICAL_FLY_SPEED)) === 0) {
 				if ($verticalFlySpeed !== 0.0) {
 					throw new PacketDecodeException("Vertical fly speed should be zero if the layer does not set it");
@@ -144,7 +144,7 @@ final class AbilitiesLayer
 		return new self($layerId, $boolAbilities, $flySpeed, $verticalFlySpeed ?? null, $walkSpeed);
 	}
 
-	public function encode(NetworkBinaryStream $out, int $protocolVersion) : void
+	public function encode(NetworkBinaryStream $out) : void
 	{
 		$out->putLShort($this->layerId);
 
@@ -157,7 +157,7 @@ final class AbilitiesLayer
 		if ($this->flySpeed !== null) {
 			$setAbilities |= (1 << self::ABILITY_FLY_SPEED);
 		}
-		if ($this->verticalFlySpeed !== null && $protocolVersion >= ProtocolInfo::PROTOCOL_776) {
+		if ($this->verticalFlySpeed !== null && $out->getProtocol() >= ProtocolInfo::PROTOCOL_776) {
 			$setAbilities |= (1 << self::ABILITY_VERTICAL_FLY_SPEED);
 		}
 		if ($this->walkSpeed !== null) {
@@ -167,7 +167,7 @@ final class AbilitiesLayer
 		$out->putLInt($setAbilities);
 		$out->putLInt($setAbilityValues);
 		$out->putLFloat($this->flySpeed ?? 0);
-		if ($protocolVersion >= ProtocolInfo::PROTOCOL_776) {
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_776) {
 			$out->putLFloat($this->verticalFlySpeed ?? 0);
 		}
 		$out->putLFloat($this->walkSpeed ?? 0);

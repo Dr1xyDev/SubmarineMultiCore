@@ -32,7 +32,6 @@ use pocketmine\nbt\tag\ByteArrayTag;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\ListTag;
 use Symfony\Component\Filesystem\Path;
-
 use function assert;
 use function file_exists;
 use function is_dir;
@@ -44,7 +43,6 @@ use function strlen;
 use function strrpos;
 use function substr;
 use function time;
-
 use const SCANDIR_SORT_NONE;
 
 abstract class RegionLevelProvider extends BaseLevelProvider

@@ -24,7 +24,8 @@ namespace pocketmine\level\particle;
 
 use pocketmine\block\Block;
 use pocketmine\math\Vector3;
-use pocketmine\network\mcpe\convert\RuntimeBlockMapping;
+use pocketmine\network\mcpe\convert\block\BlockProtocolConvertor;
+use pocketmine\network\mcpe\convert\block\RuntimeBlockMapping;
 use pocketmine\network\mcpe\protocol\LevelEventPacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
@@ -44,8 +45,8 @@ class DestroyBlockParticle extends Particle
 		$pk->evid = LevelEventPacket::EVENT_PARTICLE_DESTROY;
 		$pk->position = $this->asVector3();
 
-		$block = ($this->block->getBlockProtocol($this->protocol) ?? $this->block);
-		if ($this->protocol >= ProtocolInfo::PROTOCOL_223) {
+		$block = BlockProtocolConvertor::getInstance()->get($this->block, $this->protocol) ?? $this->block;
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$pk->data = RuntimeBlockMapping::getInstance($this->protocol)->toRuntimeId($block->getFullId());
 		} else {
 			$pk->data = $block->getId() + ($block->getDamage() << 8);

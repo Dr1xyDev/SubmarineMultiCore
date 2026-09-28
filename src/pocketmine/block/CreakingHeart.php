@@ -25,7 +25,6 @@ namespace pocketmine\block;
 use pocketmine\block\utils\PillarRotationHelper;
 use pocketmine\item\Item;
 use pocketmine\math\Vector3;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\Player;
 
 class CreakingHeart extends Solid
@@ -47,19 +46,10 @@ class CreakingHeart extends Solid
 		return "Creaking Heart";
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool
 	{
 		$this->meta = PillarRotationHelper::getMetaFromFace($this->meta, $face, true);
 		$this->getLevel()->setBlock($blockReplace, $this, true, true);
 		return true;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_766) {
-			return BlockFactory::get(BlockIds::BONE_BLOCK);
-		}
-
-		return null;
 	}
 }

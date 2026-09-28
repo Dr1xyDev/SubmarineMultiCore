@@ -25,7 +25,6 @@ namespace pocketmine\block;
 use pocketmine\item\Item;
 use pocketmine\math\Facing;
 use pocketmine\math\Vector3;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\Player;
 
 class PaleHangingMoss extends Flowable
@@ -50,10 +49,10 @@ class PaleHangingMoss extends Flowable
 		return "Pale Hanging Moss";
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool
 	{
 		$up = $this->getSide(Facing::UP);
-		if (($up->isSolid() && !$up->isTransparent()) || $up->getId() === self::PALE_HANGING_MOSS) {
+		if (($up->isSolid() && !$up->isTransparent()) || $up->getId() === self::PALE_HANGING_MOSS || $up->getId() === self::PALE_OAK_LEAVES) {
 			if ($up->getId() === self::PALE_HANGING_MOSS && $up->getDamage() === self::HANGING_END) {
 				$up->setDamage(self::HANGING_FULL);
 				$this->getLevel()->setBlock($up, $up, true, true);
@@ -70,12 +69,12 @@ class PaleHangingMoss extends Flowable
 	public function onNearbyBlockChange() : void
 	{
 		$up = $this->getSide(Facing::UP);
-		if (!(($up->isSolid() && !$up->isTransparent()) || $up->getId() === self::PALE_HANGING_MOSS)) {
+		if (!(($up->isSolid() && !$up->isTransparent()) || $up->getId() === self::PALE_HANGING_MOSS || $up->getId() === self::PALE_OAK_LEAVES)) {
 			$this->getLevel()->useBreakOn($this);
 		}
 	}
 
-	public function onBreak(Item $item, Player $player = null) : bool
+	public function onBreak(Item $item, ?Player $player = null) : bool
 	{
 		$up = $this->getSide(Facing::UP);
 		if ($up->getId() === self::PALE_HANGING_MOSS && $up->getDamage() === self::HANGING_FULL) {
@@ -95,14 +94,5 @@ class PaleHangingMoss extends Flowable
 	public function getFlammability() : int
 	{
 		return 5;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_766) {
-			return BlockFactory::get(BlockIds::REEDS_BLOCK);
-		}
-
-		return null;
 	}
 }

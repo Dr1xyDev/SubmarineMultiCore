@@ -32,7 +32,7 @@ class CommandData
 		public string $name,
 		public string $description,
 		public int $flags,
-		public int $permission,
+		public CommandPermissions $permission,
 		public ?CommandEnum $aliases,
 		public array $overloads,
 		public array $chainedSubCommandData
@@ -56,7 +56,7 @@ class CommandData
 		return $this->flags;
 	}
 
-	public function getPermission() : int
+	public function getPermission() : CommandPermissions
 	{
 		return $this->permission;
 	}

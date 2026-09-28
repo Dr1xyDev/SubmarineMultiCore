@@ -31,8 +31,6 @@ use pocketmine\level\format\io\data\BedrockLevelData;
 use pocketmine\level\format\io\exception\CorruptedChunkException;
 use pocketmine\level\format\io\LevelData;
 use pocketmine\level\format\io\leveldb\states\BlockStateData;
-use pocketmine\level\format\io\leveldb\states\BlockStateDeserializeException;
-use pocketmine\level\format\io\leveldb\states\BlockStateDeserializer;
 use pocketmine\level\format\io\leveldb\upgrade\BlockDataUpgrade;
 use pocketmine\level\format\io\WritableLevelProvider;
 use pocketmine\level\format\SubChunk;
@@ -44,12 +42,13 @@ use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\IntTag;
 use pocketmine\nbt\tag\ShortTag;
 use pocketmine\nbt\tag\StringTag;
+use pocketmine\network\mcpe\convert\block\RuntimeBlockMapping;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\utils\Binary;
 use pocketmine\utils\BinaryDataException;
 use pocketmine\utils\BinaryStream;
 use pocketmine\world\format\PalettedBlockArray;
 use Symfony\Component\Filesystem\Path;
-
 use function array_flip;
 use function array_values;
 use function chr;
@@ -69,7 +68,6 @@ use function strlen;
 use function substr;
 use function trim;
 use function unpack;
-
 use const LEVELDB_ZLIB_RAW_COMPRESSION;
 use const pocketmine\BEDROCK_DATA_PATH;
 
@@ -123,10 +121,10 @@ class LevelDB extends BaseLevelProvider implements WritableLevelProvider
 	/**
 	 * @throws \LevelDBException
 	 */
-	private static function createDB(string $path) : \LevelDB
+	private static function createDB(string $path, int $compressionType = LEVELDB_ZLIB_RAW_COMPRESSION) : \LevelDB
 	{
 		return new \LevelDB(Path::join($path, "db"), [
-			"compression" => LEVELDB_ZLIB_RAW_COMPRESSION,
+			"compression" => $compressionType,
 			"block_size" => 64 * 1024 //64KB, big enough for most chunks
 		]);
 	}
@@ -137,7 +135,7 @@ class LevelDB extends BaseLevelProvider implements WritableLevelProvider
 		parent::__construct($path);
 
 		try {
-			$this->db = self::createDB($path);
+			$this->db = self::createDB($path, $this->levelData instanceof BedrockLevelData ? $this->levelData->getCompressionType() : LEVELDB_ZLIB_RAW_COMPRESSION);
 		} catch (\LevelDBException $e) {
 			//we can't tell the difference between errors caused by bad permissions and actual corruption :(
 			throw new LevelException(trim($e->getMessage()), 0, $e);
@@ -184,13 +182,13 @@ class LevelDB extends BaseLevelProvider implements WritableLevelProvider
 			throw new CorruptedChunkException("Failed to deserialize paletted storage: " . $e->getMessage(), 0, $e);
 		}
 		$nbt = new LittleEndianNBTStream();
-		$blockStateDeserializer = BlockStateDeserializer::getInstance();
 		$blockDataUpdate = BlockDataUpgrade::getInstance();
+		$runtimeBlockMapping = RuntimeBlockMapping::getInstance(ProtocolInfo::CURRENT_PROTOCOL);
 		$palette = [];
 		$blockDecodeErrors = [];
 
 		if (self::$cacheBlockIdMap === null) {
-			self::$cacheBlockIdMap = json_decode(file_get_contents(BEDROCK_DATA_PATH . "block/block_id_map.json"), true);
+			self::$cacheBlockIdMap = json_decode(\pocketmine\utils\Filesystem::resourceGetContents(BEDROCK_DATA_PATH . "block/block_id_map.json"), true);
 		}
 
 		if ($bitsPerBlock === 0) {
@@ -232,7 +230,7 @@ class LevelDB extends BaseLevelProvider implements WritableLevelProvider
 
 			if ($blockStateNbt->getTag("name") !== null && $blockStateNbt->getTag("val") !== null) {
 				//Legacy (pre-1.13) blockstate - upgrade it to a version we understand
-				$id = self::$cacheBlockIdMap[$blockStateNbt->getString("name")] ?? Block::INFO_UPDATE;
+				$id = self::$cacheBlockIdMap[$blockStateNbt->getString("name")] ?? BlockIds::INFO_UPDATE;
 				$data = $blockStateNbt->getShort("val");
 				$palette[] = ($id << Block::INTERNAL_METADATA_BITS) | $data;
 			} else {
@@ -246,10 +244,7 @@ class LevelDB extends BaseLevelProvider implements WritableLevelProvider
 				}
 
 				try {
-					$palette[] = $blockStateDeserializer->deserialize($blockStateData);
-				} catch (BlockStateDeserializeException $e) {
-					$blockDecodeErrors[] = "Palette offset $i / Deserialize error: " . $e->getMessage() . ", NBT: " . $blockStateNbt->toString();
-					$palette[] = BlockIds::INFO_UPDATE << Block::INTERNAL_METADATA_BITS;
+					$palette[] = $runtimeBlockMapping->fromRuntimeId($runtimeBlockMapping->fromNbtBlock($blockStateData->toVanillaNbt()));
 				} catch (\Exception $e) {
 					$blockDecodeErrors[] = "Palette offset $i / " . $e->getMessage();
 					$palette[] = BlockIds::INFO_UPDATE << Block::INTERNAL_METADATA_BITS;
@@ -563,6 +558,14 @@ class LevelDB extends BaseLevelProvider implements WritableLevelProvider
 			}
 		}
 
+		$finalisationChr = $this->db->get($index . ChunkDataKey::FINALIZATION);
+		if($finalisationChr !== false){
+			$finalisation = ord($finalisationChr);
+			$terrainPopulated = $finalisation === self::FINALISATION_DONE;
+		}else{ //older versions didn't have this tag
+			$terrainPopulated = true;
+		}
+
 		$chunk = new Chunk(
 			$chunkX,
 			$chunkZ,
@@ -576,7 +579,7 @@ class LevelDB extends BaseLevelProvider implements WritableLevelProvider
 		//TODO: tile ticks, biome states (?)
 
 		$chunk->setGenerated(true);
-		$chunk->setPopulated(true);
+		$chunk->setPopulated($terrainPopulated);
 		$chunk->setLightPopulated($lightPopulated);
 		$chunk->setChanged($hasBeenUpgraded); //trigger rewriting chunk to disk if it was converted from an older format
 
@@ -589,7 +592,7 @@ class LevelDB extends BaseLevelProvider implements WritableLevelProvider
 		$chunkZ = $chunk->getZ();
 
 		if (self::$cacheBlockIdMapFlip === null) {
-			self::$cacheBlockIdMapFlip = array_flip(json_decode(file_get_contents(BEDROCK_DATA_PATH . "block/block_id_map.json"), true));
+			self::$cacheBlockIdMapFlip = array_flip(json_decode(\pocketmine\utils\Filesystem::resourceGetContents(BEDROCK_DATA_PATH . "block/block_id_map.json"), true));
 		}
 		$index = LevelDB::chunkIndex($chunkX, $chunkZ);
 
@@ -639,7 +642,7 @@ class LevelDB extends BaseLevelProvider implements WritableLevelProvider
 		$write->put($index . ChunkDataKey::HEIGHTMAP_AND_2D_BIOMES, str_repeat("\x00", 512) . $chunk->getBiomeIdArray());
 
 		//TODO: use this properly
-		$write->put($index . ChunkDataKey::FINALIZATION, chr(self::FINALISATION_DONE));
+		$write->put($index . ChunkDataKey::FINALIZATION, chr($chunk->isPopulated() ? self::FINALISATION_DONE : self::FINALISATION_NEEDS_POPULATION));
 
 		/** @var CompoundTag[] $tiles */
 		$tiles = [];

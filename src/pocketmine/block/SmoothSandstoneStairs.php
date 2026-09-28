@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class SmoothSandstoneStairs extends SandstoneStairs
 {
 	protected $id = self::SMOOTH_SANDSTONE_STAIRS;
@@ -31,14 +29,5 @@ class SmoothSandstoneStairs extends SandstoneStairs
 	public function getName() : string
 	{
 		return "Smooth Sandstone Stairs";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_332) {
-			return BlockFactory::get(BlockIds::SANDSTONE_STAIRS, $this->meta);
-		}
-
-		return null;
 	}
 }

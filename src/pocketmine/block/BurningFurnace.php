@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace pocketmine\block;
 
 use pocketmine\item\Item;
+use pocketmine\item\ItemIds;
 use pocketmine\item\TieredTool;
 use pocketmine\math\Vector3;
 use pocketmine\Player;
@@ -35,7 +36,7 @@ class BurningFurnace extends Solid
 {
 	protected $id = self::BURNING_FURNACE;
 
-	protected $itemId = self::FURNACE;
+	protected $itemId = ItemIds::FURNACE;
 
 	public function __construct(int $meta = 0)
 	{
@@ -67,15 +68,9 @@ class BurningFurnace extends Solid
 		return 13;
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool
 	{
-		$faces = [
-			0 => 4,
-			1 => 2,
-			2 => 5,
-			3 => 3
-		];
-		$this->meta = $faces[$player instanceof Player ? $player->getDirection() : 0];
+		$this->meta = Block::getMetaFace($player instanceof Player ? $player->getDirection() : 0);
 		$this->getLevel()->setBlock($blockReplace, $this, true, true);
 
 		Tile::createTile(Tile::FURNACE, $this->getLevel(), TileFurnace::createNBT($this, $face, $item, $player));
@@ -83,7 +78,7 @@ class BurningFurnace extends Solid
 		return true;
 	}
 
-	public function onActivate(Item $item, Player $player = null) : bool
+	public function onActivate(Item $item, ?Player $player = null) : bool
 	{
 		if ($player instanceof Player) {
 			$furnace = $this->getLevel()->getTile($this);

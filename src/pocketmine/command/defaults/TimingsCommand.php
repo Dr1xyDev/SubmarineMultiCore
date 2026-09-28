@@ -187,7 +187,7 @@ class TimingsCommand extends VanillaCommand
 						"https://" . $host . "/?id=" . $response["id"]
 					]));
 				} else {
-					$sender->getServer()->getLogger()->debug("Invalid response from timings server (" . $result->getCode() . "): " . $result->getBody());
+					$sender->getServer()->getLogger()->error("Invalid response from timings server (" . $result->getCode() . "): " . $result->getBody());
 					Command::broadcastCommandMessage($sender, new TranslationContainer("pocketmine.command.timings.pasteError"));
 				}
 			}

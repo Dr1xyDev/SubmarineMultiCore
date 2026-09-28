@@ -39,16 +39,16 @@ class LecternUpdatePacket extends DataPacket
 	/** @var int */
 	public $z;
 	/** @var bool */
-	public $dropBook;
+	public $dropBook = false;
 
 	protected function decodePayload() : void
 	{
 		$this->page = $this->getByte();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_354) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->totalPages = $this->getByte();
 		}
 		$this->getBlockPosition($this->x, $this->y, $this->z);
-		if ($this->getProtocol() < ProtocolInfo::PROTOCOL_662) {
+		if ($this->protocol < ProtocolInfo::PROTOCOL_662) {
 			$this->dropBook = $this->getBool();
 		}
 	}
@@ -56,18 +56,18 @@ class LecternUpdatePacket extends DataPacket
 	protected function encodePayload() : void
 	{
 		$this->putByte($this->page);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_354) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->putByte($this->totalPages);
 		}
 		$this->putBlockPosition($this->x, $this->y, $this->z);
-		if ($this->getProtocol() < ProtocolInfo::PROTOCOL_662) {
+		if ($this->protocol < ProtocolInfo::PROTOCOL_662) {
 			$this->putBool($this->dropBook);
 		}
 	}
 
 	public function mustBeDecoded() : bool
 	{
-		return false;
+		return true;
 	}
 
 	public function handle(NetworkSession $session) : bool

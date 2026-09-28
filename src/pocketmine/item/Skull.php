@@ -35,7 +35,7 @@ class Skull extends ItemBlock implements ArmorSlot
 	public function getItemProtocol(int $playerProtocol) : ?TranslatedItemData
 	{
 		if ($playerProtocol < ProtocolInfo::PROTOCOL_567 && $this->meta === TileSkull::TYPE_PIGLIN) {
-			return new TranslatedItemData(ItemIds::MOB_HEAD, TileSkull::TYPE_PLAYER);
+			return new TranslatedItemData(ItemIds::MOB_HEAD, TileSkull::TYPE_PLAYER, $this->getName());
 		}
 
 		return null;

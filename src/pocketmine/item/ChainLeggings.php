@@ -43,6 +43,10 @@ class ChainLeggings extends Armor
 		return 226;
 	}
 
+	public function getEnchantAbility() : int{
+		return 12;
+	}
+
 	public function getArmorSlot() : int
 	{
 		return ArmorSlot::SLOT_LEGGINGS;

@@ -54,28 +54,25 @@ class Beacon extends Spawnable implements Nameable, InventoryHolder
 		BlockIds::IRON_BLOCK,
 		BlockIds::GOLD_BLOCK,
 		BlockIds::EMERALD_BLOCK,
-		BlockIds::DIAMOND_BLOCK
+		BlockIds::DIAMOND_BLOCK,
+		BlockIds::NETHERITE_BLOCK
 	];
 
 	protected AxisAlignedBB $rangeBox;
 
-	public function __construct(Level $level, CompoundTag $nbt)
-	{
-		parent::__construct($level, $nbt);
-
-		$this->getLevel()->scheduleDelayedBlockUpdate($this, 1);
+	protected function readSaveData(CompoundTag $nbt) : void{
+		$this->inventory = new BeaconInventory($this);
 		$this->rangeBox = new AxisAlignedBB($this->x, $this->y, $this->z, $this->x, $this->y, $this->z);
-	}
 
-	protected function readSaveData(CompoundTag $nbt) : void
-	{
 		$this->primary = $nbt->getInt(self::TAG_PRIMARY, 0);
 		$this->secondary = $nbt->getInt(self::TAG_SECONDARY, 0);
 
-		$this->inventory = new BeaconInventory($this);
-
 		$this->loadName($nbt);
 		$this->loadItems($nbt);
+
+		if ($this->level instanceof Level) {
+			$this->level->scheduleDelayedBlockUpdate($this, 1);
+		}
 	}
 
 	protected function writeSaveData(CompoundTag $nbt) : void
@@ -97,12 +94,12 @@ class Beacon extends Spawnable implements Nameable, InventoryHolder
 		}
 	}
 
-	protected function addAdditionalSpawnData(CompoundTag $nbt) : void
+	protected function addAdditionalSpawnData(CompoundTag $nbt, int $protocolVersion) : void
 	{
 		$nbt->setInt(self::TAG_PRIMARY, $this->primary);
 		$nbt->setInt(self::TAG_SECONDARY, $this->secondary);
 
-		$this->addNameSpawnData($nbt);
+		$this->addNameSpawnData($nbt, $protocolVersion);
 	}
 
 	public function getDefaultName() : string

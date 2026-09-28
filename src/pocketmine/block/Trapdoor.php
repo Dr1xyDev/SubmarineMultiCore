@@ -115,7 +115,7 @@ abstract class Trapdoor extends Transparent
 		return $bb;
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool
 	{
 		$directions = [
 			0 => self::MASK_SIDE_WEST,
@@ -140,7 +140,7 @@ abstract class Trapdoor extends Transparent
 		return 0;
 	}
 
-	public function onActivate(Item $item, Player $player = null) : bool
+	public function onActivate(Item $item, ?Player $player = null) : bool
 	{
 		$this->setOpen(!$this->isOpen());
 		$this->getLevel()->setBlock($this, $this, true);

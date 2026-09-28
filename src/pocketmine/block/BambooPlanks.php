@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class BambooPlanks extends Planks
 {
 	protected $id = self::BAMBOO_PLANKS;
@@ -36,14 +34,5 @@ class BambooPlanks extends Planks
 	public function getName() : string
 	{
 		return "Bamboo Planks";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_560) {
-			return BlockFactory::get(BlockIds::PLANKS);
-		}
-
-		return null;
 	}
 }

@@ -28,6 +28,7 @@ use pocketmine\entity\Entity;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
+use pocketmine\level\ChunkManager;
 use pocketmine\level\Level;
 use pocketmine\level\particle\DestroyBlockParticle;
 use pocketmine\math\AxisAlignedBB;
@@ -61,7 +62,7 @@ class Painting extends Entity
 	/** @var string */
 	protected $motive;
 
-	public function __construct(Level $level, CompoundTag $nbt)
+	public function __construct(ChunkManager $level, CompoundTag $nbt)
 	{
 		$this->motive = $nbt->getString("Motive");
 		$this->blockIn = new Vector3($nbt->getInt("TileX"), $nbt->getInt("TileY"), $nbt->getInt("TileZ"));
@@ -164,7 +165,7 @@ class Painting extends Entity
 
 	protected function sendSpawnPacket(Player $player) : void
 	{
-		if ($player->getProtocolVersion() < ProtocolInfo::PROTOCOL_361) {
+		if ($player->getProtocolVersion() < ProtocolInfo::PROTOCOL_407) {
 			[$x, $y, $z] = [
 				$this->blockIn->x,
 				$this->blockIn->y,

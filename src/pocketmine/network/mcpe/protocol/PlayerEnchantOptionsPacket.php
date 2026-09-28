@@ -32,7 +32,7 @@ class PlayerEnchantOptionsPacket extends DataPacket
 	public const NETWORK_ID = ProtocolInfo::PLAYER_ENCHANT_OPTIONS_PACKET;
 
 	/** @var EnchantOption[] */
-	private array $options;
+	private array $options = [];
 
 	/**
 	 * @generate-create-func

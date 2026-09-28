@@ -25,11 +25,15 @@ namespace pocketmine\tile;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
 use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\network\mcpe\convert\block\BlockProtocolConvertor;
+use pocketmine\network\mcpe\convert\block\RuntimeBlockMapping;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 class FlowerPot extends Spawnable
 {
 	public const TAG_ITEM = "item";
 	public const TAG_ITEM_DATA = "mData";
+	private const TAG_PLANT_BLOCK = "PlantBlock";
 
 	/** @var Item */
 	private $item;
@@ -73,9 +77,28 @@ class FlowerPot extends Spawnable
 		return $this->getItem()->isNull();
 	}
 
-	protected function addAdditionalSpawnData(CompoundTag $nbt) : void
+	protected function addAdditionalSpawnData(CompoundTag $nbt, int $protocolVersion) : void
 	{
-		$nbt->setShort(self::TAG_ITEM, $this->item->getId());
-		$nbt->setInt(self::TAG_ITEM_DATA, $this->item->getDamage());
+		$item = $this->item;
+		if ($protocolVersion >= ProtocolInfo::PROTOCOL_419) {
+			if(!$item->isNull()){
+				$runtimeBlockMapping = RuntimeBlockMapping::getInstance($protocolVersion);
+				$block = $item->getBlock();
+				$blockProtocol = BlockProtocolConvertor::getInstance()->get($block, $protocolVersion) ?? $block;
+				$plantNbt = $runtimeBlockMapping->toNbtBlock($runtimeBlockMapping->toRuntimeId($blockProtocol->getFullId()), true);
+				$plantNbt->setName(self::TAG_PLANT_BLOCK);
+				$nbt->setTag($plantNbt);
+			}
+		} else {
+			[$id, $meta] = [$item->getId(), $item->getDamage()];
+
+			$itemProtocol = $item->getItemProtocol($protocolVersion);
+			if ($itemProtocol !== null) {
+				[$id, $meta] = [$itemProtocol->getId(), $itemProtocol->getMeta()];
+			}
+
+			$nbt->setShort(self::TAG_ITEM, $id);
+			$nbt->setInt(self::TAG_ITEM_DATA, $meta);
+		}
 	}
 }

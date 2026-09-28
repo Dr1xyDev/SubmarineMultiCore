@@ -43,6 +43,11 @@ class Slime extends Solid
 		return 0;
 	}
 
+	public function getFrictionFactor() : float
+	{
+		return 0.8;
+	}
+
 	public function getName() : string
 	{
 		return "Slime Block";
@@ -61,5 +66,14 @@ class Slime extends Solid
 	public function getBounceFallDistanceMultiplier() : float
 	{
 		return 0.0;
+	}
+
+	public function onEntityFallenUpon(Entity $entity, float $fallDistance) : void
+	{
+		if ($entity->isSneaking()) {
+			parent::onEntityFallenUpon($entity, $fallDistance);
+		} else {
+			$entity->fall($fallDistance);
+		}
 	}
 }

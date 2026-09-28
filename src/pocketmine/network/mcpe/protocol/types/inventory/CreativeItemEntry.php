@@ -49,21 +49,21 @@ final class CreativeItemEntry
 		return $this->groupId;
 	}
 
-	public static function read(NetworkBinaryStream $in, int $protocolVersion) : self
+	public static function read(NetworkBinaryStream $in) : self
 	{
 		$entryId = $in->readCreativeItemNetId();
-		$item = $in->getItemStackWithoutStackId($protocolVersion);
-		if ($protocolVersion >= ProtocolInfo::PROTOCOL_776) {
+		$item = $in->getItemStackWithoutStackId();
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_776) {
 			$groupId = $in->getUnsignedVarInt();
 		}
 		return new self($entryId, $item, $groupId ?? 0);
 	}
 
-	public function write(NetworkBinaryStream $out, int $protocolVersion) : void
+	public function write(NetworkBinaryStream $out) : void
 	{
 		$out->writeCreativeItemNetId($this->entryId);
-		$out->putItemStackWithoutStackId($this->item, $protocolVersion);
-		if ($protocolVersion >= ProtocolInfo::PROTOCOL_776) {
+		$out->putItemStackWithoutStackId($this->item);
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_776) {
 			$out->putUnsignedVarInt($this->groupId);
 		}
 	}

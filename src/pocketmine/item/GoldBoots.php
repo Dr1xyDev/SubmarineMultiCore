@@ -43,6 +43,10 @@ class GoldBoots extends Armor
 		return 92;
 	}
 
+	public function getEnchantAbility() : int{
+		return 25;
+	}
+
 	public function getArmorSlot() : int
 	{
 		return ArmorSlot::SLOT_BOOTS;

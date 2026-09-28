@@ -23,42 +23,36 @@ declare(strict_types=1);
 namespace pocketmine\block;
 
 use pocketmine\math\Facing;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
-class SoulFire extends Fire
+class SoulFire extends BaseFire
 {
 	protected $id = self::SOUL_FIRE;
 
-	public function getName() : string
-	{
+	public function __construct(int $meta = 0){
+		$this->meta = $meta;
+	}
+
+	public function getName() : string{
 		return "Soul Fire Block";
 	}
 
-	public function getLightLevel() : int
-	{
+	public function getLightLevel() : int{
 		return 10;
 	}
 
-	public static function canBeSupportedBy(Block $block) : bool
-	{
+	protected function getFireDamage() : int{
+		return 2;
+	}
+
+	public static function canBeSupportedBy(Block $block) : bool{
 		//TODO: this really ought to use some kind of tag system
 		$id = $block->getId();
 		return $id === BlockIds::SOUL_SAND || $id === BlockIds::SOUL_SOIL;
 	}
 
-	public function onNearbyBlockChange() : void
-	{
-		if (!self::canBeSupportedBy($this->getSide(Facing::DOWN))) {
+	public function onNearbyBlockChange() : void{
+		if(!self::canBeSupportedBy($this->getSide(Facing::DOWN))){
 			$this->level->setBlock($this, BlockFactory::get(BlockIds::AIR));
 		}
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_419) {
-			return BlockFactory::get(BlockIds::FIRE, $this->meta);
-		}
-
-		return null;
 	}
 }

@@ -22,21 +22,9 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
-class Element extends Solid
-{
+class Element extends Solid {
 	public function getHardness() : float
 	{
 		return 0;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_261) {
-			return BlockFactory::get(BlockIds::SLIME_BLOCK);
-		}
-
-		return null;
 	}
 }

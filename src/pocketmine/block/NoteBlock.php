@@ -49,7 +49,7 @@ class NoteBlock extends Solid
 		return BlockToolType::TYPE_AXE;
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool
 	{
 		$this->getLevel()->setBlock($blockReplace, $this, true, true);
 
@@ -58,7 +58,7 @@ class NoteBlock extends Solid
 		return true;
 	}
 
-	public function onActivate(Item $item, Player $player = null) : bool
+	public function onActivate(Item $item, ?Player $player = null) : bool
 	{
 		$tile = $this->level->getTile($this);
 		if ($tile instanceof TileNoteBlock) {

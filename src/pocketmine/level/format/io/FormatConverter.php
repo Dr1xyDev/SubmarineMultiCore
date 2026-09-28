@@ -22,32 +22,21 @@ declare(strict_types=1);
 
 namespace pocketmine\level\format\io;
 
-use pocketmine\block\BlockFactory;
+use pocketmine\level\generator\dimension\Overworld;
 use pocketmine\level\generator\GeneratorManager;
-use pocketmine\level\generator\normal\Normal;
 use pocketmine\level\LevelCreationOptions;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-use pocketmine\utils\BinaryStream;
 use pocketmine\utils\Filesystem;
-use pocketmine\world\format\PalettedBlockArray;
 use Symfony\Component\Filesystem\Path;
-
-use function array_values;
 use function basename;
-use function chr;
 use function crc32;
 use function file_exists;
 use function floor;
 use function microtime;
 use function mkdir;
-use function ord;
 use function random_bytes;
 use function rename;
 use function round;
 use function rtrim;
-use function substr;
-use function unpack;
-
 use const DIRECTORY_SEPARATOR;
 
 class FormatConverter
@@ -123,7 +112,7 @@ class FormatConverter
 			LevelCreationOptions::create()
 			//TODO: defaulting to NORMAL here really isn't very good behaviour, but it's consistent with what we already
 			//did previously; besides, WorldManager checks for unknown generators before this is reached anyway.
-			->setGeneratorClass(GeneratorManager::getGenerator($data->getGenerator()) ?? Normal::class)
+			->setGeneratorClass(GeneratorManager::getGenerator($data->getGenerator()) ?? Overworld::class)
 			->setGeneratorOptions("")
 			->setSeed($data->getSeed())
 			->setSpawnPosition($data->getSpawn())
@@ -150,8 +139,7 @@ class FormatConverter
 		//TODO: add more properties as-needed
 	}
 
-	private function convertTerrain(WritableLevelProvider $new) : void
-	{
+	private function convertTerrain(WritableLevelProvider $new) : void{
 		$this->logger->info("Calculating chunk count");
 		$count = $this->oldProvider->calculateChunkCount();
 		$this->logger->info("Discovered $count chunks");
@@ -174,97 +162,5 @@ class FormatConverter
 		}
 		$total = microtime(true) - $start;
 		$this->logger->info("Converted $counter / $counter chunks in " . round($total, 3) . " seconds (" . floor($counter / $total) . " chunks/sec)");
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public static function convertSubChunkFromPaletteXZY(PalettedBlockArray $palettedBlockArray, int $protocol = ProtocolInfo::PROTOCOL_110) : array
-	{
-		$idArray = "";
-		$metaArray = "";
-		for ($x = 0; $x < 16; ++$x) {
-			for ($z = 0; $z < 16; ++$z) {
-				for ($y = 0; $y < 16; ++$y) {
-					$block = BlockFactory::fromFullBlock($palettedBlockArray->get($x, $y, $z));
-					$block = $block->getBlockProtocol($protocol) ?? $block;
-					[$legacyId, $legacyMeta] = [$block->getId(), $block->getDamage()];
-					if ($legacyId > 255) {
-						$legacyId = 248; //minecraft:info_update
-						$legacyMeta = 0;
-					}
-
-					$idArray[($x << 8) | ($z << 4) | $y] = chr($legacyId);
-					$indexData = ($x << 7) | ($z << 3) | ($y >> 1);
-					if (($y & 1) === 0) {
-						$metaArray[$indexData] = chr((ord($metaArray[$indexData] ?? chr(0)) & 0xf0) | ($legacyMeta & 0x0f));
-					} else {
-						$metaArray[$indexData] = chr((($legacyMeta & 0x0f) << 4) | (ord($metaArray[$indexData] ?? chr(0)) & 0x0f));
-					}
-				}
-			}
-		}
-
-		return [$idArray, $metaArray];
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public static function convertSubChunkFromPaletteYZX(PalettedBlockArray $palettedBlockArray, int $protocol = ProtocolInfo::PROTOCOL_110) : array
-	{
-		[$idArray, $metaArray] = self::convertSubChunkFromPaletteXZY($palettedBlockArray, $protocol);
-		return [ChunkUtils::reorderByteArray($idArray) . ChunkUtils::reorderNibbleArray($metaArray)];
-	}
-
-	/**
-	 * @param PalettedBlockArray[] $palettedBlocks
-	 *
-	 * @return string[]
-	 */
-	public static function convertSubChunkFromPaletteColumn(array $palettedBlocks, int $protocol = ProtocolInfo::PROTOCOL_110) : array
-	{
-		$ids = "";
-		$data = "";
-
-		$yOffset = 0;
-		foreach ($palettedBlocks as $palettedBlockArray) {
-			[$idArray, $metaArray] = self::convertSubChunkFromPaletteXZY($palettedBlockArray, $protocol);
-
-			$offset = ($yOffset << 4);
-			for ($i = 0; $i < 256; ++$i) {
-				$ids .= substr($idArray, $offset, 16);
-				$offset += 128;
-			}
-
-			$offset = ($yOffset << 3);
-			for ($i = 0; $i < 256; ++$i) {
-				$data .= substr($metaArray, $offset, 8);
-				$offset += 64;
-			}
-
-			$yOffset++;
-		}
-
-		return [$ids, $data];
-	}
-
-	public static function deserializeBlockLayers(BinaryStream $stream) : array
-	{
-		$airBlockId = $stream->getInt();
-
-		/** @var PalettedBlockArray[] $layers */
-		$layers = [];
-		for ($i = 0, $layerCount = $stream->getByte(); $i < $layerCount; ++$i) {
-			$bitsPerBlock = $stream->getByte();
-			$words = $stream->get(PalettedBlockArray::getExpectedWordArraySize($bitsPerBlock));
-			/** @var int[] $unpackedPalette */
-			$unpackedPalette = unpack("L*", $stream->get($stream->getInt())); //unpack() will never fail here
-			$palette = array_values($unpackedPalette);
-
-			$layers[] = PalettedBlockArray::fromData($bitsPerBlock, $words, $palette);
-		}
-
-		return [$airBlockId, $layers];
 	}
 }

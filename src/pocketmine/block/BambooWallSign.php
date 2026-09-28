@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace pocketmine\block;
 
 use pocketmine\item\ItemIds;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 class BambooWallSign extends WallSign
 {
@@ -40,14 +39,5 @@ class BambooWallSign extends WallSign
 	public function getName() : string
 	{
 		return "Bamboo Wall Sign";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_560) {
-			return BlockFactory::get(BlockIds::WALL_SIGN, $this->meta);
-		}
-
-		return null;
 	}
 }

@@ -41,7 +41,7 @@ class GlowingRedstoneOre extends RedstoneOre
 		return 9;
 	}
 
-	public function onActivate(Item $item, Player $player = null) : bool
+	public function onActivate(Item $item, ?Player $player = null) : bool
 	{
 		return false;
 	}

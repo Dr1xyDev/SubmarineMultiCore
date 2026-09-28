@@ -49,9 +49,9 @@ final class PlayerAuthInputVehicleInfo
 		return $this->predictedVehicleActorUniqueId;
 	}
 
-	public static function read(NetworkBinaryStream $in, int $playerProtocol) : self
+	public static function read(NetworkBinaryStream $in) : self
 	{
-		if ($playerProtocol >= ProtocolInfo::PROTOCOL_662) {
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_662) {
 			$vehicleRotationX = $in->getLFloat();
 			$vehicleRotationZ = $in->getLFloat();
 		}
@@ -60,9 +60,9 @@ final class PlayerAuthInputVehicleInfo
 		return new self($vehicleRotationX ?? 0, $vehicleRotationZ ?? 0, $predictedVehicleActorUniqueId);
 	}
 
-	public function write(NetworkBinaryStream $out, int $playerProtocol) : void
+	public function write(NetworkBinaryStream $out) : void
 	{
-		if ($playerProtocol >= ProtocolInfo::PROTOCOL_662) {
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_662) {
 			$out->putLFloat($this->vehicleRotationX);
 			$out->putLFloat($this->vehicleRotationZ);
 		}

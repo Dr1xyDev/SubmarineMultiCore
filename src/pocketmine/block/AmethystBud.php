@@ -26,11 +26,11 @@ use pocketmine\item\Item;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Facing;
 use pocketmine\math\Vector3;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\Player;
 
 abstract class AmethystBud extends Transparent
 {
+
 	public function getHardness() : float
 	{
 		return 1.5;
@@ -56,8 +56,7 @@ abstract class AmethystBud extends Transparent
 		return null;
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
-	{
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool{
 		if ($this->canSupportToFullSolid($this->getSide(Facing::opposite($face)))) {
 			$this->meta = $face;
 			return parent::place($item, $blockReplace, $blockClicked, $face, $clickVector, $player);
@@ -75,15 +74,6 @@ abstract class AmethystBud extends Transparent
 
 	public function getBoundingBox() : ?AxisAlignedBB
 	{
-		return null;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_440) {
-			return BlockFactory::get(BlockIds::STONE, Stone::DIORITE);
-		}
-
 		return null;
 	}
 }

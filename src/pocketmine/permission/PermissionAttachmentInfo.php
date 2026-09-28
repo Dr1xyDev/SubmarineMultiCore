@@ -41,7 +41,7 @@ class PermissionAttachmentInfo
 	/**
 	 * @throws InvalidStateException
 	 */
-	public function __construct(Permissible $permissible, string $permission, PermissionAttachment $attachment = null, bool $value)
+	public function __construct(Permissible $permissible, string $permission, ?PermissionAttachment $attachment, bool $value)
 	{
 		$this->permissible = $permissible;
 		$this->permission = $permission;

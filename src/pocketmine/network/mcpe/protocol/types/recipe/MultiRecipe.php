@@ -56,13 +56,13 @@ final class MultiRecipe extends RecipeWithTypeId{
 		return $this->recipeNetId;
 	}
 
-	public static function decode(int $typeId, NetworkBinaryStream $in, int $protocol) : self{
+	public static function decode(int $typeId, NetworkBinaryStream $in) : self{
 		$uuid = $in->getUUID();
 		$recipeNetId = $in->readRecipeNetId();
 		return new self($typeId, $uuid, $recipeNetId);
 	}
 
-	public function encode(NetworkBinaryStream $out, int $protocol) : void{
+	public function encode(NetworkBinaryStream $out) : void{
 		$out->putUUID($this->recipeId);
 		$out->writeRecipeNetId($this->recipeNetId);
 	}

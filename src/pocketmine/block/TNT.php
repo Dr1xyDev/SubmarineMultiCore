@@ -58,7 +58,7 @@ class TNT extends Solid
 		return 0;
 	}
 
-	public function onActivate(Item $item, Player $player = null) : bool
+	public function onActivate(Item $item, ?Player $player = null) : bool
 	{
 		if ($item instanceof FlintSteel || $item->hasEnchantment(Enchantment::FIRE_ASPECT)) {
 			if ($item instanceof Durable) {

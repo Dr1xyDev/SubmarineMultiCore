@@ -26,7 +26,6 @@ use pocketmine\block\utils\FortuneDropHelper;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
 use pocketmine\item\ItemIds;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 use function mt_rand;
 
@@ -66,14 +65,5 @@ class GildedBlackstone extends Solid
 	public function isAffectedBySilkTouch() : bool
 	{
 		return true;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_419) {
-			return BlockFactory::get(BlockIds::GOLD_ORE);
-		}
-
-		return null;
 	}
 }

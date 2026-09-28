@@ -40,7 +40,7 @@ class ResourcePackChunkDataPacket extends DataPacket
 		$this->packId = $this->getString();
 		$this->chunkIndex = $this->getLInt();
 		$this->progress = $this->getLLong();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_370) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->data = $this->getString();
 		} else {
 			$this->data = $this->get($this->getLInt());
@@ -52,7 +52,7 @@ class ResourcePackChunkDataPacket extends DataPacket
 		$this->putString($this->packId);
 		$this->putLInt($this->chunkIndex);
 		$this->putLLong($this->progress);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_370) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->putString($this->data);
 		} else {
 			$this->putLInt(strlen($this->data));

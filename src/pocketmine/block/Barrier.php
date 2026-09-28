@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class Barrier extends Transparent
 {
 	protected $id = self::BARRIER;
@@ -46,13 +44,5 @@ class Barrier extends Transparent
 	public function getBlastResistance() : float
 	{
 		return 18000000.0;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_282) {
-			return BlockFactory::get(BlockIds::INVISIBLEBEDROCK);
-		}
-
-		return null;
 	}
 }

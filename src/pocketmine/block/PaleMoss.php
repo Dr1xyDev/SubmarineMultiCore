@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class PaleMoss extends Solid
 {
 	protected $id = self::PALE_MOSS_BLOCK;
@@ -46,14 +44,5 @@ class PaleMoss extends Solid
 	public function getName() : string
 	{
 		return "Pale Moss Block";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_766) {
-			return BlockFactory::get(BlockIds::DIRT);
-		}
-
-		return null;
 	}
 }

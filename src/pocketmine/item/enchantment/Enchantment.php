@@ -24,20 +24,7 @@ namespace pocketmine\item\enchantment;
 
 use pocketmine\entity\Entity;
 use pocketmine\event\entity\EntityDamageEvent;
-use pocketmine\item\Armor;
-use pocketmine\item\ArmorSlot;
-use pocketmine\item\Axe;
-use pocketmine\item\Bow;
-use pocketmine\item\Durable;
-use pocketmine\item\Elytra;
-use pocketmine\item\FishingRod;
-use pocketmine\item\FlintSteel;
-use pocketmine\item\Hoe;
 use pocketmine\item\Item;
-use pocketmine\item\Pickaxe;
-use pocketmine\item\Shears;
-use pocketmine\item\Shovel;
-use pocketmine\item\Sword;
 use SplFixedArray;
 
 use function constant;
@@ -188,26 +175,30 @@ class Enchantment
 	/**
 	 * Registers an enchantment type.
 	 */
-	public static function registerEnchantment(Enchantment $enchantment) : void
-	{
+	public static function registerEnchantment(Enchantment $enchantment) : void{
 		self::$enchantments[$enchantment->getId()] = clone $enchantment;
 	}
 
-	public static function getEnchantment(int $id) : ?Enchantment
-	{
+	public static function getEnchantment(int $id) : ?Enchantment{
 		if ($id < 0 || $id >= self::$enchantments->getSize()) {
 			return new Enchantment(self::INVALID, "unknown", 0, 0, 0, 5);
 		}
 		return self::$enchantments[$id] ?? new Enchantment(self::INVALID, "unknown", 0, 0, 0, 5);
 	}
 
-	public static function getEnchantmentByName(string $name) : ?Enchantment
-	{
+	public static function getEnchantmentByName(string $name) : ?Enchantment{
 		$const = Enchantment::class . "::" . mb_strtoupper($name);
 		if (defined($const)) {
 			return self::getEnchantment(constant($const));
 		}
 		return new Enchantment(self::INVALID, "unknown", 0, 0, 0, 5);
+	}
+
+	/**
+	 * @return SplFixedArray<Enchantment>
+	 */
+	public static function getAllEnchantments() : SplFixedArray{
+		return self::$enchantments;
 	}
 
 	/** @var int */
@@ -299,48 +290,24 @@ class Enchantment
 	}
 
 	/**
+	 * Returns whether this enchantment can be applied to the item along with the given enchantment.
+	 */
+	public function isCompatibleWith(Enchantment $other) : bool{
+		return IncompatibleEnchantmentRegistry::getInstance()->areCompatible($this, $other);
+	}
+
+	/**
 	 * Determines if this enchantment can be applied to a specific Item.
 	 */
 	public function canApply(Item $item) : bool
 	{
-		if (($item instanceof Shears || $item instanceof FlintSteel || $item instanceof Hoe) && $item instanceof Durable && $item->getMaxDurability() >= 0) {
-			return $this->hasPrimaryItemType(self::SLOT_TOOL) || $this->hasSecondaryItemType(self::SLOT_TOOL);
-		} elseif ($item instanceof Armor) {
-			if ($item->getArmorSlot() === ArmorSlot::SLOT_HELMET) {
-				return $this->hasPrimaryItemType(self::SLOT_HEAD) || $this->hasSecondaryItemType(self::SLOT_HEAD);
-			} elseif ($item->getArmorSlot() === ArmorSlot::SLOT_CHESTPLATE) {
-				return $this->hasPrimaryItemType(self::SLOT_TORSO) || $this->hasSecondaryItemType(self::SLOT_TORSO);
-			} elseif ($item->getArmorSlot() === ArmorSlot::SLOT_LEGGINGS) {
-				return $this->hasPrimaryItemType(self::SLOT_LEGS) || $this->hasSecondaryItemType(self::SLOT_LEGS);
-			} elseif ($item->getArmorSlot() === ArmorSlot::SLOT_BOOTS) {
-				return $this->hasPrimaryItemType(self::SLOT_FEET) || $this->hasSecondaryItemType(self::SLOT_FEET);
-			}
-		} else {
-			if ($item instanceof Sword) {
-				return $this->hasPrimaryItemType(self::SLOT_SWORD) || $this->hasSecondaryItemType(self::SLOT_SWORD);
-			} elseif ($item instanceof Pickaxe || $item instanceof Shovel || $item instanceof Axe) {
-				return $this->hasPrimaryItemType(self::SLOT_DIG) || $this->hasSecondaryItemType(self::SLOT_DIG);
-			} elseif ($item instanceof Bow) {
-				return $this->hasPrimaryItemType(self::SLOT_BOW) || $this->hasSecondaryItemType(self::SLOT_BOW);
-			} elseif ($item instanceof FishingRod) {
-				return $this->hasPrimaryItemType(self::SLOT_FISHING_ROD) || $this->hasSecondaryItemType(self::SLOT_FISHING_ROD);
-			} elseif ($item instanceof Elytra) {
-				return $this->hasPrimaryItemType(self::SLOT_ELYTRA) || $this->hasSecondaryItemType(self::SLOT_ELYTRA);
-			} elseif ($item->getId() === Item::SKULL || $item->getId() === Item::PUMPKIN) {
-				return $this->hasPrimaryItemType(self::SLOT_WEARABLE) || $this->hasSecondaryItemType(self::SLOT_WEARABLE);
-			} elseif ($item->getId() === Item::SHIELD) {
-				return $this->hasPrimaryItemType(self::SLOT_SHIELD) || $this->hasSecondaryItemType(self::SLOT_SHIELD);
-			} elseif ($item->getId() === Item::TRIDENT) {
-				return $this->hasPrimaryItemType(self::SLOT_TRIDENT) || $this->hasSecondaryItemType(self::SLOT_TRIDENT);
-			}
-		}
-
-		return false;
+		$slot = EnchantingHelper::getItemSlot($item);
+		return $slot !== self::SLOT_NONE && ($this->hasPrimaryItemType($slot) || $this->hasSecondaryItemType($slot));
 	}
 
 	public function canApplyTogether(Enchantment $enchantment) : bool
 	{
-		return $enchantment !== $this;
+		return $enchantment !== $this && $this->isCompatibleWith($enchantment);
 	}
 
 	public function getMinEnchantAbility(int $level) : int

@@ -24,7 +24,8 @@ namespace pocketmine\level\sound;
 
 use pocketmine\block\Block;
 use pocketmine\math\Vector3;
-use pocketmine\network\mcpe\convert\RuntimeBlockMapping;
+use pocketmine\network\mcpe\convert\block\BlockProtocolConvertor;
+use pocketmine\network\mcpe\convert\block\RuntimeBlockMapping;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
@@ -39,12 +40,12 @@ final class ItemUseOnBlockSound extends Sound
 
 	public function encode()
 	{
-		$block = $this->block->getBlockProtocol($this->protocol) ?? $this->block;
+		$block = BlockProtocolConvertor::getInstance()->get($this->block, $this->protocol) ?? $this->block;
 		return [LevelSoundEventPacket::nonActorSound(
 			LevelSoundEventPacket::SOUND_ITEM_USE_ON,
 			$this,
 			false,
-			($this->protocol >= ProtocolInfo::PROTOCOL_223 ?
+			($this->protocol >= ProtocolInfo::PROTOCOL_407 ?
 				RuntimeBlockMapping::getInstance($this->protocol)->toRuntimeId($block->getFullId()) :
 				$block->getId())
 		)];

@@ -23,7 +23,9 @@ declare(strict_types=1);
 namespace pocketmine\level;
 
 use pocketmine\block\Block;
+use pocketmine\entity\Entity;
 use pocketmine\level\format\Chunk;
+use pocketmine\tile\Tile;
 
 interface ChunkManager
 {
@@ -39,9 +41,13 @@ interface ChunkManager
 	 */
 	public function setBlockAt(int $x, int $y, int $z, Block $block) : bool;
 
+	public function addEntity(Entity $entity) : void;
+
+	public function addTile(Tile $tile) : void;
+
 	public function getChunk(int $chunkX, int $chunkZ) : ?Chunk;
 
-	public function setChunk(int $chunkX, int $chunkZ, Chunk $chunk = null) : void;
+	public function setChunk(int $chunkX, int $chunkZ, ?Chunk $chunk = null) : void;
 
 	/**
 	 * Gets the level seed

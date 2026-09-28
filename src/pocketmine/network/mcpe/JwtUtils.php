@@ -75,7 +75,7 @@ final class JwtUtils
 	 */
 	public static function split(string $jwt) : array
 	{
-		$v = explode(".", $jwt);
+		$v = explode(".", $jwt, 4); //a 4th part means too many dots, which is rejected below
 		if (count($v) !== 3) {
 			throw new JwtException("Expected exactly 3 JWT parts, got " . count($v));
 		}

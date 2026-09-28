@@ -43,7 +43,7 @@ class RespawnPacket extends DataPacket
 	protected function decodePayload() : void
 	{
 		$this->position = $this->getVector3();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_388) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->respawnState = $this->getByte();
 			$this->entityRuntimeId = $this->getEntityRuntimeId();
 		}
@@ -52,7 +52,7 @@ class RespawnPacket extends DataPacket
 	protected function encodePayload() : void
 	{
 		$this->putVector3($this->position);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_388) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->putByte($this->respawnState);
 			$this->putEntityRuntimeId($this->entityRuntimeId);
 		}

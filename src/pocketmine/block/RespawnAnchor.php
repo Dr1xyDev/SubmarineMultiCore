@@ -33,7 +33,6 @@ use pocketmine\level\GameRules;
 use pocketmine\level\Position;
 use pocketmine\level\sound\RespawnAnchorChargeSound;
 use pocketmine\level\sound\RespawnAnchorSetSpawnSound;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\types\DimensionIds;
 use pocketmine\Player;
 use pocketmine\utils\TextFormat;
@@ -84,7 +83,7 @@ class RespawnAnchor extends Solid
 		};
 	}
 
-	public function onActivate(Item $item, Player $player = null) : bool
+	public function onActivate(Item $item, ?Player $player = null) : bool
 	{
 		if ($item->getId() === ItemIds::GLOWSTONE && $this->meta < self::MAX_CHARGES) {
 			$this->meta++;
@@ -149,14 +148,5 @@ class RespawnAnchor extends Solid
 			$explosion->explodeA();
 		}
 		$explosion->explodeB();
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_419) {
-			return BlockFactory::get(BlockIds::OBSIDIAN);
-		}
-
-		return null;
 	}
 }

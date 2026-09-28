@@ -34,6 +34,7 @@ use pocketmine\network\mcpe\protocol\types\command\CommandData;
 use pocketmine\network\mcpe\protocol\types\command\CommandEnum;
 use pocketmine\network\mcpe\protocol\types\command\CommandOverload;
 use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
+use pocketmine\network\mcpe\protocol\types\command\CommandPermissions;
 use pocketmine\permission\PermissionManager;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat;
@@ -80,13 +81,13 @@ abstract class Command
 	 * @param string[]          $aliases
 	 * @param CommandOverload[] $overloads
 	 */
-	public function __construct(string $name, string $description = "", string $usageMessage = null, array $aliases = [], ?array $overloads = null)
+	public function __construct(string $name, string $description = "", ?string $usageMessage = null, array $aliases = [], ?array $overloads = null)
 	{
 		if (strlen($description) > 0 && $description[0] == '%') {
 			$description = Server::getInstance()->getLanguage()->translateString($description);
 		}
 
-		$this->commandData = new CommandData($name, $description, 0, 0, null, $overloads ?? [new CommandOverload(false, [])], []);
+		$this->commandData = new CommandData($name, $description, 0, CommandPermissions::NORMAL, null, $overloads ?? [new CommandOverload(false, [])], []);
 
 		$this->setLabel($name);
 		$this->setAliases($aliases);
@@ -165,7 +166,7 @@ abstract class Command
 	/**
 	 * @return void
 	 */
-	public function setPermission(string $permission = null)
+	public function setPermission(?string $permission = null)
 	{
 		$this->permission = $permission;
 	}

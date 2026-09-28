@@ -167,7 +167,12 @@ interface EntityMetadataProperties
 	public const DATA_VISIBLE_MOB_EFFECTS = 131; //long (first 8 visible effects packed, 6 bits for effectId + 1 bit for ambient indicator)
 	public const DATA_FILTERED_NAME = 132; //string
 	public const DATA_BED_ENTER_POSITION = 133; //blockpos
-	public const SEAT_THIRD_PERSON_CAMERA_RADIUS = 134;
-	public const SEAT_CAMERA_RELAX_DISTANCE_SMOOTHING = 135;
+	public const DATA_SEAT_THIRD_PERSON_CAMERA_RADIUS = 134;
+	public const DATA_SEAT_CAMERA_RELAX_DISTANCE_SMOOTHING = 135;
+	public const DATA_AIM_ASSIST_PRIORITY_PRESET_ID = 136; //int
+	public const DATA_AIM_ASSIST_PRIORITY_CATEGORY_ID = 137; //int
+	public const DATA_AIM_ASSIST_PRIORITY_ACTOR_ID = 138; //int
+	public const DATA_RESERVED_139 = 139; //long
+	public const DATA_NAMEPLATE_RENDER_DISTANCE_MAX = 140; //float
 	public const DATA_ENDERMAN_HELD_ITEM_DAMAGE = 256; //TODO: 1.1
 }

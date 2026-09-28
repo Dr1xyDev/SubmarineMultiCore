@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace pocketmine\block;
 
 use pocketmine\item\TieredTool;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 class AncientDebris extends Solid
 {
@@ -57,14 +56,5 @@ class AncientDebris extends Solid
 	public function getToolHarvestLevel() : int
 	{
 		return TieredTool::TIER_DIAMOND;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_419) {
-			return BlockFactory::get(BlockIds::OBSIDIAN);
-		}
-
-		return null;
 	}
 }

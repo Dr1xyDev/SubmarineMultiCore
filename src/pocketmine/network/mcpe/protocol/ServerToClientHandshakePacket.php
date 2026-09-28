@@ -44,7 +44,7 @@ class ServerToClientHandshakePacket extends DataPacket
 
 	protected function decodePayload() : void
 	{
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_137) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->jwt = $this->getString();
 		} else {
 			$this->publicKey = $this->getString();
@@ -54,7 +54,7 @@ class ServerToClientHandshakePacket extends DataPacket
 
 	protected function encodePayload() : void
 	{
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_137) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->putString($this->jwt);
 		} else {
 			$this->putString($this->publicKey);

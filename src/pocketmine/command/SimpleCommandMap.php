@@ -164,7 +164,7 @@ class SimpleCommandMap implements CommandMap
 		}
 	}
 
-	public function register(string $fallbackPrefix, Command $command, string $label = null) : bool
+	public function register(string $fallbackPrefix, Command $command, ?string $label = null) : bool
 	{
 		if ($label === null) {
 			$label = $command->getName();

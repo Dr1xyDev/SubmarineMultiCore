@@ -42,7 +42,6 @@ namespace pocketmine\inventory;
 
 use pocketmine\item\Item;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
-use pocketmine\network\mcpe\protocol\types\inventory\ContainerIds;
 use pocketmine\network\mcpe\protocol\types\inventory\UIInventorySlotOffset;
 use pocketmine\network\mcpe\protocol\types\inventory\WindowTypes;
 use pocketmine\Player;
@@ -77,11 +76,6 @@ class BeaconInventory extends ContainerInventory implements FakeInventory, FakeR
 		return true; // TODO: check beacon
 	}
 
-	public function getResultSlot() : int
-	{
-		return 0;
-	}
-
 	public function getNetworkType() : int
 	{
 		return WindowTypes::BEACON;
@@ -91,8 +85,8 @@ class BeaconInventory extends ContainerInventory implements FakeInventory, FakeR
 	{
 		parent::onClose($who);
 
-		$who->getLevel()->dropItem($this->getHolder()->add(0.5, 0.5, 0.5), $this->getItem($this->getResultSlot()));
-		$this->clear($this->getResultSlot());
+		$who->getLevel()->dropItem($this->getHolder()->add(0.5, 0.5, 0.5), $this->getItem(0));
+		$this->clear(0);
 	}
 
 	/**
@@ -105,11 +99,7 @@ class BeaconInventory extends ContainerInventory implements FakeInventory, FakeR
 		}
 
 		foreach ($target as $player) {
-			if (($id = $player->getWindowId($this)) === ContainerIds::NONE) {
-				$this->close($player);
-				continue;
-			}
-			if ($player->getProtocolVersion() < ProtocolInfo::PROTOCOL_137) {
+			if ($player->getProtocolVersion() < ProtocolInfo::PROTOCOL_407) {
 				continue;
 			}
 			parent::sendContents($player);
@@ -126,11 +116,7 @@ class BeaconInventory extends ContainerInventory implements FakeInventory, FakeR
 		}
 
 		foreach ($target as $player) {
-			if (($id = $player->getWindowId($this)) === ContainerIds::NONE) {
-				$this->close($player);
-				continue;
-			}
-			if ($player->getProtocolVersion() < ProtocolInfo::PROTOCOL_137) {
+			if ($player->getProtocolVersion() < ProtocolInfo::PROTOCOL_407) {
 				continue;
 			}
 			parent::sendSlot($index, $player);

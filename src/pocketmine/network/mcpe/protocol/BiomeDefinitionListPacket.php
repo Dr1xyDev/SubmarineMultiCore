@@ -57,7 +57,7 @@ class BiomeDefinitionListPacket extends DataPacket
 
 	protected function decodePayload() : void
 	{
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_800) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_800) {
 			/**
 			 * @var BiomeDefinitionData[] $definitionDataByNameIndex
 			 * @phpstan-var array<int, BiomeDefinitionData> $definitionDataByNameIndex
@@ -76,7 +76,7 @@ class BiomeDefinitionListPacket extends DataPacket
 					throw new PacketDecodeException("Repeated biome name index \"$biomeNameIndex\"");
 				}
 
-				$definitionDataByNameIndex[$biomeNameIndex] = BiomeDefinitionData::read($this, $this->getProtocol());
+				$definitionDataByNameIndex[$biomeNameIndex] = BiomeDefinitionData::read($this);
 			}
 
 			for ($i = 0, $count = $this->getUnsignedVarInt(); $i < $count; ++$i) {
@@ -128,7 +128,7 @@ class BiomeDefinitionListPacket extends DataPacket
 
 	protected function encodePayload() : void
 	{
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_800) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_800) {
 			/**
 			 * @var int[] $biomeNameIndexes
 			 * @phpstan-var array<string, int> $biomeNameIndexes
@@ -162,7 +162,7 @@ class BiomeDefinitionListPacket extends DataPacket
 					$entry->hasRain(),
 					$entry->getTags() === null ? null : new BiomeTagsData(array_map($indexGenerator, $entry->getTags())),
 					$entry->getChunkGenData(),
-				))->write($this, $this->getProtocol());
+				))->write($this);
 			}
 
 			$this->putUnsignedVarInt(count($biomeNameIndexes));

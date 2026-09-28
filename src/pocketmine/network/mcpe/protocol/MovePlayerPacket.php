@@ -67,11 +67,17 @@ class MovePlayerPacket extends DataPacket
 		$this->mode = $this->getByte();
 		$this->onGround = $this->getBool();
 		$this->ridingEid = $this->getEntityRuntimeId();
-		if ($this->mode === MovePlayerPacket::MODE_TELEPORT) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_2168) {
+			//since 1.26.40, the teleport data is an optional, independent from the mode
+			if ($this->getBool()) {
+				$this->teleportCause = $this->getLInt();
+				$this->teleportItem = $this->getLInt();
+			}
+		} elseif ($this->mode === MovePlayerPacket::MODE_TELEPORT) {
 			$this->teleportCause = $this->getLInt();
 			$this->teleportItem = $this->getLInt();
 		}
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_419) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_419) {
 			$this->tick = $this->getUnsignedVarLong();
 		}
 	}
@@ -86,11 +92,17 @@ class MovePlayerPacket extends DataPacket
 		$this->putByte($this->mode);
 		$this->putBool($this->onGround);
 		$this->putEntityRuntimeId($this->ridingEid);
-		if ($this->mode === MovePlayerPacket::MODE_TELEPORT) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_2168) {
+			$this->putBool($hasTeleportData = $this->mode === MovePlayerPacket::MODE_TELEPORT);
+			if ($hasTeleportData) {
+				$this->putLInt($this->teleportCause);
+				$this->putLInt($this->teleportItem);
+			}
+		} elseif ($this->mode === MovePlayerPacket::MODE_TELEPORT) {
 			$this->putLInt($this->teleportCause);
 			$this->putLInt($this->teleportItem);
 		}
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_419) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_419) {
 			$this->putUnsignedVarLong($this->tick);
 		}
 	}

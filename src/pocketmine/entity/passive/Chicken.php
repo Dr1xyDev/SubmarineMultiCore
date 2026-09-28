@@ -95,9 +95,10 @@ class Chicken extends Animal
 
 	public function getDrops() : array
 	{
+		$looting = $this->getLootingLevel();
 		return [
-			($this->isOnFire() ? ItemFactory::get(Item::COOKED_CHICKEN, 0, 1) : ItemFactory::get(Item::RAW_CHICKEN, 0, 1)),
-			ItemFactory::get(Item::FEATHER, 0, rand(0, 2))
+			($this->isOnFire() ? ItemFactory::get(Item::COOKED_CHICKEN, 0, 1 + ($looting > 0 ? rand(0, $looting) : 0)) : ItemFactory::get(Item::RAW_CHICKEN, 0, 1 + ($looting > 0 ? rand(0, $looting) : 0))),
+			ItemFactory::get(Item::FEATHER, 0, rand(0, 2 + $looting))
 		];
 	}
 

@@ -33,5 +33,5 @@ abstract class RecipeWithTypeId{
 		return $this->typeId;
 	}
 
-	abstract public function encode(NetworkBinaryStream $out, int $protocol) : void;
+	abstract public function encode(NetworkBinaryStream $out) : void;
 }

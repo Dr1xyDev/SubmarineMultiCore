@@ -166,7 +166,7 @@ namespace pocketmine {
 		$wantedVersionMin = "$wantedVersionLock.0";
 		if ($chunkutils2_version !== false && (
 			version_compare($chunkutils2_version, $wantedVersionMin) < 0 ||
-				preg_match("/^" . preg_quote($wantedVersionLock, "/") . "\.\d+(?:-dev)?$/", $chunkutils2_version) === 0 //lock in at ^0.2, optionally at a patch release
+				preg_match("/^" . preg_quote($wantedVersionLock, "/") . "\.\d+(?:-dev)?$/", $chunkutils2_version) === 0
 		)) {
 			$messages[] = "chunkutils2 ^$wantedVersionMin is required, while you have $chunkutils2_version.";
 		}
@@ -201,7 +201,7 @@ namespace pocketmine {
 			$logger->warning("Xdebug extension is enabled. This has a major impact on performance.");
 		}
 		if (((int) ini_get('zend.assertions')) !== -1) {
-			$logger->warning("Debugging assertions are enabled. This may degrade performance. To disable them, set `zend.assertions = -1` in php.ini.");
+			$logger->warning("Debugging assertions are enabled. This may degrade performance. To disable them, set `zend.assertions = -1` in your php.ini.");
 		}
 		if (\Phar::running(true) === "") {
 			$logger->warning("Non-packaged installation detected. This will degrade autoloading speed and make startup times longer.");
@@ -319,22 +319,9 @@ JIT_WARNING
 			critical_error("Unable to create/access data directory at $dataPath. Check that the target location is accessible by the current user.");
 			exit(1);
 		}
+
 		//this has to be done after we're sure the data path exists
 		$dataPath = realpath($dataPath) . DIRECTORY_SEPARATOR;
-
-		$lockFilePath = Path::join($dataPath, 'server.lock');
-		try {
-			$pid = Filesystem::createLockFile($lockFilePath);
-		} catch (\InvalidArgumentException $e) {
-			critical_error($e->getMessage());
-			critical_error("Please ensure that there is enough space on the disk and that the current user has read/write permissions to the selected data directory $dataPath.");
-			exit(1);
-		}
-		if ($pid !== null) {
-			critical_error("Another " . VersionInfo::NAME . " instance (PID $pid) is already using this folder (" . realpath($dataPath) . ").");
-			critical_error("Please stop the other server first before running a new one.");
-			exit(1);
-		}
 
 		if (!@mkdir($pluginPath, 0777, true) && !is_dir($pluginPath)) {
 			critical_error("Unable to create plugin directory at $pluginPath. Check that the target location is accessible by the current user.");
@@ -397,8 +384,6 @@ JIT_WARNING
 		$logger->shutdownLogWriterThread();
 
 		echo Terminal::$FORMAT_RESET . PHP_EOL;
-
-		Filesystem::releaseLockFile($lockFilePath);
 
 		exit($exitCode);
 	}

@@ -34,9 +34,8 @@ class GeneratorUnregisterTask extends AsyncTask
 		$this->levelId = $level->getId();
 	}
 
-	public function onRun() : void
-	{
-		ThreadLocalGeneratorContext::unregister($this->levelId);
-		ThreadLocalManagerContext::unregister($this->levelId);
+	public function onRun() : void{
+		$this->removeFromThreadStore("generation.level{$this->levelId}.manager");
+		$this->removeFromThreadStore("generation.level{$this->levelId}.generator");
 	}
 }

@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace pocketmine\block;
 
 use pocketmine\item\Item;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 class BlueIce extends Transparent
 {
@@ -51,7 +50,7 @@ class BlueIce extends Transparent
 
 	public function getFrictionFactor() : float
 	{
-		return 0.99;
+		return 0.98;
 	}
 
 	public function getDropsForCompatibleTool(Item $item) : array
@@ -67,14 +66,5 @@ class BlueIce extends Transparent
 	public function ticksRandomly() : bool
 	{
 		return true;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_261) {
-			return BlockFactory::get(BlockIds::ICE, $this->meta);
-		}
-
-		return null;
 	}
 }

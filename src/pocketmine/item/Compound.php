@@ -28,8 +28,8 @@ class Compound extends Item
 {
 	public function getItemProtocol(int $playerProtocol) : ?TranslatedItemData
 	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_261) {
-			return new TranslatedItemData(ItemIds::POTION, 0);
+		if ($playerProtocol < ProtocolInfo::PROTOCOL_407) {
+			return new TranslatedItemData(ItemIds::POTION, 0, $this->getName());
 		}
 
 		return parent::getItemProtocol($playerProtocol);

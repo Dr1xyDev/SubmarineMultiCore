@@ -22,11 +22,10 @@ declare(strict_types=1);
 
 namespace pocketmine\level;
 
+use pocketmine\level\generator\dimension\Overworld;
 use pocketmine\level\generator\Generator;
-use pocketmine\level\generator\normal\Normal;
 use pocketmine\math\Vector3;
 use pocketmine\utils\Utils;
-
 use function random_int;
 
 /**
@@ -35,7 +34,7 @@ use function random_int;
 final class LevelCreationOptions
 {
 	/** @phpstan-var class-string<Generator> */
-	private string $generatorClass = Normal::class;
+	private string $generatorClass = Overworld::class;
 	private int $seed;
 	private int $difficulty = Level::DIFFICULTY_NORMAL;
 	private string $generatorOptions = "";

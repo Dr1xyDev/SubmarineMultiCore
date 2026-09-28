@@ -48,7 +48,7 @@ class ActorPickRequestPacket extends DataPacket
 	{
 		$this->entityUniqueId = $this->getLLong();
 		$this->hotbarSlot = $this->getByte();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_465) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_465) {
 			$this->addUserData = $this->getBool();
 		}
 	}
@@ -57,7 +57,7 @@ class ActorPickRequestPacket extends DataPacket
 	{
 		$this->putLLong($this->entityUniqueId);
 		$this->putByte($this->hotbarSlot);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_465) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_465) {
 			$this->putBool($this->addUserData);
 		}
 	}

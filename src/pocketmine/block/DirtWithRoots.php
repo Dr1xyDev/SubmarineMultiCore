@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class DirtWithRoots extends Transparent
 {
 	protected $id = self::DIRT_WITH_ROOTS;
@@ -51,14 +49,5 @@ class DirtWithRoots extends Transparent
 	public function getToolType() : int
 	{
 		return BlockToolType::TYPE_SHOVEL;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_440) {
-			return BlockFactory::get(BlockIds::DIRT);
-		}
-
-		return null;
 	}
 }

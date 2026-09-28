@@ -26,8 +26,12 @@ use pocketmine\block\Block;
 use pocketmine\block\Lava;
 use pocketmine\block\Liquid;
 use pocketmine\event\player\PlayerBucketEmptyEvent;
+use pocketmine\level\particle\LargeSmokeParticle;
+use pocketmine\level\sound\FizzSound;
 use pocketmine\math\Vector3;
+use pocketmine\network\mcpe\protocol\types\DimensionIds;
 use pocketmine\Player;
+use pocketmine\utils\Utils;
 
 class LiquidBucket extends Item
 {
@@ -67,8 +71,21 @@ class LiquidBucket extends Item
 			$ev = new PlayerBucketEmptyEvent($player, $blockReplace, $face, $this, ItemFactory::get(Item::BUCKET));
 			$ev->call();
 			if (!$ev->isCancelled()) {
-				$player->getLevel()->setBlock($blockReplace, $resultBlock->getFlowingForm(), true, true);
-				$player->getLevel()->broadcastLevelSoundEvent($blockReplace->add(0.5, 0.5, 0.5), $resultBlock->getBucketEmptySound());
+				$level = $player->getLevel();
+				if ($level->getDimension() === DimensionIds::NETHER && !($this->liquid instanceof Lava)) {
+					$level->addSound(new FizzSound($blockReplace->add(0.5, 0.5, 0.5), 2.6 + (Utils::getRandomFloat() - Utils::getRandomFloat()) * 0.8));
+
+					for ($i = 0; $i < 8; $i++) {
+						$level->addParticle(new LargeSmokeParticle(new Vector3(
+							$blockReplace->getX() + Utils::getRandomFloat(),
+							$blockReplace->getY() + Utils::getRandomFloat(),
+							$blockReplace->getZ() + Utils::getRandomFloat()
+						)));
+					}
+				} else {
+					$player->getLevel()->setBlock($blockReplace, $resultBlock->getFlowingForm(), true, true);
+					$player->getLevel()->broadcastLevelSoundEvent($blockReplace->add(0.5, 0.5, 0.5), $resultBlock->getBucketEmptySound());
+				}
 
 				if ($player->hasFiniteResources()) {
 					$player->getInventory()->setItemInHand($ev->getItem());

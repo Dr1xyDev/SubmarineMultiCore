@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class PaleOakPlanks extends Planks
 {
 	protected $id = self::PALE_OAK_PLANKS;
@@ -36,14 +34,5 @@ class PaleOakPlanks extends Planks
 	public function getName() : string
 	{
 		return "Pale Oak Planks";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_766) {
-			return BlockFactory::get(BlockIds::PLANKS);
-		}
-
-		return null;
 	}
 }

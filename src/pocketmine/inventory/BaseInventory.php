@@ -29,7 +29,6 @@ use pocketmine\item\ItemIds;
 use pocketmine\level\Level;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\convert\TypeConverter;
-use pocketmine\network\mcpe\protocol\PlayerHotbarPacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\types\inventory\ContainerIds;
 use pocketmine\network\mcpe\protocol\types\inventory\ItemStack;
@@ -65,7 +64,7 @@ abstract class BaseInventory implements Inventory
 	/**
 	 * @param Item[] $items
 	 */
-	public function __construct(array $items = [], int $size = null, string $title = null)
+	public function __construct(array $items = [], ?int $size = null, ?string $title = null)
 	{
 		$this->slots = new SplFixedArray($size ?? $this->getDefaultSize());
 		$this->title = $title ?? $this->getName();
@@ -107,6 +106,18 @@ abstract class BaseInventory implements Inventory
 	public function getItem(int $index) : Item
 	{
 		return isset($this->slots[$index]) ? clone $this->slots[$index] : ItemFactory::get(Item::AIR, 0, 0);
+	}
+
+	/**
+	 * Returns the raw slot storage (SplFixedArray of Item|null).
+	 * WARNING: Do NOT mutate items in this array directly; this is intended for read-only fast paths
+	 * such as inventory inspection (isEmpty/isFull checks). Bypasses cloning for performance.
+	 *
+	 * @return SplFixedArray|Item[]
+	 */
+	public function getSlots() : SplFixedArray
+	{
+		return $this->slots;
 	}
 
 	/**
@@ -521,7 +532,7 @@ abstract class BaseInventory implements Inventory
 				}
 
 				$hotbar = [];
-				if ($this instanceof PlayerInventory && $player->getProtocolVersion() < ProtocolInfo::PROTOCOL_137) {
+				if ($this instanceof PlayerInventory && $player->getProtocolVersion() < ProtocolInfo::PROTOCOL_407) {
 					$air = $typeConverter->coreItemStackToNet(ItemFactory::air(), $protocolVersion);
 					for ($i = 0; $i < $this->getHotbarSize(); $i++) {
 						$itemStacks[] = clone $air;
@@ -541,18 +552,6 @@ abstract class BaseInventory implements Inventory
 					}
 				} else {
 					$player->sendInventoryContentPackets($windowId, array_map(fn(ItemStack $itemStack) => ItemStackWrapper::legacy($itemStack), $itemStacks), $hotbar);
-				}
-
-				if (
-					$this instanceof PlayerInventory &&
-					$player->getProtocolVersion() >= ProtocolInfo::PROTOCOL_137 &&
-					$player->getProtocolVersion() <= ProtocolInfo::PROTOCOL_201
-				) {
-					$pk = new PlayerHotbarPacket();
-					$pk->windowId = ContainerIds::INVENTORY;
-					$pk->selectedHotbarSlot = $this->getHeldItemIndex();
-					$pk->slots = range(0, $this->getHotbarSize() - 1, 1);
-					$player->sendDataPacket($pk);
 				}
 			}
 		}

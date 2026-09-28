@@ -22,35 +22,42 @@ declare(strict_types=1);
 
 namespace pocketmine\level;
 
+use InvalidStateException;
 use pocketmine\block\Air;
 use pocketmine\block\Block;
 use pocketmine\block\BlockFactory;
+use pocketmine\entity\Entity;
 use pocketmine\level\format\Chunk;
-
+use pocketmine\tile\Tile;
+use function get_class;
 use const INT32_MAX;
 use const INT32_MIN;
 
 class SimpleChunkManager implements ChunkManager
 {
 	/** @var Chunk[] */
-	protected $chunks = [];
+	protected array $chunks = [];
+
+	/** @var Entity[] */
+	protected array $entities = [];
+
+	/** @var Tile[] */
+	protected array $tiles = [];
 
 	public function __construct(
 		private int $seed,
 		private int $worldHeight
-	) {
-	}
+	) {}
 
-	public function getBlockAt(int $x, int $y, int $z) : Block
-	{
+	public function getBlockAt(int $x, int $y, int $z) : Block{
 		if ($this->isInWorld($x, $y, $z) && ($chunk = $this->getChunk($x >> Chunk::COORD_BIT_SIZE, $z >> Chunk::COORD_BIT_SIZE)) !== null) {
 			return BlockFactory::fromFullBlock($chunk->getFullBlock($x & Chunk::COORD_MASK, $y, $z & Chunk::COORD_MASK));
 		}
+
 		return new Air();
 	}
 
-	public function setBlockAt(int $x, int $y, int $z, Block $block) : bool
-	{
+	public function setBlockAt(int $x, int $y, int $z, Block $block) : bool{
 		if (($chunk = $this->getChunk($x >> Chunk::COORD_BIT_SIZE, $z >> Chunk::COORD_BIT_SIZE)) !== null) {
 			return $chunk->setFullBlock($x & Chunk::COORD_MASK, $y, $z & Chunk::COORD_MASK, $block->getFullId());
 		} else {
@@ -58,36 +65,65 @@ class SimpleChunkManager implements ChunkManager
 		}
 	}
 
-	public function getChunk(int $chunkX, int $chunkZ) : ?Chunk
-	{
+	public function addEntity(Entity $entity) : void{
+		$chunkX = $entity->getFloorX() >> Chunk::COORD_BIT_SIZE;
+		$chunkZ = $entity->getFloorZ() >> Chunk::COORD_BIT_SIZE;
+
+		if (isset($this->chunks[Level::chunkHash($chunkX, $chunkZ)])) {
+			$this->entities[] = $entity;
+		} else {
+			throw new InvalidStateException("Attempted to create entity " . get_class($entity) . " in unloaded chunk $chunkX $chunkZ");
+		}
+	}
+
+	public function getEntities() : array{
+		return $this->entities;
+	}
+
+	public function addTile(Tile $tile) : void{
+		$chunkX = $tile->getFloorX() >> Chunk::COORD_BIT_SIZE;
+		$chunkZ = $tile->getFloorZ() >> Chunk::COORD_BIT_SIZE;
+
+		if (isset($this->chunks[Level::chunkHash($chunkX, $chunkZ)])) {
+			$this->tiles[] = $tile;
+		} else {
+			throw new InvalidStateException("Attempted to create tile " . get_class($tile) . " in unloaded chunk $chunkX $chunkZ");
+		}
+	}
+
+	public function getTiles() : array{
+		return $this->tiles;
+	}
+
+	public function getChunk(int $chunkX, int $chunkZ) : ?Chunk{
 		return $this->chunks[Level::chunkHash($chunkX, $chunkZ)] ?? null;
 	}
 
-	public function setChunk(int $chunkX, int $chunkZ, Chunk $chunk = null) : void
-	{
+	public function setChunk(int $chunkX, int $chunkZ, ?Chunk $chunk = null) : void{
+		if($chunk === null){
+			unset($this->chunks[Level::chunkHash($chunkX, $chunkZ)]);
+			return;
+		}
+
 		$this->chunks[Level::chunkHash($chunkX, $chunkZ)] = $chunk;
 	}
 
-	public function cleanChunks() : void
-	{
+	public function cleanChunks() : void{
 		$this->chunks = [];
 	}
 
 	/**
 	 * Gets the level seed
 	 */
-	public function getSeed() : int
-	{
+	public function getSeed() : int{
 		return $this->seed;
 	}
 
-	public function getWorldHeight() : int
-	{
+	public function getWorldHeight() : int{
 		return $this->worldHeight;
 	}
 
-	public function isInWorld(int $x, int $y, int $z) : bool
-	{
+	public function isInWorld(int $x, int $y, int $z) : bool{
 		return (
 			$x <= INT32_MAX && $x >= INT32_MIN &&
 			$y < $this->worldHeight && $y >= Level::Y_MIN &&

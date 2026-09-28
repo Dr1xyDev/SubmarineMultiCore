@@ -46,17 +46,16 @@ use pocketmine\item\enchantment\Enchantment;
 use pocketmine\item\ItemFactory;
 use pocketmine\lang\BaseLang;
 use pocketmine\lang\TextContainer;
-use pocketmine\level\biome\Biome;
 use pocketmine\level\format\Chunk;
 use pocketmine\level\format\io\FormatConverter;
 use pocketmine\level\format\io\LevelProvider;
 use pocketmine\level\format\io\LevelProviderManager;
 use pocketmine\level\format\io\WritableLevelProvider;
 use pocketmine\level\format\io\WritableLevelProviderManagerEntry;
-use pocketmine\level\generator\end\End;
+use pocketmine\level\generator\dimension\Nether;
+use pocketmine\level\generator\dimension\TheEnd;
 use pocketmine\level\generator\Generator;
 use pocketmine\level\generator\GeneratorManager;
-use pocketmine\level\generator\hell\Nether;
 use pocketmine\level\Level;
 use pocketmine\level\LevelCreationOptions;
 use pocketmine\level\LevelException;
@@ -81,6 +80,7 @@ use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PlayerListPacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\serializer\PacketBatch;
+use pocketmine\network\mcpe\protocol\types\DeviceOS;
 use pocketmine\network\mcpe\protocol\types\DisconnectFailReason;
 use pocketmine\network\mcpe\protocol\types\PlayerListEntry;
 use pocketmine\network\mcpe\raklib\RakLibInterface;
@@ -102,6 +102,10 @@ use pocketmine\resourcepacks\ResourcePackManager;
 use pocketmine\scheduler\AsyncPool;
 use pocketmine\snooze\SleeperHandler;
 use pocketmine\snooze\SleeperNotifier;
+use pocketmine\stats\SendStatsTask;
+use pocketmine\stats\StatsData;
+use pocketmine\stats\StatsMemoryData;
+use pocketmine\stats\StatsWorldData;
 use pocketmine\thread\log\AttachableThreadSafeLogger;
 use pocketmine\thread\ThreadCrashException;
 use pocketmine\thread\ThreadSafeClassLoader;
@@ -121,10 +125,10 @@ use pocketmine\utils\TextFormat;
 use pocketmine\utils\Utils;
 use pocketmine\utils\UUID;
 use Symfony\Component\Filesystem\Path;
-
 use function array_fill;
 use function array_filter;
 use function array_key_exists;
+use function array_map;
 use function array_shift;
 use function array_sum;
 use function asort;
@@ -140,6 +144,7 @@ use function filemtime;
 use function get_class;
 use function getopt;
 use function gettype;
+use function ini_get;
 use function ini_set;
 use function is_array;
 use function is_bool;
@@ -150,6 +155,8 @@ use function is_string;
 use function json_decode;
 use function log;
 use function max;
+use function memory_get_peak_usage;
+use function memory_get_usage;
 use function microtime;
 use function min;
 use function mkdir;
@@ -174,7 +181,6 @@ use function substr;
 use function time;
 use function touch;
 use function trim;
-
 use const DIRECTORY_SEPARATOR;
 use const PHP_EOL;
 use const PHP_INT_MAX;
@@ -212,6 +218,7 @@ class Server
 	private const TPS_OVERLOAD_WARNING_THRESHOLD = self::TARGET_TICKS_PER_SECOND * 0.6;
 
 	private const TICKS_PER_WORLD_CACHE_CLEAR = 5 * self::TARGET_TICKS_PER_SECOND;
+	private const TICKS_PER_SEND_SERVER_STATS = 30 * self::TARGET_TICKS_PER_SECOND;
 	private const TICKS_PER_TPS_OVERLOAD_WARNING = 5 * self::TARGET_TICKS_PER_SECOND;
 
 	/** @var Server */
@@ -252,6 +259,7 @@ class Server
 	/** Counts the ticks since the server start */
 	private int $tickCounter = 0;
 	private float $nextTick = 0;
+
 	/** @var float[] */
 	private array $tickAverage;
 	/** @var float[] */
@@ -276,9 +284,6 @@ class Server
 	private $pw10ResourcePackManager;
 	/** @var ResourcePackManager */
 	private $bedrockResourcePackManager;
-
-	/** @var int */
-	private $bedrockResourcePacksProtocol = ProtocolInfo::PROTOCOL_370;
 
 	/** @var int */
 	private $maxPlayers;
@@ -365,7 +370,11 @@ class Server
 	/** @var bool */
 	public $keepInventory = false;
 	/** @var bool */
+	public $legacyInventorySystem = false;
+	/** @var bool */
 	public $keepExperience = false;
+	/** @var bool */
+	public $enableExperimentMode = true;
 	/** @var bool */
 	public $folderPluginLoader = true;
 	/** @var bool */
@@ -382,6 +391,14 @@ class Server
 	/** @var string */
 	public $replaceSpacesNickname = "_";
 
+	public bool $monitoringEnabled = true;
+	public string $monitoringHost = "";
+
+	private int $bedrockResourcePacksProtocol = ProtocolInfo::PROTOCOL_407;
+	public bool $cacheStorage = true;
+
+	private int $minimalLoginProtocol = 0;
+
 	public function loadSubmarineConfig() : void
 	{
 		$this->deleteSpacesForNickname = (bool) $this->getSubmarineProperty("player.nickname.delete-spaces", true);
@@ -390,9 +407,21 @@ class Server
 		$this->customUnknownCommandMessage = $this->getSubmarineProperty("general.custom-unknown-command-message.enabled", false);
 		$this->commandFix = $this->getSubmarineProperty("general.command-fix", false);
 		$this->keepInventory = $this->getSubmarineProperty("player.keep-inventory", false);
+		$this->enableExperimentMode = $this->getSubmarineProperty("player.experiment-mode", true);
 		$this->keepExperience = $this->getSubmarineProperty("player.keep-experience", false);
+		$this->legacyInventorySystem = $this->getSubmarineProperty("player.legacy-inventory", false);
 		$this->folderPluginLoader = $this->getSubmarineProperty("developer.folder-plugin-loader", true);
 		$this->mobAiEnabled = $this->getSubmarineProperty("level.enable-mob-ai", false);
+		$this->monitoringEnabled = $this->getSubmarineProperty("monitoring.active", true);
+		$this->monitoringHost = $this->getSubmarineProperty("monitoring.host", "https://semennejo.ru/submarine/api/");
+		$this->bedrockResourcePacksProtocol = (int) $this->getSubmarineProperty("resource-pack.minimal-bedrock-protocol", ProtocolInfo::PROTOCOL_407);
+		$this->cacheStorage = $this->getSubmarineProperty("resource-pack.cache-storage", true);
+		$this->minimalLoginProtocol = (int) $this->getSubmarineProperty("player.login.minimal-protocol", 0);
+	}
+
+	public function getMinimalLoginProtocol() : int
+	{
+		return $this->minimalLoginProtocol;
 	}
 
 	public function getName() : string
@@ -1088,7 +1117,7 @@ class Server
 			$this->logger->notice($this->getLanguage()->translateString("pocketmine.level.conversion.finish", [$name, $converter->getBackupPath()]));
 		}
 
-		$level = new Level($this, $name, $provider, $this->getAsyncPool());
+		$level = new Level($this, $name, $provider, $this->asyncPool);
 
 		$this->levels[$level->getId()] = $level;
 
@@ -1112,7 +1141,7 @@ class Server
 		$providerEntry->generate($path, $name, $options);
 
 		/** @see LevelProvider::__construct() */
-		$level = new Level($this, $name, $providerEntry->fromPath($path), $this->getAsyncPool());
+		$level = new Level($this, $name, $providerEntry->fromPath($path), $this->asyncPool);
 		$this->levels[$level->getId()] = $level;
 
 		(new LevelInitEvent($level))->call();
@@ -1172,7 +1201,7 @@ class Server
 	 *
 	 * @return Entity|null
 	 */
-	public function findEntity(int $entityId, Level $expectedLevel = null)
+	public function findEntity(int $entityId, ?Level $expectedLevel = null)
 	{
 		foreach ($this->levels as $level) {
 			assert(!$level->isClosed());
@@ -1454,8 +1483,8 @@ class Server
 				Path::join($dataPath, "worlds"),
 				Path::join($dataPath, "players")
 			] as $neededPath) {
-				if (!file_exists($neededPath)) {
-					mkdir($neededPath, 0777);
+				if (!file_exists($neededPath) && !mkdir($neededPath) && !is_dir($neededPath)) {
+					throw new \RuntimeException(sprintf('Directory "%s" was not created', $neededPath));
 				}
 			}
 
@@ -1645,7 +1674,6 @@ class Server
 			BlockFactory::init();
 			Enchantment::init();
 			ItemFactory::init();
-			Biome::init();
 			MapManager::loadIdCounts();
 			Color::initDyeColors();
 
@@ -1665,7 +1693,7 @@ class Server
 
 			GeneratorManager::registerDefaultGenerators();
 
-			$this->craftingManager = CraftingManagerFromDataHelper::make(Path::join(BEDROCK_DATA_PATH, "legacy_recipes.json"));
+			$this->craftingManager = CraftingManagerFromDataHelper::make();
 
 			$this->logger->info("Loading PW10 resource packs...");
 			$this->pw10ResourcePackManager = new ResourcePackManager($this->getDataPath() . "pw10_packs" . DIRECTORY_SEPARATOR, $this->logger);
@@ -1674,8 +1702,6 @@ class Server
 			$this->logger->info("Loading bedrock resource packs...");
 			$this->bedrockResourcePackManager = new ResourcePackManager($this->getDataPath() . "bedrock_packs" . DIRECTORY_SEPARATOR, $this->logger);
 			$this->logger->debug("Successfully loaded " . count($this->bedrockResourcePackManager->getResourceStack()) . " resource packs");
-
-			$this->bedrockResourcePacksProtocol = (int) $this->getSubmarineProperty("resource-pack.minimal-bedrock-protocol", ProtocolInfo::PROTOCOL_370);
 
 			$this->pluginManager = new PluginManager($this, $this->commandMap, ((bool) $this->getProperty("plugins.legacy-data-dir", true)) ? null : $this->getDataPath() . "plugin_data" . DIRECTORY_SEPARATOR);
 			$this->profilingTickRate = (float) $this->getProperty("settings.profile-report-trigger", 20);
@@ -1778,7 +1804,7 @@ class Server
 					$endLevelName = "end";
 				}
 				if (!$this->loadLevel($endLevelName)) {
-					$creationOptions = LevelCreationOptions::create()->setGeneratorClass(End::class);
+					$creationOptions = LevelCreationOptions::create()->setGeneratorClass(TheEnd::class);
 					$creationOptions->setSeed(time());
 					$creationOptions->setDifficulty($this->getDifficulty());
 					$this->generateLevel($endLevelName, $creationOptions);
@@ -1858,7 +1884,7 @@ class Server
 	 * @param TextContainer|string $message
 	 * @param CommandSender[]|null $recipients
 	 */
-	public function broadcastMessage($message, array $recipients = null) : int
+	public function broadcastMessage($message, ?array $recipients = null) : int
 	{
 		if (!is_array($recipients)) {
 			return $this->broadcast($message, self::BROADCAST_CHANNEL_USERS);
@@ -1874,7 +1900,7 @@ class Server
 	/**
 	 * @param Player[]|null $recipients
 	 */
-	public function broadcastTip(string $tip, array $recipients = null) : int
+	public function broadcastTip(string $tip, ?array $recipients = null) : int
 	{
 		if (!is_array($recipients)) {
 			/** @var Player[] $recipients */
@@ -1896,7 +1922,7 @@ class Server
 	/**
 	 * @param Player[]|null $recipients
 	 */
-	public function broadcastPopup(string $popup, array $recipients = null) : int
+	public function broadcastPopup(string $popup, ?array $recipients = null) : int
 	{
 		if (!is_array($recipients)) {
 			/** @var Player[] $recipients */
@@ -1922,7 +1948,7 @@ class Server
 	 * @param int           $fadeOut    Duration in ticks for fade-out.
 	 * @param Player[]|null $recipients
 	 */
-	public function broadcastTitle(string $title, string $subtitle = "", int $fadeIn = -1, int $stay = -1, int $fadeOut = -1, array $recipients = null) : int
+	public function broadcastTitle(string $title, string $subtitle = "", int $fadeIn = -1, int $stay = -1, int $fadeOut = -1, ?array $recipients = null) : int
 	{
 		if (!is_array($recipients)) {
 			/** @var Player[] $recipients */
@@ -2021,7 +2047,15 @@ class Server
 					}
 
 					$packet->setProtocol($protocol);
-					$buffer = Player::encodePacketTimed($packet);
+					try {
+						$buffer = Player::encodePacketTimed($packet);
+					} catch (\Throwable $e) {
+						//isolate the failure to the sessions of this protocol, instead of crashing the whole server
+						foreach ($receivers as $receiver) {
+							$receiver->onPacketEncodeError($packet, $e);
+						}
+						continue;
+					}
 					//varint length prefix + packet buffer
 					$totalLength += (((int) log(strlen($buffer), 128)) + 1) + strlen($buffer);
 					$packetBuffers[] = $buffer;
@@ -2441,8 +2475,7 @@ class Server
 		return $this->tickSleeper;
 	}
 
-	private function tickProcessor() : void
-	{
+	private function tickProcessor() : void{
 		$this->nextTick = microtime(true);
 
 		while ($this->isRunning) {
@@ -2492,7 +2525,7 @@ class Server
 	/**
 	 * @param Player[]|null $players
 	 */
-	public function updatePlayerListData(UUID $uuid, int $entityId, string $name, Skin $skin, string $xboxUserId = "", array $players = null) : void
+	public function updatePlayerListData(UUID $uuid, int $entityId, string $name, Skin $skin, string $xboxUserId = "", ?array $players = null) : void
 	{
 		$pk = new PlayerListPacket();
 		$pk->type = PlayerListPacket::TYPE_ADD;
@@ -2505,7 +2538,7 @@ class Server
 	/**
 	 * @param Player[]|null $players
 	 */
-	public function removePlayerListData(UUID $uuid, array $players = null) : void
+	public function removePlayerListData(UUID $uuid, ?array $players = null) : void
 	{
 		$pk = new PlayerListPacket();
 		$pk->type = PlayerListPacket::TYPE_REMOVE;
@@ -2518,14 +2551,13 @@ class Server
 		$pk = new PlayerListPacket();
 		$pk->type = PlayerListPacket::TYPE_ADD;
 		foreach ($this->playerList as $player) {
-			$pk->entries[] = PlayerListEntry::createAdditionEntry($player->getUniqueId(), $player->getId(), $player->getDisplayName(), $player->getSkin(), $player->getXuid());
+			$pk->entries[] = PlayerListEntry::createAdditionEntry($player->getUniqueId(), $player->getId(), $player->getDisplayName(), $player->getSkin(), $player->getXuid(), "", $player->getDeviceOS() ?? DeviceOS::UNKNOWN);
 		}
 
 		$p->sendDataPacket($pk);
 	}
 
-	private function checkTickUpdates(int $currentTick) : void
-	{
+	private function checkTickUpdates(int $currentTick) : void{
 		foreach ($this->players as $player) {
 			if (!$player->loggedIn && (time() >= $player->connectTime + 30)) {
 				$player->close("", "Login timeout", true, DisconnectFailReason::TIMEOUT);
@@ -2627,11 +2659,40 @@ class Server
 		return $this->getSubmarineProperty("additional-plugin-dirs", []);
 	}
 
+	public function sendServerStats() : void{
+		$queryRegenerateTask = $this->queryRegenerateTask;
+
+		$statsRequestData = new StatsData(
+			timestamp:          time(),
+			motd:               $queryRegenerateTask->getMotd(),
+			tickPerSecond:      $this->getTicksPerSecond(),
+			tickUsage:      $this->getTickUsage(),
+			online:             $queryRegenerateTask->getPlayerCount(),
+			port:               $this->getPort(),
+			statsRequestMemoryData:     new StatsMemoryData(
+				usage:  round(memory_get_usage(true) / 1024 / 1024, 2),
+				max:    round(memory_get_peak_usage(true) / 1024 / 1024, 2),
+				limit:  ini_get('memory_limit')
+			),
+			apiVersion:         $this->getApiVersion(),
+			submarineVersion:   $this->getSubmarineVersion(),
+			statsRequestWorldData:      array_map(static function($world) {
+				return new StatsWorldData(
+					worldName:  $world->getName(),
+					players:    count($world->getPlayers()),
+					chunks:     count($world->getChunks()),
+					entities:   count($world->getEntities())
+				);
+			}, $this->getLevels())
+		);
+
+		$this->getAsyncPool()->submitTask(new SendStatsTask($this->monitoringHost, $statsRequestData));
+	}
+
 	/**
 	 * Tries to execute a server tick
 	 */
-	private function tick() : void
-	{
+	private function tick() : void{
 		$tickTime = microtime(true);
 		if (($tickTime - $this->nextTick) < -0.025) { //Allow half a tick of diff
 			return;
@@ -2670,6 +2731,10 @@ class Server
 
 			$this->network->updateName();
 			$this->network->resetStatistics();
+		}
+
+		if ($this->monitoringEnabled && ($this->tickCounter % self::TICKS_PER_SEND_SERVER_STATS) === 0) {
+			$this->sendServerStats();
 		}
 
 		if ($this->autoSave && ++$this->autoSaveTicker >= $this->autoSaveTicks) {
@@ -2717,8 +2782,7 @@ class Server
 	 *
 	 * @throws \BadMethodCallException because Server instances cannot be serialized
 	 */
-	public function __sleep()
-	{
+	public function __sleep() {
 		throw new \BadMethodCallException("Cannot serialize Server instance");
 	}
 }

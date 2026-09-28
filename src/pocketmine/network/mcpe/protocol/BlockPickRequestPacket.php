@@ -42,7 +42,7 @@ class BlockPickRequestPacket extends DataPacket
 	protected function decodePayload() : void
 	{
 		$this->getSignedBlockPosition($this->blockX, $this->blockY, $this->blockZ);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_137) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->addUserData = $this->getBool();
 		}
 		$this->hotbarSlot = $this->getByte();
@@ -51,7 +51,7 @@ class BlockPickRequestPacket extends DataPacket
 	protected function encodePayload() : void
 	{
 		$this->putSignedBlockPosition($this->blockX, $this->blockY, $this->blockZ);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_137) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->putBool($this->addUserData);
 		}
 		$this->putByte($this->hotbarSlot);

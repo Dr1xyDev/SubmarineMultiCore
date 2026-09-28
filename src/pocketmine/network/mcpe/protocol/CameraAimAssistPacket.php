@@ -81,7 +81,7 @@ class CameraAimAssistPacket extends DataPacket
 
 	protected function decodePayload() : void
 	{
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_766) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_766) {
 			$this->presetId = $this->getString();
 		}
 
@@ -89,14 +89,14 @@ class CameraAimAssistPacket extends DataPacket
 		$this->distance = $this->getLFloat();
 		$this->targetMode = CameraAimAssistTargetMode::fromPacket($this->getByte());
 		$this->actionType = CameraAimAssistActionType::fromPacket($this->getByte());
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_827) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_827) {
 			$this->showDebugRender = $this->getBool();
 		}
 	}
 
 	protected function encodePayload() : void
 	{
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_766) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_766) {
 			$this->putString($this->presetId);
 		}
 
@@ -104,7 +104,7 @@ class CameraAimAssistPacket extends DataPacket
 		$this->putLFloat($this->distance);
 		$this->putByte($this->targetMode->value);
 		$this->putByte($this->actionType->value);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_827) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_827) {
 			$this->putBool($this->showDebugRender);
 		}
 	}

@@ -41,14 +41,19 @@ class DisconnectPacket extends DataPacket
 
 	protected function decodePayload() : void
 	{
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_622) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_622) {
 			$this->reason = $this->getVarInt();
 		}
 
-		$this->hideDisconnectionScreen = $this->getBool();
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_975) {
+			$this->hideDisconnectionScreen = $this->getUnsignedVarInt() === 1;
+		} else {
+			$this->hideDisconnectionScreen = $this->getBool();
+		}
+
 		if (!$this->hideDisconnectionScreen) {
 			$this->message = $this->getString();
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_712) {
 				$this->filteredMessage = $this->getString();
 			}
 		}
@@ -56,14 +61,19 @@ class DisconnectPacket extends DataPacket
 
 	protected function encodePayload() : void
 	{
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_622) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_622) {
 			$this->putVarInt($this->reason);
 		}
 
-		$this->putBool($this->hideDisconnectionScreen);
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_975) {
+			$this->putUnsignedVarInt($this->hideDisconnectionScreen ? 1 : 0);
+		} else {
+			$this->putBool($this->hideDisconnectionScreen);
+		}
+
 		if (!$this->hideDisconnectionScreen) {
 			$this->putString($this->message);
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_712) {
 				$this->putString($this->filteredMessage);
 			}
 		}

@@ -50,6 +50,7 @@ class Mooshroom extends Cow
 				$new = ItemFactory::get(Item::MUSHROOM_STEW);
 				if ($player->isSurvival()) {
 					$item->pop();
+					$player->getInventory()->setItemInHand($item);
 				}
 
 				if ($player->getInventory()->canAddItem($new)) {
@@ -66,7 +67,10 @@ class Mooshroom extends Cow
 				$cow->setNameTag($this->getNameTag());
 				$cow->setImmobile(!$this->server->mobAiEnabled);
 
-				$item->applyDamage(1);
+				if ($player->hasFiniteResources()) {
+					$item->applyDamage(1);
+					$player->getInventory()->setItemInHand($item);
+				}
 
 				for ($i = 0; $i < 5; $i++) {
 					$player->dropItem(ItemFactory::get(Block::RED_MUSHROOM));

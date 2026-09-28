@@ -26,22 +26,13 @@ use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\command\utils\InvalidCommandSyntaxException;
 use pocketmine\lang\TranslationContainer;
-use pocketmine\nbt\LittleEndianNBTStream;
-use pocketmine\nbt\tag\CompoundTag;
-use pocketmine\network\mcpe\convert\GlobalItemTypeDictionary;
-use pocketmine\network\mcpe\convert\LegacyItemIdToStringIdMap;
-use pocketmine\network\mcpe\NetworkBinaryStream;
 use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
 use pocketmine\network\mcpe\protocol\types\command\CommandOverload;
 use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\Player;
-use pocketmine\utils\AssumptionFailedError;
-use pocketmine\utils\Filesystem;
 use pocketmine\utils\TextFormat;
-use pocketmine\utils\Utils;
 use function array_shift;
 use function count;
-use const pocketmine\BEDROCK_DATA_PATH;
 
 class OpCommand extends VanillaCommand
 {
@@ -57,7 +48,7 @@ class OpCommand extends VanillaCommand
 
 	public function execute(CommandSender $sender, string $commandLabel, array $args)
 	{
-        if (!$this->testPermission($sender)) {
+		if (!$this->testPermission($sender)) {
 			return true;
 		}
 

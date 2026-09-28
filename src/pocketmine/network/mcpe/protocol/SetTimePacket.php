@@ -37,7 +37,7 @@ class SetTimePacket extends DataPacket
 
 	protected function encodePayload() : void
 	{
-        $this->putVarInt($this->time);
+		$this->putVarInt($this->time);
 	}
 
 	public function mustBeDecoded() : bool

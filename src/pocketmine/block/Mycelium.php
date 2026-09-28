@@ -22,9 +22,10 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\event\block\BlockSpreadEvent;
+use pocketmine\block\utils\BlockEventHelper;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
+use pocketmine\item\ItemIds;
 use pocketmine\math\Facing;
 
 use function mt_rand;
@@ -53,32 +54,30 @@ class Mycelium extends Solid
 		return 0.6;
 	}
 
-	public function getDropsForCompatibleTool(Item $item) : array
-	{
+	public function getDropsForCompatibleTool(Item $item) : array{
 		return [
-			ItemFactory::get(Item::DIRT)
+			ItemFactory::get(ItemIds::DIRT)
 		];
 	}
 
-	public function ticksRandomly() : bool
-	{
+	public function isAffectedBySilkTouch() : bool{
 		return true;
 	}
 
-	public function onRandomTick() : void
-	{
+	public function ticksRandomly() : bool{
+		return true;
+	}
+
+	public function onRandomTick() : void{
 		//TODO: light levels
 		$x = mt_rand($this->x - 1, $this->x + 1);
 		$y = mt_rand($this->y - 2, $this->y + 2);
 		$z = mt_rand($this->z - 1, $this->z + 1);
-		$block = $this->getLevel()->getBlockAt($x, $y, $z);
-		if ($block->getId() === Block::DIRT) {
-			if ($block->getSide(Facing::UP) instanceof Transparent) {
-				$ev = new BlockSpreadEvent($block, $this, BlockFactory::get(Block::MYCELIUM));
-				$ev->call();
-				if (!$ev->isCancelled()) {
-					$this->getLevel()->setBlock($block, $ev->getNewState());
-				}
+		$level = $this->level;
+		$block = $level->getBlockAt($x, $y, $z);
+		if($block instanceof Dirt && $block->getDamage() === Dirt::TYPE_NORMAL){
+			if($block->getSide(Facing::UP) instanceof Transparent){
+				BlockEventHelper::spread($block, BlockFactory::get(BlockIds::MYCELIUM), $this);
 			}
 		}
 	}

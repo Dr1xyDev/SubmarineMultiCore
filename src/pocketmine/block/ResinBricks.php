@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace pocketmine\block;
 
 use pocketmine\item\TieredTool;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 class ResinBricks extends Solid
 {
@@ -57,14 +56,5 @@ class ResinBricks extends Solid
 	public function getName() : string
 	{
 		return "Resin Bricks";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_766) {
-			return BlockFactory::get(BlockIds::BRICK_BLOCK);
-		}
-
-		return null;
 	}
 }

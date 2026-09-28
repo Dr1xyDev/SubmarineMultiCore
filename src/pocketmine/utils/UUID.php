@@ -25,13 +25,16 @@ namespace pocketmine\utils;
 use InvalidArgumentException;
 
 use function bin2hex;
+use function chr;
 use function explode;
 use function getmypid;
 use function getmyuid;
 use function hash;
 use function hex2bin;
 use function implode;
+use function md5;
 use function mt_rand;
+use function ord;
 use function strlen;
 use function substr;
 use function time;
@@ -44,7 +47,7 @@ class UUID
 	/** @var int */
 	private $version;
 
-	public function __construct(int $part1 = 0, int $part2 = 0, int $part3 = 0, int $part4 = 0, int $version = null)
+	public function __construct(int $part1 = 0, int $part2 = 0, int $part3 = 0, int $part4 = 0, ?int $version = null)
 	{
 		$this->parts = [$part1, $part2, $part3, $part4];
 
@@ -64,7 +67,7 @@ class UUID
 	/**
 	 * Creates an UUID from an hexadecimal representation
 	 */
-	public static function fromString(string $uuid, int $version = null) : UUID
+	public static function fromString(string $uuid, ?int $version = null) : UUID
 	{
 		$hex = "";
 		foreach (explode("-", trim($uuid)) as $part) {
@@ -81,7 +84,7 @@ class UUID
 	 *
 	 * @throws InvalidArgumentException
 	 */
-	public static function fromBinary(string $uuid, int $version = null) : UUID
+	public static function fromBinary(string $uuid, ?int $version = null) : UUID
 	{
 		if (strlen($uuid) !== 16) {
 			throw new InvalidArgumentException("Must have exactly 16 bytes");
@@ -103,6 +106,16 @@ class UUID
 	public static function fromRandom() : UUID
 	{
 		return self::fromData(Binary::writeInt(time()), Binary::writeShort(($pid = getmypid()) !== false ? $pid : 0), Binary::writeShort(($uid = getmyuid()) !== false ? $uid : 0), Binary::writeInt(mt_rand(-0x7fffffff, 0x7fffffff)), Binary::writeInt(mt_rand(-0x7fffffff, 0x7fffffff)));
+	}
+
+	/**
+	 * Derive UUID from XUID
+	 */
+	public static function fromXuid(string $xuid) : UUID{
+		$hash = md5("pocket-auth-1-xuid:" . $xuid, true);
+		$hash[6] = chr((ord($hash[6]) & 0x0f) | 0x30);
+		$hash[8] = chr((ord($hash[8]) & 0x3f) | 0x80);
+		return UUID::fromBinary($hash);
 	}
 
 	public function toBinary() : string

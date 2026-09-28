@@ -40,8 +40,9 @@ class Stray extends Skeleton
 
 	public function getDrops() : array
 	{
+		$looting = $this->getLootingLevel();
 		$drops = parent::getDrops();
-		$drops[] = ItemFactory::get(Item::ARROW, 18);
+		$drops[] = ItemFactory::get(Item::ARROW, 18, 1 + $looting);
 		return $drops;
 	}
 

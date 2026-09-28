@@ -32,7 +32,7 @@ class BehaviorPool
 	/** @var BehaviorEntry[] */
 	protected $workingBehaviors = [];
 	/** @var int */
-	protected $tickRate = 3;
+	protected $tickRate = 10;
 	/** @var int */
 	protected $tickCounter = 0;
 
@@ -61,9 +61,7 @@ class BehaviorPool
 
 						unset($this->workingBehaviors[$id]);
 					}
-				}
-
-				if ($this->canUse($entry) && $behavior->canStart()) {
+				}elseif ($this->canUse($entry) && $behavior->canStart()) {
 					$behavior->onStart();
 
 					$this->workingBehaviors[$id] = $entry;
@@ -75,12 +73,10 @@ class BehaviorPool
 					$entry->getBehavior()->onEnd();
 
 					unset($this->workingBehaviors[$id]);
+				}else{
+					$entry->getBehavior()->onTick();
 				}
 			}
-		}
-
-		foreach ($this->workingBehaviors as $entry) {
-			$entry->getBehavior()->onTick();
 		}
 
 		return count($this->workingBehaviors) > 0;

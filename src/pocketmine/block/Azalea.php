@@ -22,57 +22,48 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\block\utils\ColorBlockMetaHelper;
-use pocketmine\item\Item;
+use pocketmine\block\utils\BlockEventHelper;
+use pocketmine\block\utils\StaticSupportTrait;
+use pocketmine\block\utils\TreeGrower;
 use pocketmine\math\Facing;
-use pocketmine\math\Vector3;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\Player;
+use pocketmine\utils\Random;
 
-class Azalea extends Transparent
-{
+class Azalea extends Flowable implements Growable {
+	use StaticSupportTrait;
+
 	protected $id = self::AZALEA;
 
-	public function __construct(int $meta = 0)
-	{
+	public function __construct(int $meta = 0){
 		$this->meta = $meta;
 	}
 
-	public function getName() : string
-	{
+	public function getName() : string{
 		return "Azalea";
 	}
 
-	private function canBeSupportedBy(Block $b) : bool
-	{
-		return match ($b->getId()) {
-			BlockIds::GRASS, BlockIds::DIRT, BlockIds::DIRT_WITH_ROOTS, BlockIds::PODZOL, BlockIds::MOSS_BLOCK, BlockIds::FARMLAND, BlockIds::MUD, BlockIds::CLAY_BLOCK => true,
-			default => false,
-		};
+	public function canGrow(Random $random, ?Player $player) : bool{
+		return true;
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
-	{
-		if ($this->canBeSupportedBy($this->getSide(Facing::DOWN))) {
-			return parent::place($item, $blockReplace, $blockClicked, $face, $clickVector, $player);
-		}
-
-		return false;
+	public function canUseBonemeal(Random $random, ?Player $player) : bool{
+		return $random->nextFloat() < 0.45;
 	}
 
-	public function onNearbyBlockChange() : void
-	{
-		if (!$this->canBeSupportedBy($this->getSide(Facing::DOWN))) {
-			$this->level->useBreakOn($this);
+	public function grow(Random $random, ?Player $player) : void {
+		if (BlockEventHelper::grow($this, $this, $player)) {
+			TreeGrower::AZALEA()->growTree($this->getLevel(), $this, $this, $random);
 		}
 	}
 
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_440) {
-			return BlockFactory::get(BlockIds::GRASS, ColorBlockMetaHelper::GRAY);
-		}
-
-		return null;
+	protected function canBeSupportedAt(Block $block) : bool{
+		$supportBlock = $block->getSide(Facing::DOWN);
+		return
+			$supportBlock instanceof Grass ||
+			$supportBlock instanceof Dirt ||
+			$supportBlock instanceof Mycelium ||
+			$supportBlock instanceof Podzol ||
+			$supportBlock instanceof Farmland ||
+			$supportBlock instanceof Mud;
 	}
 }

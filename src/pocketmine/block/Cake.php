@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
+use pocketmine\block\utils\StaticSupportTrait;
 use pocketmine\entity\EffectInstance;
 use pocketmine\entity\Living;
 use pocketmine\item\FoodSource;
@@ -29,12 +30,13 @@ use pocketmine\item\Item;
 use pocketmine\item\ItemBlock;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Facing;
-use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 use pocketmine\Player;
 
 class Cake extends Transparent implements FoodSource
 {
+	use StaticSupportTrait;
+
 	protected $id = self::CAKE_BLOCK;
 
 	protected $itemId = Item::CAKE;
@@ -69,23 +71,8 @@ class Cake extends Transparent implements FoodSource
 		);
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
-	{
-		$down = $this->getSide(Facing::DOWN);
-		if ($down->getId() !== self::AIR) {
-			$this->getLevel()->setBlock($blockReplace, $this, true, true);
-
-			return true;
-		}
-
-		return false;
-	}
-
-	public function onNearbyBlockChange() : void
-	{
-		if ($this->getSide(Facing::DOWN)->getId() === self::AIR) { //Replace with common break method
-			$this->getLevel()->setBlock($this, BlockFactory::get(Block::AIR), true);
-		}
+	protected function canBeSupportedAt(Block $block) : bool{
+		return $block->getSide(Facing::DOWN)->getId() !== BlockIds::AIR;
 	}
 
 	public function getDropsForCompatibleTool(Item $item) : array
@@ -98,7 +85,7 @@ class Cake extends Transparent implements FoodSource
 		return false;
 	}
 
-	public function onActivate(Item $item, Player $player = null) : bool
+	public function onActivate(Item $item, ?Player $player = null) : bool
 	{
 		if ($this->meta === 0 && $item instanceof ItemBlock) {
 			$block = $item->getBlock();

@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace pocketmine\block;
 
 use pocketmine\item\TieredTool;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 class Dripstone extends Solid
 {
@@ -57,14 +56,5 @@ class Dripstone extends Solid
 	public function getName() : string
 	{
 		return "Dripstone Block";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_440) {
-			return BlockFactory::get(BlockIds::STONE);
-		}
-
-		return null;
 	}
 }

@@ -118,17 +118,17 @@ final class BiomeDefinitionData
 		return $this->chunkGenData;
 	}
 
-	public static function read(NetworkBinaryStream $in, int $protocolVersion) : self
+	public static function read(NetworkBinaryStream $in) : self
 	{
-		if ($protocolVersion >= ProtocolInfo::PROTOCOL_827) {
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_827) {
 			$id = $in->getLShort();
 		} else {
-			$id = $in->readOptional($in->getLShort(...));
+			$id = $in->getOptional($in->getLShort(...));
 		}
 
 		$temperature = $in->getLFloat();
 		$downfall = $in->getLFloat();
-		if ($protocolVersion >= ProtocolInfo::PROTOCOL_844) {
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_844) {
 			$foliageSnow = $in->getLFloat();
 		} else {
 			$redSporeDensity = $in->getLFloat();
@@ -141,8 +141,8 @@ final class BiomeDefinitionData
 		$scale = $in->getLFloat();
 		$mapWaterColor = Color::fromARGB($in->getLInt());
 		$rain = $in->getBool();
-		$tags = $in->readOptional(fn () => BiomeTagsData::read($in));
-		$chunkGenData = $in->readOptional(fn () => BiomeDefinitionChunkGenData::read($in, $protocolVersion));
+		$tags = $in->getOptional(fn () => BiomeTagsData::read($in));
+		$chunkGenData = $in->getOptional(fn () => BiomeDefinitionChunkGenData::read($in));
 
 		return new self(
 			$id,
@@ -162,17 +162,17 @@ final class BiomeDefinitionData
 		);
 	}
 
-	public function write(NetworkBinaryStream $out, int $protocolVersion) : void
+	public function write(NetworkBinaryStream $out) : void
 	{
-		if ($protocolVersion >= ProtocolInfo::PROTOCOL_827) {
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_827) {
 			$out->putLShort($this->id);
 		} else {
-			$out->writeOptional($this->id, $out->putLShort(...));
+			$out->putOptional($this->id, $out->putLShort(...));
 		}
 
 		$out->putLFloat($this->temperature);
 		$out->putLFloat($this->downfall);
-		if ($protocolVersion >= ProtocolInfo::PROTOCOL_844) {
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_844) {
 			$out->putLFloat($this->foliageSnow);
 		} else {
 			$out->putLFloat($this->redSporeDensity);
@@ -185,7 +185,7 @@ final class BiomeDefinitionData
 		$out->putLFloat($this->scale);
 		$out->putLInt($this->mapWaterColor->toARGB());
 		$out->putBool($this->rain);
-		$out->writeOptional($this->tags, fn (BiomeTagsData $tags) => $tags->write($out));
-		$out->writeOptional($this->chunkGenData, fn (BiomeDefinitionChunkGenData $chunkGenData) => $chunkGenData->write($out, $protocolVersion));
+		$out->putOptional($this->tags, fn (BiomeTagsData $tags) => $tags->write($out));
+		$out->putOptional($this->chunkGenData, fn (BiomeDefinitionChunkGenData $chunkGenData) => $chunkGenData->write($out));
 	}
 }

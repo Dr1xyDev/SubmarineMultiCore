@@ -25,42 +25,35 @@ namespace pocketmine\block;
 use pocketmine\block\utils\PillarRotationHelper;
 use pocketmine\item\Item;
 use pocketmine\math\Vector3;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\Player;
 
-class StrippedLog extends Log
-{
-
-	protected string $prefixWoodType;
-
-	public function __construct(int $id, int $meta, string $prefixWoodType)
-	{
-		$this->id = $id;
-		$this->meta = $meta;
-		$this->prefixWoodType = $prefixWoodType;
+class StrippedLog extends Log{
+	public function getName() : string{
+		return $this->fallbackName;
 	}
 
-	public function getName() : string
-	{
-		return "Stripped " . $this->prefixWoodType . " Log";
+	public function getVariantBitmask() : int{
+		return 0;
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
-	{
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool{
 		$this->meta = PillarRotationHelper::getMetaFromFace($this->meta, $face, true);
-		$this->getLevel()->setBlock($blockReplace, $this, true, true);
-		return true;
+		return Block::place($item, $blockReplace, $blockClicked, $face, $clickVector, $player);
 	}
 
-	public function getBlockProtocol(int $playerProtocol) : ?Block{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_261) {
-			return BlockFactory::get(BlockIds::LOG, match ($this->meta) {
-				0x01 => 0x04,
-				0x02 => 0x08,
-				default => 0,
-			});
+	public function getFlameEncouragement() : int{
+		if ($this->id === BlockIds::STRIPPED_CRIMSON_STEM || $this->id === BlockIds::STRIPPED_WARPED_STEM){
+			return 0;
 		}
 
-		return null;
+		return parent::getFlameEncouragement();
+	}
+
+	public function getFlammability() : int{
+		if ($this->id === BlockIds::STRIPPED_CRIMSON_STEM || $this->id === BlockIds::STRIPPED_WARPED_STEM){
+			return 0;
+		}
+
+		return parent::getFlammability();
 	}
 }

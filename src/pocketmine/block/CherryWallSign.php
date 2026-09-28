@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace pocketmine\block;
 
 use pocketmine\item\Item;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 class CherryWallSign extends WallSign
 {
@@ -40,14 +39,5 @@ class CherryWallSign extends WallSign
 	public function getName() : string
 	{
 		return "Cherry Wall Sign";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_582) {
-			return BlockFactory::get(BlockIds::WALL_SIGN, $this->meta);
-		}
-
-		return null;
 	}
 }

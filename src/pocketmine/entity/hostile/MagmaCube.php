@@ -22,13 +22,10 @@ declare(strict_types=1);
 
 namespace pocketmine\entity\hostile;
 
-use pocketmine\event\entity\EntityDamageByEntityEvent;
-use pocketmine\item\enchantment\Enchantment;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
 use pocketmine\level\Level;
 use pocketmine\level\particle\Particle;
-use pocketmine\Player;
 
 class MagmaCube extends Slime
 {
@@ -90,18 +87,7 @@ class MagmaCube extends Slime
 
 		if ($this->getSlimeSize() > 1) {
 			$i = $this->random->nextBoundedInt(4) - 2;
-			$loot = 0;
-
-			$cause = $this->getLastDamageCause();
-			if ($cause instanceof EntityDamageByEntityEvent) {
-				$player = $cause->getDamager();
-				if ($player instanceof Player) {
-					$item = $player->getInventory()->getItemInHand();
-					if ($item->hasEnchantment(Enchantment::LOOTING)) {
-						$loot = $item->getEnchantmentLevel(Enchantment::LOOTING);
-					}
-				}
-			}
+			$loot = $this->getLootingLevel();
 
 			if ($loot > 0) {
 				$i += $this->random->nextBoundedInt($loot + 1);

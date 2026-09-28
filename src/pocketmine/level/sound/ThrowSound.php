@@ -34,6 +34,6 @@ final class ThrowSound extends Sound
 
 	public function encode()
 	{
-		return [LevelSoundEventPacket::create(LevelSoundEventPacket::SOUND_THROW, $this, -1, "minecraft:player", false, false, -1)];
+		return [LevelSoundEventPacket::create(LevelSoundEventPacket::SOUND_THROW, $this, -1, "minecraft:player", false, false, -1, null)];
 	}
 }

@@ -22,12 +22,17 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
+use pocketmine\entity\object\FallingBlock;
 use pocketmine\inventory\AnvilInventory;
 use pocketmine\item\Item;
 use pocketmine\item\TieredTool;
+use pocketmine\level\sound\AnvilFallSound;
+use pocketmine\level\sound\Sound;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Vector3;
 use pocketmine\Player;
+use pocketmine\utils\Utils;
+use function round;
 
 class Anvil extends Fallable
 {
@@ -107,8 +112,7 @@ class Anvil extends Fallable
 		}
 	}
 
-	public function onActivate(Item $item, Player $player = null) : bool
-	{
+	public function onActivate(Item $item, ?Player $player = null) : bool{
 		if ($player instanceof Player) {
 			$player->addWindow(new AnvilInventory($this));
 		}
@@ -116,11 +120,41 @@ class Anvil extends Fallable
 		return true;
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
-	{
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool{
 		$direction = ($player !== null ? $player->getDirection() : 0) & 0x03;
-		$this->meta = $this->getVariant() | $direction;
-		$this->getLevel()->setBlock($blockReplace, $this, true, true);
+		$this->meta = $direction | $this->getVariant();
+
+		return parent::place($item, $blockReplace, $blockClicked, $face, $clickVector, $player);
+	}
+
+	public function onHitGround(FallingBlock $blockEntity, float $fallDistance) : bool{
+		if(Utils::getRandomFloat() < 0.05 + (round($fallDistance) - 1) * 0.05){
+			if($this->getVariant() !== self::TYPE_VERY_DAMAGED){
+				$this->meta = $this->getFacing() | ((($this->getVariant() >> 2) + 1) << 2);
+			}else{
+				return false;
+			}
+		}
 		return true;
+	}
+
+	public function getFallDamagePerBlock() : float{
+		return 2.0;
+	}
+
+	public function getMaxFallDamage() : float{
+		return 40.0;
+	}
+
+	public function getLandSound(Vector3 $position) : ?Sound{
+		return new AnvilFallSound($position);
+	}
+
+	public function getFacing() : int {
+		return $this->meta & 0x03;
+	}
+
+	public function setFacing(int $facing) : void{
+		$this->meta = $facing | $this->getVariant();
 	}
 }

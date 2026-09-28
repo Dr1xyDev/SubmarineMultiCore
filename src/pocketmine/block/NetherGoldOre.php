@@ -27,7 +27,6 @@ use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
 use pocketmine\item\ItemIds;
 use pocketmine\item\TieredTool;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 class NetherGoldOre extends Solid
 {
@@ -66,14 +65,5 @@ class NetherGoldOre extends Solid
 	public function isAffectedBySilkTouch() : bool
 	{
 		return true;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_419) {
-			return BlockFactory::get(BlockIds::GOLD_ORE);
-		}
-
-		return null;
 	}
 }

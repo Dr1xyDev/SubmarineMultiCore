@@ -49,20 +49,20 @@ class ResourcePackStackEntry
 		return $this->subPackName;
 	}
 
-	public function write(int $playerProtocol, NetworkBinaryStream $out) : void
+	public function write(NetworkBinaryStream $out) : void
 	{
 		$out->putString($this->packId);
 		$out->putString($this->version);
-		if ($playerProtocol >= ProtocolInfo::PROTOCOL_137) {
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_407) {
 			$out->putString($this->subPackName);
 		}
 	}
 
-	public static function read(int $playerProtocol, NetworkBinaryStream $in) : self
+	public static function read(NetworkBinaryStream $in) : self
 	{
 		$packId = $in->getString();
 		$version = $in->getString();
-		if ($playerProtocol >= ProtocolInfo::PROTOCOL_137) {
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_407) {
 			$subPackName = $in->getString();
 		}
 		return new self($packId, $version, $subPackName ?? "");

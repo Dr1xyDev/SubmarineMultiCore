@@ -22,17 +22,18 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
+use pocketmine\block\utils\BushTrait;
+use pocketmine\block\utils\StaticSupportTrait;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
-use pocketmine\item\TieredTool;
+use pocketmine\item\ItemIds;
 use pocketmine\math\Facing;
-use pocketmine\math\Vector3;
-use pocketmine\Player;
-
 use function mt_rand;
 
-class DeadBush extends Flowable
-{
+class DeadBush extends Flowable {
+	use BushTrait;
+	use StaticSupportTrait;
+
 	protected $id = self::DEAD_BUSH;
 
 	public function __construct(int $meta = 0)
@@ -45,36 +46,14 @@ class DeadBush extends Flowable
 		return "Dead Bush";
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
-	{
-		if (!$this->getSide(Facing::DOWN)->isTransparent()) {
-			return parent::place($item, $blockReplace, $blockClicked, $face, $clickVector, $player);
-		}
-
+	public function canBeReplaced() : bool{
 		return false;
-	}
-
-	public function onNearbyBlockChange() : void
-	{
-		if ($this->getSide(Facing::DOWN)->isTransparent()) {
-			$this->getLevel()->useBreakOn($this);
-		}
-	}
-
-	public function getToolType() : int
-	{
-		return BlockToolType::TYPE_SHEARS;
-	}
-
-	public function getToolHarvestLevel() : int
-	{
-		return TieredTool::TIER_WOODEN;
 	}
 
 	public function getDropsForIncompatibleTool(Item $item) : array
 	{
 		return [
-			ItemFactory::get(Item::STICK)->setCount(mt_rand(0, 2))
+			ItemFactory::get(ItemIds::STICK)->setCount(mt_rand(0, 2))
 		];
 	}
 
@@ -83,13 +62,21 @@ class DeadBush extends Flowable
 		return true;
 	}
 
-	public function getFlameEncouragement() : int
-	{
-		return 60;
-	}
-
-	public function getFlammability() : int
-	{
-		return 100;
+	protected function canBeSupportedAt(Block $block) : bool{
+		$supportBlock = $block->getSide(Facing::DOWN);
+		return
+			$supportBlock instanceof Sand ||
+			$supportBlock instanceof Mud ||
+			match($supportBlock->getId()){
+				//can't use DIRT tag here because it includes farmland
+				BlockIds::PODZOL,
+				BlockIds::MYCELIUM,
+				BlockIds::DIRT,
+				BlockIds::GRASS,
+				BlockIds::HARDENED_CLAY,
+				BlockIds::MOSS_BLOCK,
+				BlockIds::STAINED_CLAY => true,
+				default => false,
+			};
 	}
 }

@@ -47,9 +47,9 @@ use pocketmine\network\mcpe\protocol\ExplodePacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\tile\Chest;
 use pocketmine\tile\Container;
+use pocketmine\tile\LootContainer;
 use pocketmine\tile\Tile;
 use pocketmine\utils\Utils;
-
 use function ceil;
 use function count;
 use function floor;
@@ -259,7 +259,10 @@ class Explosion
 				if ($t instanceof Chest) {
 					$t->unpair();
 				}
-				if ($yieldDrops && $t instanceof Container) {
+				if ($t instanceof LootContainer) {
+					$t->unpackLootTable();
+				}
+				if ($t instanceof Container) {
 					$t->getInventory()->dropContents($this->level, $t->add(0.5, 0.5, 0.5));
 				}
 
@@ -297,7 +300,7 @@ class Explosion
 		$viewers = $this->level->getChunkPlayers($this->source->getFloorX() >> Chunk::COORD_BIT_SIZE, $this->source->getFloorZ() >> Chunk::COORD_BIT_SIZE);
 		if (count($viewers) > 0) {
 			foreach ($viewers as $player) {
-				if ($player->getProtocolVersion() < ProtocolInfo::PROTOCOL_388) {
+				if ($player->getProtocolVersion() < ProtocolInfo::PROTOCOL_407) {
 					$player->sendDataPacket($pk);
 				}
 			}

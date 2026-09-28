@@ -63,8 +63,8 @@ class ArmorStand extends Item
 
 	public function getItemProtocol(int $playerProtocol) : ?TranslatedItemData
 	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_137) {
-			return new TranslatedItemData(ItemIds::PLANKS, $this->getDamage());
+		if ($playerProtocol < ProtocolInfo::PROTOCOL_407) {
+			return new TranslatedItemData(ItemIds::PLANKS, $this->getDamage(), $this->getName());
 		}
 
 		return parent::getItemProtocol($playerProtocol);

@@ -33,8 +33,8 @@ class FireworksCharge extends Item
 
 	public function getItemProtocol(int $playerProtocol) : ?TranslatedItemData
 	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_137) {
-			return new TranslatedItemData(ItemIds::NETHER_STAR, $this->getDamage());
+		if ($playerProtocol < ProtocolInfo::PROTOCOL_407) {
+			return new TranslatedItemData(ItemIds::NETHER_STAR, $this->getDamage(), $this->getName());
 		}
 
 		return parent::getItemProtocol($playerProtocol);

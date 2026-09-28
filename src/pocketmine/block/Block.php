@@ -28,6 +28,7 @@ namespace pocketmine\block;
 
 use InvalidArgumentException;
 use pocketmine\entity\Entity;
+use pocketmine\entity\object\FallingBlock;
 use pocketmine\entity\projectile\Projectile;
 use pocketmine\event\entity\EntityBlockBounceEvent;
 use pocketmine\item\enchantment\Enchantment;
@@ -59,9 +60,35 @@ class Block extends Position implements BlockIds
 	 *
 	 * This function redirects to {@link BlockFactory#get}.
 	 */
-	public static function get(int $id, int $meta = 0, Position $pos = null) : Block
+	public static function get(int $id, int $meta = 0, ?Position $pos = null) : Block
 	{
 		return BlockFactory::get($id, $meta, $pos);
+	}
+
+	/**
+	 * Converts horizontal direction to legacy block-facing metadata.
+	 *
+	 * Accepts either Facing::NORTH/SOUTH/WEST/EAST constants or player direction indices (0-3).
+	 *
+	 * @throws InvalidArgumentException
+	 */
+	public static function getMetaFace(int $direction) : int
+	{
+		$direction = match ($direction) {
+			0 => Facing::SOUTH,
+			1 => Facing::WEST,
+			2 => Facing::NORTH,
+			3 => Facing::EAST,
+			default => $direction
+		};
+
+		return match ($direction) {
+			Facing::SOUTH => Facing::WEST,
+			Facing::WEST => Facing::NORTH,
+			Facing::NORTH => Facing::EAST,
+			Facing::EAST => Facing::SOUTH,
+			default => throw new InvalidArgumentException("Invalid horizontal direction $direction")
+		};
 	}
 
 	/** @var int */
@@ -79,7 +106,7 @@ class Block extends Position implements BlockIds
 	/** @var AxisAlignedBB[]|null */
 	protected $collisionBoxes = null;
 
-	public function __construct(int $id, int $meta = 0, string $name = null, int $itemId = null)
+	public function __construct(int $id, int $meta = 0, ?string $name = null, ?int $itemId = null)
 	{
 		parent::__construct();
 
@@ -216,7 +243,7 @@ class Block extends Position implements BlockIds
 	/**
 	 * Places the Block, using block space and block target, and side. Returns if the block has been placed.
 	 */
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool
 	{
 		$this->getLevel()->setBlock($this, $this, true, true);
 		return true;
@@ -274,7 +301,7 @@ class Block extends Position implements BlockIds
 	/**
 	 * Do the actions needed so the block is broken with the Item
 	 */
-	public function onBreak(Item $item, Player $player = null) : bool
+	public function onBreak(Item $item, ?Player $player = null) : bool
 	{
 		$this->getLevel()->setBlock($this, BlockFactory::get(Block::AIR), true, true);
 		return true;
@@ -302,6 +329,15 @@ class Block extends Position implements BlockIds
 		$base /= $efficiency;
 
 		return $base;
+	}
+
+	/**
+	 * Called when FallingBlock hits the ground.
+	 * Returns whether the block should be placed.
+	 */
+	public function onHitGround(FallingBlock $blockEntity, float $fallDistance) : bool
+	{
+		return false;
 	}
 
 	/**
@@ -340,7 +376,7 @@ class Block extends Position implements BlockIds
 	/**
 	 * Do actions when activated by Item. Returns if it has done anything
 	 */
-	public function onActivate(Item $item, Player $player = null) : bool
+	public function onActivate(Item $item, ?Player $player = null) : bool
 	{
 		return false;
 	}
@@ -479,7 +515,6 @@ class Block extends Position implements BlockIds
 			if ($this->isAffectedBySilkTouch() && $item->hasEnchantment(Enchantment::SILK_TOUCH)) {
 				return $this->getSilkTouchDrops($item);
 			}
-
 			return $this->getDropsForCompatibleTool($item);
 		}
 
@@ -623,9 +658,9 @@ class Block extends Position implements BlockIds
 		if ($this->isValid()) {
 			[$dx, $dy, $dz] = Facing::OFFSET[$side] ?? [0, 0, 0];
 			return $this->getLevel()->getBlockAt(
-				$this->x + ($dx * $step),
-				$this->y + ($dy * $step),
-				$this->z + ($dz * $step)
+				(int) ($this->x + $dx * $step),
+				(int) ($this->y + $dy * $step),
+				(int) ($this->z + $dz * $step)
 			);
 		}
 
@@ -861,11 +896,7 @@ class Block extends Position implements BlockIds
 	{
 		return $this instanceof GlassPane ||
 			$this instanceof Fence ||
-			$this instanceof IronBars; //TODO: Chain and Wall
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		return null;
+			$this instanceof IronBars ||
+			$this instanceof Wall; //TODO: Chain
 	}
 }

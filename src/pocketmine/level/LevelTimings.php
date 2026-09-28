@@ -34,9 +34,10 @@ class LevelTimings
 	public TimingsHandler $scheduledBlockUpdates;
 	public TimingsHandler $neighbourBlockUpdates;
 	public TimingsHandler $randomChunkUpdates;
-	public TimingsHandler $randomChunkUpdatesChunkSelection;
+	public TimingsHandler $tickBlocks;
 	public TimingsHandler $doChunkGC;
-	public TimingsHandler $entityTick;
+	public TimingsHandler $entityTickAlways;
+	public TimingsHandler $entityTickQueue;
 	public TimingsHandler $tileTick;
 	public TimingsHandler $doTick;
 
@@ -63,11 +64,19 @@ class LevelTimings
 	 */
 	private static array $aggregators = [];
 
+	/** @var TimingsHandler[] */
+	public static array $randomTickBlocks = [];
+
 	private static function newTimer(string $worldName, string $timerName) : TimingsHandler
 	{
 		$aggregator = self::$aggregators[$timerName] ??= new TimingsHandler("Worlds - $timerName"); //displayed in Minecraft primary table
 
 		return new TimingsHandler("$worldName - $timerName", $aggregator);
+	}
+
+	public function getRandomTickBlocks(string $block) : TimingsHandler
+	{
+		return self::$randomTickBlocks[$block] ??= new TimingsHandler("Random Tick Block - $block", $this->tickBlocks);
 	}
 
 	public function __construct(Level $level)
@@ -82,9 +91,10 @@ class LevelTimings
 		$this->scheduledBlockUpdates = self::newTimer($name, "Scheduled Block Updates");
 		$this->neighbourBlockUpdates = self::newTimer($name, "Neighbour Block Updates");
 		$this->randomChunkUpdates = self::newTimer($name, "Random Chunk Updates");
-		$this->randomChunkUpdatesChunkSelection = self::newTimer($name, "Random Chunk Updates - Chunk Selection");
+		$this->tickBlocks = self::newTimer($name, "Tick Blocks");
 		$this->doChunkGC = self::newTimer($name, "Garbage Collection");
-		$this->entityTick = self::newTimer($name, "Entity Tick");
+		$this->entityTickAlways = self::newTimer($name, "Entity Tick Always");
+		$this->entityTickQueue = self::newTimer($name, "Entity Tick Queue");
 		$this->tileTick = self::newTimer($name, "Block Entity Tick");
 		$this->doTick = self::newTimer($name, "World Tick");
 

@@ -36,7 +36,7 @@ class BrewingStandInventory extends ContainerInventory
 	/** @var BrewingStand */
 	protected $holder;
 
-	public function __construct(BrewingStand $holder, array $items = [], int $size = null, string $title = null)
+	public function __construct(BrewingStand $holder, array $items = [], ?int $size = null, ?string $title = null)
 	{
 		parent::__construct($holder, $items, $size, $title);
 	}

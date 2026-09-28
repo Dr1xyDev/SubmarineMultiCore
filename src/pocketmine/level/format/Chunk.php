@@ -35,7 +35,6 @@ use pocketmine\nbt\tag\StringTag;
 use pocketmine\Player;
 use pocketmine\tile\Tile;
 use SplFixedArray;
-
 use function array_fill;
 use function array_filter;
 use function assert;
@@ -140,6 +139,10 @@ class Chunk
 
 		$this->NBTtiles = $tiles;
 		$this->NBTentities = $entities;
+	}
+
+	public function isInit() : bool {
+		return $this->isInit;
 	}
 
 	public function setProtect(bool $protect = true) : void
@@ -537,6 +540,7 @@ class Chunk
 	public function setLightPopulated(bool $value = true)
 	{
 		$this->lightPopulated = $value;
+		$this->hasChanged = true;
 	}
 
 	public function isPopulated() : bool
@@ -547,6 +551,7 @@ class Chunk
 	public function setPopulated(bool $value = true)
 	{
 		$this->terrainPopulated = $value;
+		$this->hasChanged = true;
 	}
 
 	public function isGenerated() : bool
@@ -557,6 +562,31 @@ class Chunk
 	public function setGenerated(bool $value = true)
 	{
 		$this->terrainGenerated = $value;
+		$this->hasChanged = true;
+	}
+
+	public function getNBTTiles() : array {
+		return $this->NBTtiles;
+	}
+
+	public function getNBTEntities() : array {
+		return $this->NBTentities;
+	}
+
+	public function addNBTTile(CompoundTag $nbt) : void {
+		if ($this->isInit) {
+			throw new \InvalidArgumentException("Cannot add chunk twice");
+		}
+
+		$this->NBTtiles[] = $nbt;
+	}
+
+	public function addNBTEntity(CompoundTag $nbt) : void {
+		if ($this->isInit) {
+			throw new \InvalidArgumentException("Cannot add chunk twice");
+		}
+
+		$this->NBTentities[] = $nbt;
 	}
 
 	public function addEntity(Entity $entity)
@@ -758,7 +788,7 @@ class Chunk
 	 *
 	 * @param bool $allowEmpty Whether to check if the chunk is empty, and if so replace it with an empty stub
 	 */
-	public function setSubChunk(int $y, SubChunkInterface $subChunk = null, bool $allowEmpty = false) : bool
+	public function setSubChunk(int $y, ?SubChunkInterface $subChunk = null, bool $allowEmpty = false) : bool
 	{
 		if ($y < 0 || $y >= $this->height) {
 			return false;

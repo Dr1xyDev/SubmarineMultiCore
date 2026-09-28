@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace pocketmine\network\mcpe\protocol\types\recipe;
 
 use pocketmine\network\mcpe\NetworkBinaryStream;
+use pocketmine\network\mcpe\protocol\PacketDecodeException;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\types\inventory\ItemStack;
 use pocketmine\utils\UUID;
@@ -113,40 +114,44 @@ final class ShapedRecipe extends RecipeWithTypeId{
 		return $this->recipeNetId;
 	}
 
-	public static function decode(int $recipeType, NetworkBinaryStream $in, int $protocol) : self{
-		if ($protocol >= ProtocolInfo::PROTOCOL_361) {
+	public static function decode(int $recipeType, NetworkBinaryStream $in) : self{
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_407) {
 			$recipeId = $in->getString();
 		}
 
 		$width = $in->getVarInt();
 		$height = $in->getVarInt();
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_2168) {
+			$count = $in->getUnsignedVarInt();
+			if ($count !== $width * $height) {
+				throw new PacketDecodeException("Provided ingredient count $count does not match width $width * height $height");
+			}
+		}
 		$input = [];
 		for($row = 0; $row < $height; ++$row){
 			for($column = 0; $column < $width; ++$column){
-				$input[$row][$column] = $in->getRecipeIngredient($protocol);
+				$input[$row][$column] = $in->getRecipeIngredient();
 			}
 		}
 
 		$output = [];
 		for($k = 0, $resultCount = $in->getUnsignedVarInt(); $k < $resultCount; ++$k){
-			$output[] = $in->getItemStackWithoutStackId($protocol);
+			$output[] = $in->getItemStackWithoutStackId();
 		}
 		$uuid = $in->getUUID();
-		if ($protocol >= ProtocolInfo::PROTOCOL_354) {
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_407) {
 			$block = $in->getString();
-			if ($protocol >= ProtocolInfo::PROTOCOL_361) {
-				$priority = $in->getVarInt();
-				if ($protocol >= ProtocolInfo::PROTOCOL_407) {
-					if ($protocol >= ProtocolInfo::PROTOCOL_671) {
-						$symmetric = $in->getBool();
-						if ($protocol >= ProtocolInfo::PROTOCOL_685) {
-						$unlockingRequirement = RecipeUnlockingRequirement::read($in, $protocol);
-					}
-						}
-
-					$recipeNetId = $in->readRecipeNetId();
+			$priority = $in->getVarInt();
+			if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_671) {
+				$symmetric = $in->getBool();
+				if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_2168) {
+					$unlockingRequirement = $in->getOptional(fn() => RecipeUnlockingRequirement::read($in));
+				} elseif ($in->getProtocol() >= ProtocolInfo::PROTOCOL_685) {
+					$unlockingRequirement = RecipeUnlockingRequirement::read($in);
 				}
 			}
+
+			$recipeNetId = $in->readRecipeNetId();
 		}
 
 		return new self(
@@ -163,40 +168,41 @@ final class ShapedRecipe extends RecipeWithTypeId{
 		);
 	}
 
-	public function encode(NetworkBinaryStream $out, int $protocol) : void{
-		if ($protocol >= ProtocolInfo::PROTOCOL_361) {
+	public function encode(NetworkBinaryStream $out) : void{
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_407) {
 			$out->putString($this->recipeId);
 		}
 
 		$out->putVarInt($this->getWidth());
 		$out->putVarInt($this->getHeight());
-		foreach($this->input as $row){
-			foreach($row as $ingredient){
-				$out->putRecipeIngredient($ingredient, $protocol);
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_2168) {
+			$out->putUnsignedVarInt($this->getWidth() * $this->getHeight());
+		}
+		foreach ($this->input as $row) {
+			foreach ($row as $ingredient) {
+				$out->putRecipeIngredient($ingredient);
 			}
 		}
 
 		$out->putUnsignedVarInt(count($this->output));
-		foreach($this->output as $item){
-			$out->putItemStackWithoutStackId($item, $protocol);
+		foreach ($this->output as $item) {
+			$out->putItemStackWithoutStackId($item);
 		}
 
 		$out->putUUID($this->uuid);
-		if ($protocol >= ProtocolInfo::PROTOCOL_354) {
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_407) {
 			$out->putString($this->blockName);
-			if ($protocol >= ProtocolInfo::PROTOCOL_361) {
-				$out->putVarInt($this->priority);
-				if ($protocol >= ProtocolInfo::PROTOCOL_407) {
-					if ($protocol >= ProtocolInfo::PROTOCOL_671) {
-						$out->putBool($this->symmetric);
-						if ($protocol >= ProtocolInfo::PROTOCOL_685) {
-							$this->unlockingRequirement->write($out, $protocol);
-						}
-					}
-
-					$out->writeRecipeNetId($this->recipeNetId);
+			$out->putVarInt($this->priority);
+			if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_671) {
+				$out->putBool($this->symmetric);
+				if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_2168) {
+					$out->putOptional($this->unlockingRequirement, fn(RecipeUnlockingRequirement $v) => $v->write($out));
+				} elseif ($out->getProtocol() >= ProtocolInfo::PROTOCOL_685) {
+					$this->unlockingRequirement->write($out);
 				}
 			}
+
+			$out->writeRecipeNetId($this->recipeNetId);
 		}
 	}
 }

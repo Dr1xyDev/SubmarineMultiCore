@@ -67,17 +67,10 @@ class Chest extends Transparent
 		);
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool
 	{
-		$faces = [
-			0 => 4,
-			1 => 2,
-			2 => 5,
-			3 => 3
-		];
-
 		$chest = null;
-		$this->meta = $faces[$player instanceof Player ? $player->getDirection() : 0];
+		$this->meta = Block::getMetaFace($player instanceof Player ? $player->getDirection() : 0);
 
 		for ($side = 2; $side <= 5; ++$side) {
 			if (($this->meta === 4 || $this->meta === 5) && ($side === 4 || $side === 5)) {
@@ -106,7 +99,7 @@ class Chest extends Transparent
 		return true;
 	}
 
-	public function onActivate(Item $item, Player $player = null) : bool
+	public function onActivate(Item $item, ?Player $player = null) : bool
 	{
 		if ($player instanceof Player) {
 
@@ -128,6 +121,10 @@ class Chest extends Transparent
 			) {
 				return true;
 			}
+
+			//structure chests get their loot when they are opened for the first time
+			$chest->unpackLootTable($player);
+			$pair?->unpackLootTable($player);
 
 			$player->addWindow($chest->getInventory());
 		}

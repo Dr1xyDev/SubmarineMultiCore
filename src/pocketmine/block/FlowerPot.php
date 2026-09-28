@@ -22,7 +22,10 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
+use pocketmine\block\utils\StaticSupportTrait;
 use pocketmine\item\Item;
+use pocketmine\item\ItemFactory;
+use pocketmine\item\ItemIds;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Facing;
 use pocketmine\math\Vector3;
@@ -32,6 +35,8 @@ use pocketmine\tile\Tile;
 
 class FlowerPot extends Flowable
 {
+	use StaticSupportTrait;
+
 	public const STATE_EMPTY = 0;
 	public const STATE_FULL = 1;
 
@@ -60,50 +65,60 @@ class FlowerPot extends Flowable
 		);
 	}
 
-	private function isValidPlant(Item $item) : bool
-	{
-		$id = $item->getId();
-
+	private function isValidPlant(Block $block) : bool{
 		return
-			$id === Item::CACTUS ||
-			$id === Item::DEAD_BUSH ||
-			$id === Item::RED_FLOWER ||
-			$id === Item::DANDELION ||
-			$id === Item::RED_MUSHROOM ||
-			$id === Item::BROWN_MUSHROOM ||
-			$id === Item::SAPLING ||
-			($id === Item::TALL_GRASS && $item->getDamage() === 1);
+			$block instanceof BrownMushroom ||
+			$block instanceof Cactus ||
+			$block instanceof DeadBush ||
+			$block instanceof Flower ||
+			$block instanceof RedMushroom ||
+			($block instanceof TallGrass && $block->getDamage() === TallGrass::TYPE_FERN) ||
+			$block instanceof Sapling; //TODO: bomboo, wither rose, nether roots,
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
-	{
-		if ($this->getSide(Facing::DOWN)->isTransparent()) {
-			return false;
-		}
+	protected function canBeSupportedAt(Block $block) : bool{
+		return !$this->getSide(Facing::DOWN)->isTransparent();
+	}
 
-		$this->getLevel()->setBlock($blockReplace, $this, true, true);
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool{
 		Tile::createTile(Tile::FLOWER_POT, $this->getLevel(), TileFlowerPot::createNBT($this, $face, $item, $player));
-		return true;
+		return parent::place($item, $blockReplace, $blockClicked, $face, $clickVector, $player);
 	}
 
-	public function onNearbyBlockChange() : void
-	{
-		if ($this->getSide(Facing::DOWN)->isTransparent()) {
-			$this->level->useBreakOn($this);
-		}
-	}
-
-	public function onActivate(Item $item, Player $player = null) : bool
-	{
-		$pot = $this->getLevel()->getTile($this);
-		if (!($pot instanceof TileFlowerPot)) {
+	public function onActivate(Item $item, ?Player $player = null) : bool{
+		$level = $this->level;
+		$tile = $level->getTile($this);
+		if (!($tile instanceof TileFlowerPot)) {
 			return false;
 		}
 
-		if ($this->isValidPlant($item)) {
-			$this->setDamage(self::STATE_FULL); //specific damage value is unnecessary, it just needs to be non-zero to show an item.
-			$pot->setItem($item->pop());
-			$this->getLevel()->setBlock($this, $this);
+		$tilePlant = $tile->getItem();
+		$plant = $item->getBlock();
+		if($tilePlant->getId() !== ItemIds::AIR){
+			if($this->isValidPlant($plant)){
+				//for some reason, vanilla doesn't remove the contents of the pot if the held item is plantable
+				//and will also cause a new plant to be placed if clicking on the side
+				return false;
+			}
+
+			$removedItems = [$tilePlant];
+			if($player !== null){
+				//this one just has to be a weirdo :(
+				//this is the only block that directly adds items to the player inventory instead of just dropping items
+				$removedItems = $player->getInventory()->addItem(...$removedItems);
+			}
+			foreach($removedItems as $drops){
+				$level->dropItem($this->add(0.5, 0.5, 0.5), $drops);
+			}
+
+			$this->meta = self::STATE_EMPTY;
+			$tile->setItem(ItemFactory::air());
+			$level->setBlock($this, $this);
+			return true;
+		}elseif($this->isValidPlant($plant)){
+			$this->meta = self::STATE_FULL;
+			$tile->setItem($item->pop());
+			$level->setBlock($this, $this);
 
 			return true;
 		}
@@ -138,7 +153,7 @@ class FlowerPot extends Flowable
 		$tile = $this->getLevel()->getTile($this);
 		if ($tile instanceof TileFlowerPot) {
 			$item = $tile->getItem();
-			if ($item->getId() !== Item::AIR) {
+			if ($item->getId() !== ItemIds::AIR) {
 				$plant = $item;
 			}
 		}

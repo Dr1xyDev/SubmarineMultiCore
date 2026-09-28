@@ -75,7 +75,7 @@ final class ItemTranslator
 
 	private static function make(int $protocolVersion) : self
 	{
-		$data = Filesystem::fileGetContents(BEDROCK_DATA_PATH . "items/" . $protocolVersion . "/r16_to_current_item_map.json");
+		$data = Filesystem::resourceGetContents(BEDROCK_DATA_PATH . "items/" . $protocolVersion . "/r16_to_current_item_map.json");
 		$json = json_decode($data, true);
 		if (!is_array($json) || !isset($json["simple"], $json["complex"]) || !is_array($json["simple"]) || !is_array($json["complex"])) {
 			throw new AssumptionFailedError("Invalid item table format");
@@ -183,6 +183,8 @@ final class ItemTranslator
 	public function toNetworkId(int $internalId, int $internalMeta) : array
 	{
 		return $this->toNetworkIdQuiet($internalId, $internalMeta) ??
+			$this->toNetworkIdQuiet($internalId, 0) ??
+			$this->toNetworkIdQuiet(0, 0) ??
 			throw new \InvalidArgumentException("Unmapped ID/metadata combination $internalId:$internalMeta");
 	}
 

@@ -43,6 +43,10 @@ class IronLeggings extends Armor
 		return 226;
 	}
 
+	public function getEnchantAbility() : int{
+		return 9;
+	}
+
 	public function getArmorSlot() : int
 	{
 		return ArmorSlot::SLOT_LEGGINGS;

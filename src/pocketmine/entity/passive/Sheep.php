@@ -87,7 +87,10 @@ class Sheep extends Animal
 			$item = $player->getInventory()->getItemInHand();
 			if ($item instanceof Shears && !$this->isSheared()) {
 				$this->setSheared(true);
-				$item->applyDamage(1);
+				if ($player->hasFiniteResources()) {
+					$item->applyDamage(1);
+					$player->getInventory()->setItemInHand($item);
+				}
 
 				$i = 1 + $this->level->random->nextBoundedInt(3);
 				for ($a = 0; $a < $i; $a++) {
@@ -106,11 +109,22 @@ class Sheep extends Animal
 					return false;
 				}
 
+				//dye metas count the other way round than wool colours, plus the 1.14 dyes (black, brown, blue, white)
+				$dyeMeta = $item->getDamage();
+				$woolColor = match ($dyeMeta) {
+					16 => Color::COLOR_SHEEP_BLACK,
+					17 => Color::COLOR_SHEEP_BROWN,
+					18 => Color::COLOR_SHEEP_BLUE,
+					19 => Color::COLOR_SHEEP_WHITE,
+					default => ($dyeMeta & 0x0f) ^ 0x0f
+				};
+
 				if ($player->isSurvival()) {
 					$item->pop();
+					$player->getInventory()->setItemInHand($item);
 				}
 
-				$this->propertyManager->setByte(self::DATA_COLOR, $item->getDamage());
+				$this->propertyManager->setByte(self::DATA_COLOR, $woolColor);
 				return true;
 			}
 		}
@@ -124,9 +138,10 @@ class Sheep extends Animal
 
 	public function getDrops() : array
 	{
+		$looting = $this->getLootingLevel();
 		return [
 			ItemFactory::get(Item::WOOL, intval($this->propertyManager->getByte(self::DATA_COLOR)), $this->isSheared() ? 0 : 1),
-			($this->isOnFire() ? ItemFactory::get(Item::COOKED_MUTTON, 0, rand(1, 3)) : ItemFactory::get(Item::RAW_MUTTON, 0, rand(1, 3)))
+			($this->isOnFire() ? ItemFactory::get(Item::COOKED_MUTTON, 0, rand(1, 3 + $looting)) : ItemFactory::get(Item::RAW_MUTTON, 0, rand(1, 3 + $looting)))
 		];
 	}
 

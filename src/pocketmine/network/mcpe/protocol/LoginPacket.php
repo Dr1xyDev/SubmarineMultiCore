@@ -22,9 +22,11 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\protocol;
 
+use pocketmine\network\mcpe\auth\JwtToken;
 use pocketmine\network\mcpe\NetworkSession;
 use pocketmine\utils\BinaryStream;
 use pocketmine\utils\Utils;
+use pocketmine\utils\UUID;
 use Throwable;
 
 use function get_class;
@@ -39,44 +41,32 @@ class LoginPacket extends DataPacket
 {
 	public const NETWORK_ID = ProtocolInfo::LOGIN_PACKET;
 
-	/** @var string */
-	public $username;
-	/** @var int */
-	public $protocol;
-	/** @var int */
-	public $gameEdition;
-	/** @var string */
-	public $clientUUID;
-	/** @var int */
-	public $clientId;
-	/** @var string */
-	public $xuid;
-	/** @var string */
-	public $identityPublicKey;
-	/** @var string */
-	public $serverAddress;
-	/** @var string */
-	public $locale;
+	public string $username = "";
+	public int $protocol;
+	public int $gameEdition;
+	public string $clientUUID = "";
+	public int $clientId;
+	public ?string $xuid = null;
+	public string $identityPublicKey;
+	public string $serverAddress;
+	public string $locale;
 
-	/** @var array */
-	public $authInfo = [];
-	/** @var array (the "chain" index contains one or more JWTs) */
-	public $chainData = [];
-	/** @var string */
-	public $clientDataJwt;
-	/** @var array decoded payload of the clientData JWT */
-	public $clientData = [];
+	public array $authInfo = [];
+	/** the "chain" index contains one or more JWTs */
+	public array $chainData = [];
+	public string $clientDataJwt;
+	/** decoded payload of the clientData JWT */
+	public array $clientData = [];
 
-	/** @var bool */
-	public $isValidProtocol = true; // valid protocol
+	public bool $isValidProtocol = true; // valid protocol
 
 	/**
 	 * This field may be used by plugins to bypass keychain verification. It should only be used for plugins such as
 	 * Specter where passing verification would take too much time and not be worth it.
-	 *
-	 * @var bool
 	 */
-	public $skipVerification = false;
+	public bool $skipVerification = false;
+
+	public ?JwtToken $token = null;
 
 	public function canBeSentBeforeLogin() : bool
 	{
@@ -88,13 +78,7 @@ class LoginPacket extends DataPacket
 		return $this->isValidProtocol === false;
 	}
 
-	protected function decodePayload() : void
-	{
-		if ($this->getInt() === 0x0) {
-			$this->setOffset($this->getOffset() - 0x2);
-		} else {
-			$this->setOffset($this->getOffset() - 0x4);
-		}
+	protected function decodePayload() : void{
 		$this->protocol = $this->getInt();
 
 		if (!in_array($this->protocol, ProtocolInfo::ACCEPTED_PROTOCOLS, true)) {
@@ -103,7 +87,7 @@ class LoginPacket extends DataPacket
 			return;
 		}
 
-		if ($this->protocol < ProtocolInfo::PROTOCOL_137) {
+		if ($this->protocol < ProtocolInfo::PROTOCOL_407) {
 			$this->gameEdition = $this->getByte();
 		}
 
@@ -139,7 +123,9 @@ class LoginPacket extends DataPacket
 			throw new PacketDecodeException("Failed decoding chain data JSON: " . $e->getMessage());
 		}
 
-		if (isset($this->authInfo["Certificate"]) && is_string($this->authInfo["Certificate"])) {
+		if(isset($this->authInfo["Token"]) && $this->protocol >= ProtocolInfo::PROTOCOL_944) {
+			$chainArray = [];
+		} elseif (isset($this->authInfo["Certificate"]) && is_string($this->authInfo["Certificate"])) {
 			$certificateData = json_decode($this->authInfo["Certificate"], true);
 			if (isset($certificateData["chain"]) && is_array($certificateData["chain"])) {
 				$chainArray = $certificateData;
@@ -156,28 +142,42 @@ class LoginPacket extends DataPacket
 
 		$this->chainData = $chainArray;
 
-		$hasExtraData = false;
-		foreach ($chainArray["chain"] as $chain) {
-			$webtoken = Utils::decodeJWT($chain);
-			if (isset($webtoken["extraData"])) {
-				if ($hasExtraData) {
-					throw new PacketDecodeException("Found 'extraData' multiple times in key chain");
-				}
-				$hasExtraData = true;
-				if (isset($webtoken["extraData"]["displayName"])) {
-					$this->username = $webtoken["extraData"]["displayName"];
-				}
-				if (isset($webtoken["extraData"]["identity"])) {
-					$this->clientUUID = $webtoken["extraData"]["identity"];
-				}
-				if (isset($webtoken["extraData"]["XUID"])) {
-					$this->xuid = $webtoken["extraData"]["XUID"];
-				}
-			}
+		if(isset($this->authInfo["Token"]) && $this->protocol >= ProtocolInfo::PROTOCOL_944){
+			try{
+				$this->token = JwtToken::parse($this->authInfo["Token"]);
 
-			if (isset($webtoken["identityPublicKey"])) {
-				$this->identityPublicKey = $webtoken["identityPublicKey"];
+				$this->username = $this->token->getClaims()->get("xname") ?? $this->username;
+
+				if(($xid = $this->token->getClaims()->get("xid")) !== null){
+					$this->clientUUID = UUID::fromXuid($xid)->toString();
+					$this->xuid = $xid;
+				}
+
+				$this->identityPublicKey = $this->token->getClaims()->get("cpk") ?? $this->identityPublicKey;
+			}catch(Throwable $e){
+				throw new PacketDecodeException("Could not parse token: " . $e->getMessage());
 			}
+		}elseif(isset($chainArray["chain"]) && is_array($chainArray["chain"])){
+			$hasExtraData = false;
+			foreach($chainArray["chain"] as $chain){
+				$webtoken = Utils::decodeJWT($chain);
+				if(isset($webtoken["extraData"])){
+					if($hasExtraData){
+						throw new PacketDecodeException("Found 'extraData' multiple times in key chain");
+					}
+					$hasExtraData = true;
+
+					$this->username = $webtoken["extraData"]["displayName"] ?? $this->username;
+					$this->clientUUID = $webtoken["extraData"]["identity"] ?? $this->clientUUID;
+					$this->xuid = $webtoken["extraData"]["XUID"] ?? $this->xuid;
+				}
+
+				if(isset($webtoken["identityPublicKey"])){
+					$this->identityPublicKey = $webtoken["identityPublicKey"];
+				}
+			}
+		}else{
+			throw new PacketDecodeException("Neither Token nor legacy login successful");
 		}
 
 		$this->clientDataJwt = $buffer->get($buffer->getLInt());

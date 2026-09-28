@@ -43,6 +43,10 @@ class ChainBoots extends Armor
 		return 196;
 	}
 
+	public function getEnchantAbility() : int{
+		return 12;
+	}
+
 	public function getArmorSlot() : int
 	{
 		return ArmorSlot::SLOT_BOOTS;

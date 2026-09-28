@@ -57,10 +57,10 @@ final class CameraPresetAimAssist
 
 	public static function read(NetworkBinaryStream $in) : self
 	{
-		$presetId = $in->readOptional($in->getString(...));
-		$targetMode = $in->readOptional(fn () => CameraAimAssistTargetMode::fromPacket($in->getByte()));
-		$viewAngle = $in->readOptional($in->getVector2(...));
-		$distance = $in->readOptional($in->getLFloat(...));
+		$presetId = $in->getOptional($in->getString(...));
+		$targetMode = $in->getOptional(fn () => CameraAimAssistTargetMode::fromPacket($in->getByte()));
+		$viewAngle = $in->getOptional($in->getVector2(...));
+		$distance = $in->getOptional($in->getLFloat(...));
 
 		return new self(
 			$presetId,
@@ -72,9 +72,9 @@ final class CameraPresetAimAssist
 
 	public function write(NetworkBinaryStream $out) : void
 	{
-		$out->writeOptional($this->presetId, $out->putString(...));
-		$out->writeOptional($this->targetMode, fn (CameraAimAssistTargetMode $v) => $out->putByte($v->value));
-		$out->writeOptional($this->viewAngle, $out->putVector2(...));
-		$out->writeOptional($this->distance, $out->putLFloat(...));
+		$out->putOptional($this->presetId, $out->putString(...));
+		$out->putOptional($this->targetMode, fn (CameraAimAssistTargetMode $v) => $out->putByte($v->value));
+		$out->putOptional($this->viewAngle, $out->putVector2(...));
+		$out->putOptional($this->distance, $out->putLFloat(...));
 	}
 }

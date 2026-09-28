@@ -24,7 +24,6 @@ namespace pocketmine\block;
 
 use pocketmine\item\Item;
 use pocketmine\math\Vector3;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\Player;
 
 class DriedGhast extends Solid
@@ -51,7 +50,7 @@ class DriedGhast extends Solid
 		return "Dried Ghast";
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool
 	{
 		$faces = [
 			0 => 1,
@@ -67,13 +66,5 @@ class DriedGhast extends Solid
 	public function getVariantBitmask() : int
 	{
 		return 0;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_800) {
-			return BlockFactory::get(BlockIds::SKULL_BLOCK);
-		}
-
-		return null;
 	}
 }

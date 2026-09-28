@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class MangroveFence extends WoodenFence
 {
 	protected $id = self::MANGROVE_FENCE;
@@ -31,14 +29,5 @@ class MangroveFence extends WoodenFence
 	public function getName() : string
 	{
 		return "Mangrove Fence";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_527) {
-			return BlockFactory::get(BlockIds::FENCE, $this->meta);
-		}
-
-		return null;
 	}
 }

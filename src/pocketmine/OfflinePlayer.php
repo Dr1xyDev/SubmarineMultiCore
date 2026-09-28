@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace pocketmine;
 
 use pocketmine\nbt\tag\CompoundTag;
+use function strtolower;
 
 class OfflinePlayer implements IPlayer
 {
@@ -47,6 +48,11 @@ class OfflinePlayer implements IPlayer
 	public function getName() : string
 	{
 		return $this->name;
+	}
+
+	public function getLowerCaseName() : string
+	{
+		return strtolower($this->name);
 	}
 
 	/**

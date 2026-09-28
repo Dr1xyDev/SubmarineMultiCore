@@ -48,7 +48,7 @@ class UseItemPacket extends DataPacket
 		$this->clickPos = $this->getVector3();
 		$this->playerPos = $this->getVector3();
 		$this->slot = $this->getVarInt();
-		$this->item = $this->getItemStackWithoutStackId($this->getProtocol());
+		$this->item = $this->getItemStackWithoutStackId();
 	}
 
 	protected function encodePayload() : void
@@ -59,7 +59,7 @@ class UseItemPacket extends DataPacket
 		$this->putVector3($this->clickPos);
 		$this->putVector3($this->playerPos);
 		$this->putVarInt($this->slot);
-		$this->putItemStackWithoutStackId($this->item, $this->getProtocol());
+		$this->putItemStackWithoutStackId($this->item);
 	}
 
 	public function handle(NetworkSession $session) : bool

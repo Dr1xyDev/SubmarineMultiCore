@@ -26,9 +26,12 @@ use pocketmine\block\Block;
 use pocketmine\entity\Entity;
 use pocketmine\math\Vector3;
 use pocketmine\Player;
+use function in_array;
 
 class Minecart extends Item
 {
+	private const RAILS = [Block::RAIL, Block::POWERED_RAIL, Block::DETECTOR_RAIL, Block::ACTIVATOR_RAIL];
+
 	public function __construct(int $meta = 0)
 	{
 		parent::__construct(self::MINECART, $meta, "Minecart");
@@ -39,17 +42,33 @@ class Minecart extends Item
 		return 1;
 	}
 
+	/**
+	 * Save name of the entity placed by this item
+	 */
+	protected function getEntityName() : string
+	{
+		return "Minecart";
+	}
+
 	public function onActivate(Player $player, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector) : bool
 	{
-		if ($blockClicked->getId() !== Block::RAIL) {
+		if (!in_array($blockClicked->getId(), self::RAILS, true)) {
 			return false;
 		}
 
-		$nbt = Entity::createBaseNBT($blockReplace->add(0.5, 0, 0.5));
-		$entity = Entity::createEntity("Minecart", $player->level, $nbt);
+		$nbt = Entity::createBaseNBT($blockClicked->add(0.5, 0, 0.5));
+		if ($this->hasCustomName()) {
+			$nbt->setString("CustomName", $this->getCustomName());
+		}
+		$entity = Entity::createEntity($this->getEntityName(), $player->level, $nbt);
+		if ($entity === null) {
+			return false;
+		}
 		$entity->spawnToAll();
 
-		$this->pop();
+		if ($player->hasFiniteResources()) {
+			$this->pop();
+		}
 
 		return true;
 	}

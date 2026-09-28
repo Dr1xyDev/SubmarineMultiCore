@@ -24,12 +24,13 @@ namespace pocketmine\inventory\transaction\action;
 
 use pocketmine\event\player\PlayerBlockPickEvent;
 use pocketmine\inventory\FakeInventory;
+use pocketmine\inventory\PlayerInventory;
 use pocketmine\item\ItemIds;
 use pocketmine\network\mcpe\cache\CreativeInventoryCache;
 use pocketmine\Player;
 
 use function abs;
-use function implode;
+use function spl_object_hash;
 
 /**
  * Represents an action causing a change in an inventory slot.
@@ -43,8 +44,10 @@ class ContainerSlotChangeAction extends SlotChangeAction
 	 */
 	public function execute(Player $source) : void
 	{
+		$inventory = $this->getInventory();
+
 		//because we alternate actions every time, the slot in the inventory changes, and everything goes wrong
-		$sourceItem = $this->getInventory()->getItem($this->inventorySlot);
+		$sourceItem = $inventory->getItem($this->inventorySlot);
 
 		$out = null;
 		$in = null;
@@ -78,8 +81,7 @@ class ContainerSlotChangeAction extends SlotChangeAction
 		}
 
 		if ($out !== null) {
-			if (!$this->inventory->getItem($this->getSlot())->equals($out, $out->hasAnyDamageValue(), !$out->hasNamedTag())) {
-				$source->getServer()->getLogger()->debug("Player inventory not contains " . $out . " in slot " . $this->getSlot() . ". Have " . $this->getInventory()->getItem($this->getSlot()));
+			if (!$inventory->getItem($this->getSlot())->equals($out, $out->hasAnyDamageValue(), !$out->hasNamedTag())) {
 				if (++$this->fails >= 5) {
 					return;
 				}
@@ -90,7 +92,7 @@ class ContainerSlotChangeAction extends SlotChangeAction
 		}
 
 		if ($in !== null) {
-			$validIsInItem = function () use ($source, $in) : bool {
+			$validIsInItem = function () use ($source, &$in) : bool {
 				if ($source->getCraftingGrid()->contains($in)) {
 					return true;
 				} elseif ($source->isCreative(true)) {
@@ -100,6 +102,8 @@ class ContainerSlotChangeAction extends SlotChangeAction
 
 					$targetBlock = $source->getTargetBlock(6);
 					if ($targetBlock !== null && $targetBlock->getId() === $in->getId() && $targetBlock->getDamage() === $in->getDamage()) {
+						$in = $targetBlock->asItem();
+
 						$ev = new PlayerBlockPickEvent($source, $targetBlock, $in);
 						$ev->call();
 						if (!$ev->isCancelled()) {
@@ -112,8 +116,6 @@ class ContainerSlotChangeAction extends SlotChangeAction
 			};
 
 			if (!$validIsInItem()) {
-				$source->getServer()->getLogger()->debug("Transaction inventory not contains " . $in . ". Transaction inventory contents: " . implode("; ", $source->getCraftingGrid()->getContents()));
-
 				if (++$this->fails >= 5) {
 					return;
 				}
@@ -131,7 +133,18 @@ class ContainerSlotChangeAction extends SlotChangeAction
 			$source->getCraftingGrid()->removeItem($in);
 		}
 
-		$this->inventory->setItem($this->inventorySlot, $this->targetItem, false);
+		if ($inventory->setItem($this->inventorySlot, $this->targetItem, false)) {
+			$viewers = $inventory->getViewers();
+			unset($viewers[spl_object_hash($source)]);
+			$inventory->sendSlot($this->inventorySlot, $viewers);
+		} else {
+			$inventory->sendSlot($this->inventorySlot, $source);
+		}
+
+		if ($inventory instanceof PlayerInventory && $inventory->getHeldItemIndex() === $this->inventorySlot) {
+			$inventory->sendHeldItem($source);
+			$inventory->sendHeldItem($source->getViewers());
+		}
 	}
 
 	public function revert(Player $source) : void

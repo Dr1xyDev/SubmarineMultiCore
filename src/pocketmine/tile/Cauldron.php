@@ -62,7 +62,7 @@ class Cauldron extends Spawnable
 		}
 	}
 
-	protected function addAdditionalSpawnData(CompoundTag $nbt) : void
+	protected function addAdditionalSpawnData(CompoundTag $nbt, int $protocolVersion) : void
 	{
 		$this->writeSaveData($nbt);
 	}

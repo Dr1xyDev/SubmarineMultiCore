@@ -31,7 +31,7 @@ use pocketmine\event\player\PlayerFishEvent;
 use pocketmine\item\FishingRod;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
-use pocketmine\level\Level;
+use pocketmine\level\ChunkManager;
 use pocketmine\level\particle\GenericParticle;
 use pocketmine\level\particle\Particle;
 use pocketmine\math\AxisAlignedBB;
@@ -75,7 +75,7 @@ class FishingHook extends Projectile
 	/**
 	 * FishingHook constructor.
 	 */
-	public function __construct(Level $level, CompoundTag $nbt, ?Entity $owner = null)
+	public function __construct(ChunkManager $level, CompoundTag $nbt, ?Entity $owner = null)
 	{
 		parent::__construct($level, $nbt, $owner);
 

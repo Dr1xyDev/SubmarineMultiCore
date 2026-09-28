@@ -35,7 +35,7 @@ class FeatureRegistryPacket extends DataPacket
 	public const NETWORK_ID = ProtocolInfo::FEATURE_REGISTRY_PACKET;
 
 	/** @var FeatureRegistryPacketEntry[] */
-	private array $entries;
+	private array $entries = [];
 
 	/**
 	 * @generate-create-func

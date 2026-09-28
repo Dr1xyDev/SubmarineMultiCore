@@ -24,7 +24,6 @@ namespace pocketmine\network\mcpe\protocol;
 
 use pocketmine\nbt\NetworkLittleEndianNBTStream;
 use pocketmine\nbt\tag\CompoundTag;
-use pocketmine\network\mcpe\NetworkBinaryStream;
 use pocketmine\network\mcpe\NetworkSession;
 use pocketmine\network\mcpe\protocol\types\camera\CameraFadeInstruction;
 use pocketmine\network\mcpe\protocol\types\camera\CameraFovInstruction;
@@ -51,19 +50,19 @@ class CameraInstructionPacket extends DataPacket
 
 	protected function decodePayload() : void
 	{
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_618) {
-			$this->set = $this->readOptional(fn () => CameraSetInstruction::read($this, $this->getProtocol()));
-			$this->clear = $this->readOptional($this->getBool(...));
-			$this->fade = $this->readOptional(fn () => CameraFadeInstruction::read($this));
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_729) {
-				$this->target = $this->readOptional(fn () => CameraTargetInstruction::read($this));
-				$this->removeTarget = $this->readOptional($this->getBool(...));
-				if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_827) {
-					$this->fieldOfView = $this->readOptional(fn () => CameraFovInstruction::read($this));
-					if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_859) {
-						$this->spline = $this->readOptional(CameraSplineInstruction::read(...));
-						$this->attachToEntity = $this->readOptional($this->getLLong(...)); //WHY IS THIS NON-STANDARD?
-						$this->detachFromEntity = $this->readOptional($this->getBool(...));
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_618) {
+			$this->set = $this->getOptional(fn () => CameraSetInstruction::read($this));
+			$this->clear = $this->getOptional($this->getBool(...));
+			$this->fade = $this->getOptional(fn () => CameraFadeInstruction::read($this));
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_729) {
+				$this->target = $this->getOptional(fn () => CameraTargetInstruction::read($this));
+				$this->removeTarget = $this->getOptional($this->getBool(...));
+				if ($this->protocol >= ProtocolInfo::PROTOCOL_827) {
+					$this->fieldOfView = $this->getOptional(fn () => CameraFovInstruction::read($this));
+					if ($this->protocol >= ProtocolInfo::PROTOCOL_859) {
+						$this->spline = $this->getOptional(fn () => CameraSplineInstruction::read($this));
+						$this->attachToEntity = $this->getOptional($this->getLLong(...)); //WHY IS THIS NON-STANDARD?
+						$this->detachFromEntity = $this->getOptional($this->getBool(...));
 					}
 				}
 			}
@@ -74,19 +73,19 @@ class CameraInstructionPacket extends DataPacket
 
 	protected function encodePayload() : void
 	{
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_618) {
-			$this->writeOptional($this->set, fn (CameraSetInstruction $v) => $v->write($this, $this->getProtocol()));
-			$this->writeOptional($this->clear, $this->putBool(...));
-			$this->writeOptional($this->fade, fn (CameraFadeInstruction $v) => $v->write($this));
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_729) {
-				$this->writeOptional($this->target, fn (CameraTargetInstruction $v) => $v->write($this));
-				$this->writeOptional($this->removeTarget, $this->putBool(...));
-				if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_827) {
-					$this->writeOptional($this->fieldOfView, fn (CameraFovInstruction $v) => $v->write($this));
-					if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_859) {
-						$this->writeOptional($this->spline, fn(NetworkBinaryStream $out, CameraSplineInstruction $v) => $v->write($out));
-						$this->writeOptional($this->attachToEntity, $this->putLLong(...)); //WHY IS THIS NON-STANDARD?
-						$this->writeOptional($this->detachFromEntity, $this->putBool(...));
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_618) {
+			$this->putOptional($this->set, fn (CameraSetInstruction $v) => $v->write($this));
+			$this->putOptional($this->clear, $this->putBool(...));
+			$this->putOptional($this->fade, fn (CameraFadeInstruction $v) => $v->write($this));
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_729) {
+				$this->putOptional($this->target, fn (CameraTargetInstruction $v) => $v->write($this));
+				$this->putOptional($this->removeTarget, $this->putBool(...));
+				if ($this->protocol >= ProtocolInfo::PROTOCOL_827) {
+					$this->putOptional($this->fieldOfView, fn (CameraFovInstruction $v) => $v->write($this));
+					if ($this->protocol >= ProtocolInfo::PROTOCOL_859) {
+						$this->putOptional($this->spline, fn(CameraSplineInstruction $v) => $v->write($this));
+						$this->putOptional($this->attachToEntity, $this->putLLong(...)); //WHY IS THIS NON-STANDARD?
+						$this->putOptional($this->detachFromEntity, $this->putBool(...));
 					}
 				}
 			}

@@ -190,9 +190,8 @@ abstract class AbstractHorse extends Tamable
 
 	public function getDrops() : array
 	{
-		return [
-			ItemFactory::get(Item::LEATHER, 0, mt_rand(0, 2))
-		];
+		$leather = mt_rand(0, 2 + $this->getLootingLevel());
+		return $leather > 0 ? [ItemFactory::get(Item::LEATHER, 0, $leather)] : [];
 	}
 
 	public function isSaddled() : bool

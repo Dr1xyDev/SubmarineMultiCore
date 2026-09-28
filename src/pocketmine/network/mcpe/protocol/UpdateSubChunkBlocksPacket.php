@@ -33,14 +33,14 @@ class UpdateSubChunkBlocksPacket extends DataPacket
 {
 	public const NETWORK_ID = ProtocolInfo::UPDATE_SUB_CHUNK_BLOCKS_PACKET;
 
-	private int $subChunkX;
-	private int $subChunkY;
-	private int $subChunkZ;
+	private int $subChunkX = 0;
+	private int $subChunkY = 0;
+	private int $subChunkZ = 0;
 
 	/** @var UpdateSubChunkBlocksPacketEntry[] */
-	private array $layer0Updates;
+	private array $layer0Updates = [];
 	/** @var UpdateSubChunkBlocksPacketEntry[] */
-	private array $layer1Updates;
+	private array $layer1Updates = [];
 
 	/**
 	 * @param UpdateSubChunkBlocksPacketEntry[] $layer0

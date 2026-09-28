@@ -37,12 +37,12 @@ class AddVolumeEntityPacket extends DataPacket
 	public CompoundTag $data;
 	public string $jsonIdentifier;
 	public string $instanceName;
-	public int $minX;
-	public int $minY;
-	public int $minZ;
-	public int $maxX;
-	public int $maxY;
-	public int $maxZ;
+	public int $minX = 0;
+	public int $minY = 0;
+	public int $minZ = 0;
+	public int $maxX = 0;
+	public int $maxY = 0;
+	public int $maxZ = 0;
 	public int $dimension;
 	public string $engineVersion;
 
@@ -112,11 +112,11 @@ class AddVolumeEntityPacket extends DataPacket
 	{
 		$this->entityNetId = $this->getUnsignedVarInt();
 		$this->data = $this->getNbtCompoundRoot();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_465) {
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_486) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_465) {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_486) {
 				$this->jsonIdentifier = $this->getString();
 				$this->instanceName = $this->getString();
-				if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_503) {
+				if ($this->protocol >= ProtocolInfo::PROTOCOL_503) {
 					$this->getBlockPosition($this->minX, $this->minY, $this->minZ);
 					$this->getBlockPosition($this->maxX, $this->maxY, $this->maxZ);
 					$this->dimension = $this->getVarInt();
@@ -130,11 +130,11 @@ class AddVolumeEntityPacket extends DataPacket
 	{
 		$this->putUnsignedVarInt($this->entityNetId);
 		$this->put((new NetworkLittleEndianNBTStream())->write($this->data));
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_465) {
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_486) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_465) {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_486) {
 				$this->putString($this->jsonIdentifier);
 				$this->putString($this->instanceName);
-				if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_503) {
+				if ($this->protocol >= ProtocolInfo::PROTOCOL_503) {
 					$this->putBlockPosition($this->minX, $this->minY, $this->minZ);
 					$this->putBlockPosition($this->maxX, $this->maxY, $this->maxZ);
 					$this->putVarInt($this->dimension);

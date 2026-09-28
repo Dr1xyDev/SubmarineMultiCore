@@ -22,80 +22,136 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\event\block\BlockGrowEvent;
-use pocketmine\item\Fertilizer;
+use pocketmine\block\utils\BlockEventHelper;
+use pocketmine\block\utils\StaticSupportTrait;
 use pocketmine\item\Item;
 use pocketmine\math\Facing;
-use pocketmine\math\Vector3;
 use pocketmine\Player;
 
-use function mt_rand;
+use pocketmine\utils\Random;
+use function min;
 
-abstract class Crops extends Flowable
+abstract class Crops extends Flowable implements Growable
 {
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
-	{
-		if ($blockReplace->getSide(Facing::DOWN)->getId() === Block::FARMLAND) {
-			$this->getLevel()->setBlock($blockReplace, $this, true, true);
+	use StaticSupportTrait;
 
-			return true;
-		}
-
-		return false;
+	public function getMaxAge() : int {
+		return 7;
 	}
 
-	public function onActivate(Item $item, Player $player = null) : bool
-	{
-		if ($this->meta < 7 && $item instanceof Fertilizer) { //Bonemeal
-			$block = clone $this;
-			$block->meta += mt_rand(2, 5);
-			if ($block->meta > 7) {
-				$block->meta = 7;
-			}
-
-			$ev = new BlockGrowEvent($this, $block);
-			$ev->call();
-			if (!$ev->isCancelled()) {
-				$this->getLevel()->setBlock($this, $ev->getNewState(), true, true);
-			}
-
-			$item->pop();
-
-			return true;
-		}
-
-		return false;
+	public function getAge() : int {
+		return $this->meta;
 	}
 
-	public function onNearbyBlockChange() : void
-	{
-		if ($this->getSide(Facing::DOWN)->getId() !== Block::FARMLAND) {
-			$this->getLevel()->useBreakOn($this);
-		}
+	public function setAge(int $value) : self {
+		$this->meta = $value;
+		return $this;
 	}
 
-	public function ticksRandomly() : bool
-	{
-		return true;
+	public function isMaxAge() : bool {
+		return $this->meta >= $this->getMaxAge();
 	}
 
-	public function onRandomTick() : void
-	{
-		if (mt_rand(0, 2) === 1) {
-			if ($this->meta < 0x07) {
-				$block = clone $this;
-				++$block->meta;
-				$ev = new BlockGrowEvent($this, $block);
-				$ev->call();
-				if (!$ev->isCancelled()) {
-					$this->getLevel()->setBlock($this, $ev->getNewState(), true, true);
+	protected function canBeSupportedAt(Block $block) : bool{
+		return $block->getSide(Facing::DOWN)->getId() === BlockIds::FARMLAND;
+	}
+
+	public function ticksRandomly() : bool{
+		return !$this->isMaxAge();
+	}
+
+	public function onRandomTick() : void{
+		$level = $this->level;
+
+		$lightAbove = $level->getFullLightAt($this->x, $this->y + 1, $this->z);
+		if ($lightAbove >= 9) {
+			if (!$this->isMaxAge()) {
+				if ($level->random->nextBoundedInt((int) (25.0 / $this->getGrowthChance()) + 1) === 0) {
+					$newState = clone $this;
+					$newState->meta += 1;
+					BlockEventHelper::grow($this, $newState, null);
 				}
 			}
 		}
 	}
 
-	public function isAffectedBySilkTouch() : bool
-	{
+	protected function getBonemealAgeIncrease(Random $random) : int {
+		return 2 >= 5 ? 2 : $random->nextBoundedInt(4) + 2;
+	}
+
+	protected function getGrowthChance() : float {
+		$growthChance = 1.0;
+
+		$soilPos = $this->getSide(Facing::DOWN);
+		for ($dx = -1; $dx <= 1; ++$dx) {
+			for ($dz = -1; $dz <= 1; ++$dz) {
+				$soilBonus = 0.0;
+
+				$soilBlock = $this->level->getBlock($soilPos->add($dx, 0, $dz));
+
+				if ($soilBlock instanceof Farmland) {
+					$soilBonus = 1.0;
+					if ($soilBlock->getMoisture() > 0) {
+						$soilBonus = 3.0;
+					}
+				}
+
+				if ($dx !== 0 || $dz !== 0) {
+					$soilBonus /= 4.0;
+				}
+
+				$growthChance += $soilBonus;
+			}
+		}
+
+		$north = $this->getSide(Facing::NORTH);
+		$south = $this->getSide(Facing::SOUTH);
+		$west = $this->getSide(Facing::WEST);
+		$east = $this->getSide(Facing::EAST);
+
+		$sameCropOnWestEast = ($this->getId() === $west->getId()) || ($this->getId() === $east->getId());
+		$sameCropOnNorthSouth = ($this->getId() === $north->getId()) || ($this->getId() === $south->getId());
+
+		if ($sameCropOnWestEast && $sameCropOnNorthSouth) {
+			$growthChance /= 2.0;
+		} else {
+			$sameCropOnDiagonal =
+				$this->getId() === $west->getSide(Facing::NORTH)->getId() ||
+				$this->getId() === $east->getSide(Facing::NORTH)->getId() ||
+				$this->getId() === $east->getSide(Facing::SOUTH)->getId() ||
+				$this->getId() === $west->getSide(Facing::SOUTH)->getId();
+
+			if ($sameCropOnDiagonal) {
+				$growthChance /= 2.0;
+			}
+		}
+
+		return $growthChance;
+	}
+
+	public function canGrow(Random $random, ?Player $player) : bool{
+		return !$this->isMaxAge();
+	}
+
+	public function canUseBonemeal(Random $random, ?Player $player) : bool{
+		return true;
+	}
+
+	public function grow(Random $random, ?Player $player) : void {
+		$newState = clone $this;
+		$newState->meta = min($this->getMaxAge(), $this->getAge() + $this->getBonemealAgeIncrease($random));
+		BlockEventHelper::grow($this, $newState, $player);
+	}
+
+	abstract public function getSeed() : Item;
+
+	abstract public function getCrop() : Item;
+
+	public function isAffectedBySilkTouch() : bool{
 		return false;
+	}
+
+	public function getPickedItem(bool $addUserData = false) : Item{
+		return $this->getSeed();
 	}
 }

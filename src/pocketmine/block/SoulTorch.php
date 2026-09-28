@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class SoulTorch extends Torch
 {
 	protected $id = self::SOUL_TORCH;
@@ -36,14 +34,5 @@ class SoulTorch extends Torch
 	public function getLightLevel() : int
 	{
 		return 10;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_332) {
-			return BlockFactory::get(BlockIds::TORCH, $this->meta);
-		}
-
-		return null;
 	}
 }

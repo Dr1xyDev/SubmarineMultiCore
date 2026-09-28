@@ -58,7 +58,7 @@ final class AdventureSettingsData
 
 	public function __construct(
 		private int $flags,
-		private int $commandPermission,
+		private CommandPermissions $commandPermission,
 		private int $flags2,
 		private int $playerPermission,
 		private int $customFlags,
@@ -70,7 +70,7 @@ final class AdventureSettingsData
 		return $this->flags;
 	}
 
-	public function getCommandPermission() : int {
+	public function getCommandPermission() : CommandPermissions {
 		return $this->commandPermission;
 	}
 
@@ -90,11 +90,11 @@ final class AdventureSettingsData
 		return $this->entityUniqueId;
 	}
 
-	public static function decode(NetworkBinaryStream $in, int $protocolVersion) : self
+	public static function decode(NetworkBinaryStream $in) : self
 	{
 		$flags = $in->getUnsignedVarInt();
-		$commandPermission = $in->getUnsignedVarInt();
-		if ($protocolVersion >= ProtocolInfo::PROTOCOL_137) {
+		$commandPermission = CommandPermissions::fromPacket($in->getUnsignedVarInt());
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_407) {
 			$flags2 = $in->getUnsignedVarInt();
 			$playerPermission = $in->getUnsignedVarInt();
 			$customFlags = $in->getUnsignedVarInt();
@@ -105,17 +105,17 @@ final class AdventureSettingsData
 			$flags,
 			$commandPermission,
 			$flags2 ?? 0,
-			$playerPermission ?? CommandPermissions::NORMAL,
+			$playerPermission ?? PlayerPermissions::VISITOR,
 			$customFlags ?? 0,
 			$entityUniqueId ?? 0
 		);
 	}
 
-	public function encode(NetworkBinaryStream $out, int $protocolVersion) : void
+	public function encode(NetworkBinaryStream $out) : void
 	{
 		$out->putUnsignedVarInt($this->flags);
-		$out->putUnsignedVarInt($this->commandPermission);
-		if ($protocolVersion >= ProtocolInfo::PROTOCOL_137) {
+		$out->putUnsignedVarInt($this->commandPermission->value);
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_407) {
 			$out->putUnsignedVarInt($this->flags2);
 			$out->putUnsignedVarInt($this->playerPermission);
 			$out->putUnsignedVarInt($this->customFlags);

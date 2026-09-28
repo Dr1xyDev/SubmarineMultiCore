@@ -32,8 +32,8 @@ use function str_repeat;
 class VersionInfo
 {
 	public const NAME = "Submarine";
-	public const BASE_VERSION = "3.28.1"; //Don't change this anymore. Change the FORK_VERSION instead.
-	public const FORK_VERSION = "2.3.1.1";
+	public const BASE_VERSION = "3.28.0"; //Don't change this anymore. Change the FORK_VERSION instead.
+	public const FORK_VERSION = "2.4.1";
 	public const IS_DEVELOPMENT_BUILD = true;
 	public const BUILD_CHANNEL = "stable";
 

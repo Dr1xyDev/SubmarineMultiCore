@@ -27,7 +27,6 @@ use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
 use pocketmine\item\ItemIds;
 use pocketmine\item\TieredTool;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 class CopperOre extends Solid
 {
@@ -68,14 +67,5 @@ class CopperOre extends Solid
 	public function isAffectedBySilkTouch() : bool
 	{
 		return true;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_440) {
-			return BlockFactory::get(BlockIds::COAL_ORE);
-		}
-
-		return null;
 	}
 }

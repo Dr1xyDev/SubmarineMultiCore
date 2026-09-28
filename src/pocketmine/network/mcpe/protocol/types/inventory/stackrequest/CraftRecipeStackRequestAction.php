@@ -51,19 +51,19 @@ final class CraftRecipeStackRequestAction extends ItemStackRequestAction
 		return $this->repetitions;
 	}
 
-	public static function read(NetworkBinaryStream $in, int $playerProtocol) : self
+	public static function read(NetworkBinaryStream $in) : self
 	{
 		$recipeId = $in->readRecipeNetId();
-		if ($playerProtocol >= ProtocolInfo::PROTOCOL_712) {
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
 			$repetitions = $in->getByte();
 		}
 		return new self($recipeId, $repetitions ?? 1);
 	}
 
-	public function write(NetworkBinaryStream $out, int $playerProtocol) : void
+	public function write(NetworkBinaryStream $out) : void
 	{
 		$out->writeRecipeNetId($this->recipeId);
-		if ($playerProtocol >= ProtocolInfo::PROTOCOL_712) {
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
 			$out->putByte($this->repetitions);
 		}
 	}

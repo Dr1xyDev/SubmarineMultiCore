@@ -40,15 +40,14 @@ class FollowParentBehavior extends Behavior
 	public function canStart() : bool
 	{
 		if ($this->mob->isBaby()) {
+			$searchDist = 16.0;
 			$dist = 9;
 			$animal = null;
-			foreach ($this->mob->level->getEntities() as $entity) {
-				if ($entity !== $this->mob) {
-					if (!$entity->isBaby()) {
-						if (($d2 = $entity->distanceSquared($this->mob)) < $dist) {
-							$dist = $d2;
-							$animal = $entity;
-						}
+			foreach ($this->mob->level->getNearbyEntities($this->mob->getBoundingBox()->expandedCopy($searchDist, $searchDist, $searchDist), $this->mob) as $entity) {
+				if (!$entity->isBaby()) {
+					if (($d2 = $entity->distanceSquared($this->mob)) < $dist) {
+						$dist = $d2;
+						$animal = $entity;
 					}
 				}
 			}

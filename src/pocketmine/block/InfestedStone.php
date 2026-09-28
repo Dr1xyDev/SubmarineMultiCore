@@ -71,7 +71,7 @@ class InfestedStone extends Solid
 		return [];
 	}
 
-	public function onBreak(Item $item, Player $player = null) : bool
+	public function onBreak(Item $item, ?Player $player = null) : bool
 	{
 		// TODO: Spawn silverfish
 

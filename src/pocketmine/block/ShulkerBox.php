@@ -24,9 +24,7 @@ namespace pocketmine\block;
 
 use pocketmine\block\utils\ColorBlockMetaHelper;
 use pocketmine\item\Item;
-use pocketmine\item\ItemFactory;
 use pocketmine\math\Vector3;
-use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\Player;
 use pocketmine\tile\ShulkerBox as TileShulkerBox;
 use pocketmine\tile\Tile;
@@ -55,7 +53,7 @@ class ShulkerBox extends Transparent
 		return BlockToolType::TYPE_PICKAXE;
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool
 	{
 		if (parent::place($item, $blockReplace, $blockClicked, $face, $clickVector, $player)) {
 
@@ -66,7 +64,7 @@ class ShulkerBox extends Transparent
 		return false;
 	}
 
-	public function onActivate(Item $item, Player $player = null) : bool
+	public function onActivate(Item $item, ?Player $player = null) : bool
 	{
 		if ($player instanceof Player) {
 			$tile = $this->getLevel()->getTile($this);
@@ -85,22 +83,24 @@ class ShulkerBox extends Transparent
 
 	public function getDropsForCompatibleTool(Item $item) : array
 	{
-		$t = $this->getLevel()->getTile($this);
-		if ($t instanceof TileShulkerBox) {
-			$item = ItemFactory::get(Item::SHULKER_BOX, $this->getVariant(), 1);
+		$tile = $this->getLevel()->getTile($this);
+		if ($tile instanceof TileShulkerBox) {
+			$drop = $this->asItem();
+			$shulkerNBT = $tile->getCleanedNBT();
+			if($shulkerNBT !== null){
+				$drop->setNamedTag($shulkerNBT);
+			}
+			if($tile->hasName()){
+				$drop->setCustomName($tile->getName());
+			}
 
-			$blockData = new CompoundTag();
-			$t->writeBlockData($blockData);
-
-			$item->setCustomBlockData($blockData);
-
-			return [$item];
+			return [$drop];
 		}
 
 		return [];
 	}
 
-	public function onBreak(Item $item, Player $player = null) : bool
+	public function onBreak(Item $item, ?Player $player = null) : bool
 	{
 		$tile = $this->level->getTile($this);
 		if ($tile instanceof TileShulkerBox) {

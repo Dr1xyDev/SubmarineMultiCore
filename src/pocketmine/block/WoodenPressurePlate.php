@@ -22,31 +22,20 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
-class WoodenPressurePlate extends PressurePlate
-{
-	public function getFuelTime() : int
-	{
+class WoodenPressurePlate extends PressurePlate{
+	public function getFuelTime() : int{
 		return 300;
 	}
 
-	public function getToolType() : int
-	{
+	public function getHardness() : float{
+		return 0.5;
+	}
+
+	public function getToolType() : int{
 		return BlockToolType::TYPE_AXE;
 	}
 
-	public function getToolHarvestLevel() : int
-	{
-		return 0; //TODO: fix hierarchy problem
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_261) {
-			return BlockFactory::get(BlockIds::WOODEN_PRESSURE_PLATE, $this->meta);
-		}
-
-		return null;
+	public function getDeactivationDelayTicks() : int {
+		return 20;
 	}
 }

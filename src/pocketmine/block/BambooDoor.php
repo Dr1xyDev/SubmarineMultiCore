@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class BambooDoor extends WoodenDoor
 {
 	protected $id = self::BAMBOO_DOOR;
@@ -36,14 +34,5 @@ class BambooDoor extends WoodenDoor
 	public function getName() : string
 	{
 		return "Bamboo Door";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_560) {
-			return BlockFactory::get(BlockIds::WOODEN_DOOR_BLOCK, $this->meta);
-		}
-
-		return null;
 	}
 }

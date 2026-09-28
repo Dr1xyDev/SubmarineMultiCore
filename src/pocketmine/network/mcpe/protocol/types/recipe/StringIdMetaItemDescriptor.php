@@ -23,6 +23,8 @@ declare(strict_types=1);
 namespace pocketmine\network\mcpe\protocol\types\recipe;
 
 use pocketmine\network\mcpe\NetworkBinaryStream;
+use pocketmine\network\mcpe\protocol\PacketDecodeException;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\types\GetTypeIdFromConstTrait;
 
 final class StringIdMetaItemDescriptor implements ItemDescriptor{
@@ -45,13 +47,24 @@ final class StringIdMetaItemDescriptor implements ItemDescriptor{
 
 	public static function read(NetworkBinaryStream $in) : self{
 		$stringId = $in->getString();
-		$meta = $in->getLShort();
+		if($in->getProtocol() >= ProtocolInfo::PROTOCOL_2168){
+			$meta = $in->getVarInt();
+			if($meta < 0){
+				throw new PacketDecodeException("Meta cannot be negative");
+			}
+		}else{
+			$meta = $in->getLShort();
+		}
 
 		return new self($stringId, $meta);
 	}
 
 	public function write(NetworkBinaryStream $out) : void{
 		$out->putString($this->id);
-		$out->putLShort($this->meta);
+		if($out->getProtocol() >= ProtocolInfo::PROTOCOL_2168){
+			$out->putVarInt($this->meta);
+		}else{
+			$out->putLShort($this->meta);
+		}
 	}
 }

@@ -22,11 +22,9 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe;
 
-use InvalidArgumentException;
 use pocketmine\entity\passive\AbstractHorse;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\math\Vector3;
-use pocketmine\network\mcpe\convert\TypeConverter;
 use pocketmine\network\mcpe\protocol\ActorEventPacket;
 use pocketmine\network\mcpe\protocol\ActorFallPacket;
 use pocketmine\network\mcpe\protocol\ActorPickRequestPacket;
@@ -52,6 +50,7 @@ use pocketmine\network\mcpe\protocol\InteractPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\ItemFrameDropItemPacket;
 use pocketmine\network\mcpe\protocol\ItemStackRequestPacket;
+use pocketmine\network\mcpe\protocol\LecternUpdatePacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacketV1;
 use pocketmine\network\mcpe\protocol\LoginPacket;
@@ -62,6 +61,7 @@ use pocketmine\network\mcpe\protocol\ModalFormResponsePacket;
 use pocketmine\network\mcpe\protocol\MoveActorAbsolutePacket;
 use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
+use pocketmine\network\mcpe\protocol\PacketDecodeException;
 use pocketmine\network\mcpe\protocol\PacketViolationWarningPacket;
 use pocketmine\network\mcpe\protocol\PlayerActionPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
@@ -80,66 +80,75 @@ use pocketmine\network\mcpe\protocol\RiderJumpPacket;
 use pocketmine\network\mcpe\protocol\ServerSettingsRequestPacket;
 use pocketmine\network\mcpe\protocol\SetActorMotionPacket;
 use pocketmine\network\mcpe\protocol\SetLocalPlayerAsInitializedPacket;
+use pocketmine\network\mcpe\protocol\SetPlayerFurnaceOptionsPacket;
 use pocketmine\network\mcpe\protocol\SetPlayerGameTypePacket;
 use pocketmine\network\mcpe\protocol\ShowCreditsPacket;
 use pocketmine\network\mcpe\protocol\SpawnExperienceOrbPacket;
 use pocketmine\network\mcpe\protocol\TextPacket;
 use pocketmine\network\mcpe\protocol\TickSyncPacket;
-use pocketmine\network\mcpe\protocol\types\InputMode;
 use pocketmine\network\mcpe\protocol\UseItemPacket;
+use pocketmine\network\PacketHandlingException;
 use pocketmine\Player;
 use pocketmine\Server;
 use pocketmine\timings\Timings;
-use RuntimeException;
+use pocketmine\utils\BinaryDataException;
 
 use function bin2hex;
-use function implode;
 use function is_bool;
 use function json_decode;
-use function json_last_error_msg;
-use function microtime;
-use function preg_match;
 use function strlen;
 use function substr;
-use function trim;
+use const JSON_THROW_ON_ERROR;
 
-class PlayerNetworkSessionAdapter extends NetworkSession
-{
-	private Server $server;
-	private Player $player;
+class PlayerNetworkSessionAdapter extends NetworkSession {
+	private const MAX_FORM_RESPONSE_SIZE = 10 * 1024; //10 KiB should be more than enough
+	private const MAX_FORM_RESPONSE_DEPTH = 2; //modal/simple will be 1, custom forms 2 - they will never contain anything other than string|int|float|bool|null
 
-	private float $lastRightClickBlock = 0;
+	private const INCOMING_GAME_PACKETS_PER_TICK = 2;
+	private const INCOMING_GAME_PACKETS_BUFFER_TICKS = 100;
+
+	/**
+	 * Legacy (< 1.16) clients spam InteractPacket(mouseover) which we drop without handling. These packets are counted
+	 * by a separate, more generous limiter so that a legitimate legacy client is never kicked for them, while a
+	 * malicious client still can't use them to bypass rate limiting entirely.
+	 */
+	private const INCOMING_LEGACY_NOISE_PACKETS_PER_TICK = 20;
+	private const INCOMING_LEGACY_NOISE_PACKETS_BUFFER_TICKS = 100;
 
 	protected ?string $lastRequestedFullSkinId = null;
 
-	public function __construct(Server $server, Player $player)
-	{
-		$this->server = $server;
-		$this->player = $player;
+	protected PacketRateLimiter $gamePacketLimiter;
+	protected PacketRateLimiter $legacyNoisePacketLimiter;
+
+	public function __construct(
+		private Server $server,
+		private Player $player
+	){
+		$this->gamePacketLimiter = new PacketRateLimiter("Game Packets", self::INCOMING_GAME_PACKETS_PER_TICK, self::INCOMING_GAME_PACKETS_BUFFER_TICKS);
+		$this->legacyNoisePacketLimiter = new PacketRateLimiter("Legacy Noise Packets", self::INCOMING_LEGACY_NOISE_PACKETS_PER_TICK, self::INCOMING_LEGACY_NOISE_PACKETS_BUFFER_TICKS);
 	}
 
-	public function isCompressionEnabled() : bool
-	{
+	public function isCompressionEnabled() : bool{
 		return $this->player->hasNetworkCompression();
 	}
 
-	public function getProtocol() : int
-	{
+	public function getProtocol() : int{
 		return $this->player->getProtocolVersion();
 	}
 
-	public function handleDataPacket(DataPacket $packet) : void
-	{
+	public function handleDataPacket(DataPacket $packet) : void{
 		if (!$this->player->isConnected()) {
 			return;
 		}
 
-		if ($this->player->getProtocolVersion() < ProtocolInfo::PROTOCOL_137) {
-			//TODO: Remove this hack once InteractPacket spam issue is fixed
-			if ($packet->buffer === "\x21\x04\x00") {
-				return;
-			}
+		if ($this->player->getProtocolVersion() < ProtocolInfo::PROTOCOL_407 && substr($packet->buffer, 0, 2) === "\x21\x04") {
+			$this->legacyNoisePacketLimiter->decrement();
+			return;
 		}
+
+		//Every other packet is counted before any filtering takes place, so that packets which are dropped (e.g. before
+		//login) or cancelled by plugins can't be used to bypass the rate limit.
+		$this->gamePacketLimiter->decrement();
 
 		if (
 			!$this->player->loggedIn &&
@@ -160,7 +169,15 @@ class PlayerNetworkSessionAdapter extends NetworkSession
 				$decodeTimings = Timings::getDecodeDataPacketTimings($packet);
 				$decodeTimings->startTiming();
 				try {
-					$packet->decode();
+					try {
+						$packet->decode();
+					} catch (PacketDecodeException|BinaryDataException $e) {
+						throw $e;
+					} catch (\InvalidArgumentException|\UnexpectedValueException|\RuntimeException|\ValueError $e) {
+						//invalid client data (bad enum values, broken skin JSON...) is a bad packet, not a server crash;
+						//\Error subclasses are still reported, they mean a bug in the core
+						throw PacketDecodeException::wrap($e, "Error decoding " . $packet->getName());
+					}
 					if (!$packet->feof() && !$packet->mayHaveUnreadBytes()) {
 						$remains = substr($packet->buffer, $packet->offset);
 						$this->server->getLogger()->debug("Still " . strlen($remains) . " bytes unread in " . $packet->getName() . ": 0x" . bin2hex($remains));
@@ -190,28 +207,32 @@ class PlayerNetworkSessionAdapter extends NetworkSession
 		}
 	}
 
-	public function handleRequestNetworkSettings(RequestNetworkSettingsPacket $packet) : bool
-	{
+	/**
+	 * Called when a legacy noise packet is dropped before being decoded into a packet object.
+	 * @internal
+	 * @throws PacketHandlingException if the rate limit has been exceeded
+	 */
+	public function onLegacyNoisePacketDropped() : void{
+		$this->legacyNoisePacketLimiter->decrement();
+	}
+
+	public function handleRequestNetworkSettings(RequestNetworkSettingsPacket $packet) : bool{
 		return $this->player->handleRequestNetworkSettings($packet);
 	}
 
-	public function handleLogin(LoginPacket $packet) : bool
-	{
+	public function handleLogin(LoginPacket $packet) : bool{
 		return $this->player->handleLogin($packet);
 	}
 
-	public function handleClientToServerHandshake(ClientToServerHandshakePacket $packet) : bool
-	{
+	public function handleClientToServerHandshake(ClientToServerHandshakePacket $packet) : bool{
 		return $this->player->onEncryptionHandshake();
 	}
 
-	public function handleResourcePackClientResponse(ResourcePackClientResponsePacket $packet) : bool
-	{
+	public function handleResourcePackClientResponse(ResourcePackClientResponsePacket $packet) : bool{
 		return $this->player->handleResourcePackClientResponse($packet);
 	}
 
-	public function handleText(TextPacket $packet) : bool
-	{
+	public function handleText(TextPacket $packet) : bool{
 		if ($packet->type === TextPacket::TYPE_CHAT) {
 			return $this->player->chat($packet->message);
 		}
@@ -222,81 +243,66 @@ class PlayerNetworkSessionAdapter extends NetworkSession
 	/*
 	 * A similar code design was taken from PlayerAuthInputPacket
 	 */
-	public function handleMovePlayer(MovePlayerPacket $packet) : bool
-	{
+	public function handleMovePlayer(MovePlayerPacket $packet) : bool{
 		$this->player->updateNextPosition($packet->position, $packet->yaw, $packet->yaw, $packet->pitch);
 
 		return true;
 	}
 
-	public function handlePlayerAuthInput(PlayerAuthInputPacket $packet) : bool
-	{
+	public function handlePlayerAuthInput(PlayerAuthInputPacket $packet) : bool{
 		return $this->player->handlePlayerAuthInput($packet);
 	}
 
-	public function handleLevelSoundEventPacketV1(LevelSoundEventPacketV1 $packet) : bool
-	{
+	public function handleLevelSoundEventPacketV1(LevelSoundEventPacketV1 $packet) : bool{
 		return true; //useless leftover from 1.8
 	}
 
-	public function handleActorEvent(ActorEventPacket $packet) : bool
-	{
+	public function handleActorEvent(ActorEventPacket $packet) : bool{
 		return $this->player->handleEntityEvent($packet);
 	}
 
-	public function handleInventoryTransaction(InventoryTransactionPacket $packet) : bool
-	{
+	public function handleInventoryTransaction(InventoryTransactionPacket $packet) : bool{
 		return $this->player->handleInventoryTransaction($packet);
 	}
 
-	public function handleItemStackRequest(ItemStackRequestPacket $packet) : bool
-	{
+	public function handleItemStackRequest(ItemStackRequestPacket $packet) : bool{
 		return $this->player->handleItemStackRequest($packet);
 	}
 
-	public function handleMobEquipment(MobEquipmentPacket $packet) : bool
-	{
+	public function handleMobEquipment(MobEquipmentPacket $packet) : bool{
 		return $this->player->handleMobEquipment($packet);
 	}
 
-	public function handleMobArmorEquipment(MobArmorEquipmentPacket $packet) : bool
-	{
+	public function handleMobArmorEquipment(MobArmorEquipmentPacket $packet) : bool{
 		return true; //Not used
 	}
 
-	public function handleTickSync(TickSyncPacket $packet) : bool
-	{
+	public function handleTickSync(TickSyncPacket $packet) : bool{
 		return true; //Not used
 	}
 
-	public function handleEmoteList(EmoteListPacket $packet) : bool
-	{
+	public function handleEmoteList(EmoteListPacket $packet) : bool{
 		return true; // Not used
 	}
 
-	public function handleEmote(EmotePacket $packet) : bool
-	{
+	public function handleEmote(EmotePacket $packet) : bool {
 		return $this->player->handleEmote($packet);
 	}
 
-	public function handleInteract(InteractPacket $packet) : bool
-	{
+	public function handleInteract(InteractPacket $packet) : bool{
 		return $this->player->handleInteract($packet);
 	}
 
-	public function handleBlockPickRequest(BlockPickRequestPacket $packet) : bool
-	{
+	public function handleBlockPickRequest(BlockPickRequestPacket $packet) : bool{
 		return $this->player->pickBlock(new Vector3($packet->blockX, $packet->blockY, $packet->blockZ), $packet->addUserData);
 	}
 
-	public function handleActorPickRequest(ActorPickRequestPacket $packet) : bool
-	{
+	public function handleActorPickRequest(ActorPickRequestPacket $packet) : bool{
 		return $this->player->pickEntity($packet->entityUniqueId);
 	}
 
-	public function handlePlayerAction(PlayerActionPacket $packet) : bool
-	{
-		return $this->player->handlePlayerAction($packet);
+	public function handlePlayerAction(PlayerActionPacket $packet) : bool{
+		return $this->player->handlePlayerActionFromData($packet->action, new Vector3($packet->x, $packet->y, $packet->z), $packet->face);
 	}
 
 	public function handleActorFall(ActorFallPacket $packet) : bool
@@ -304,8 +310,7 @@ class PlayerNetworkSessionAdapter extends NetworkSession
 		return true; //Not used
 	}
 
-	public function handleAnimate(AnimatePacket $packet) : bool
-	{
+	public function handleAnimate(AnimatePacket $packet) : bool{
 		return $this->player->handleAnimate($packet);
 	}
 
@@ -326,7 +331,7 @@ class PlayerNetworkSessionAdapter extends NetworkSession
 
 	public function handleCraftingEvent(CraftingEventPacket $packet) : bool
 	{
-		if ($this->player->getProtocolVersion() < ProtocolInfo::PROTOCOL_137) {
+		if ($this->player->getProtocolVersion() < ProtocolInfo::PROTOCOL_407) {
 			return $this->player->handleCraftingEvent($packet); // only <= 1.1
 		}
 
@@ -374,18 +379,15 @@ class PlayerNetworkSessionAdapter extends NetworkSession
 		return $this->player->handleSetPlayerGameType($packet);
 	}
 
-	public function handleSpawnExperienceOrb(SpawnExperienceOrbPacket $packet) : bool
-	{
+	public function handleSpawnExperienceOrb(SpawnExperienceOrbPacket $packet) : bool{
 		return false; //TODO
 	}
 
-	public function handleMapInfoRequest(MapInfoRequestPacket $packet) : bool
-	{
+	public function handleMapInfoRequest(MapInfoRequestPacket $packet) : bool{
 		return $this->player->handleMapInfoRequest($packet);
 	}
 
-	public function handleRequestChunkRadius(RequestChunkRadiusPacket $packet) : bool
-	{
+	public function handleRequestChunkRadius(RequestChunkRadiusPacket $packet) : bool{
 		if (!$this->player->loginProcessed) {
 			return false;
 		}
@@ -441,32 +443,11 @@ class PlayerNetworkSessionAdapter extends NetworkSession
 			return true;
 		}
 
-		return $this->player->removeBlock(new Vector3($packet->x, $packet->y, $packet->z));
+		return $this->player->handleRemoveBlock($packet);
 	}
 
-	public function handleUseItem(UseItemPacket $packet) : bool
-	{
-		if (!$this->player->spawned || !$this->player->isAlive()) {
-			return true;
-		}
-
-		$blockVector = new Vector3($packet->x, $packet->y, $packet->z);
-
-		$item = TypeConverter::getInstance()->netItemStackToCore($packet->item, $this->player->getProtocolVersion());
-		if ($packet->face === -1) {
-			if (microtime(true) - $this->lastRightClickBlock > 0.005) {
-				$this->player->useItem($blockVector, $packet->clickPos, $item, $packet->face);
-			}
-		} else {
-			$this->lastRightClickBlock = microtime(true);
-			$this->player->useItem($blockVector, $packet->clickPos, $item, $packet->face);
-
-			if ($this->player->getCurrentInputMode() !== InputMode::TOUCHSCREEN) { //this is a very nasty hack
-				$this->player->useItem($blockVector, $packet->clickPos, $item, -1);
-			}
-		}
-
-		return true;
+	public function handleUseItem(UseItemPacket $packet) : bool{
+		return $this->player->handleUseItem($packet);
 	}
 
 	public function handleResourcePackChunkRequest(ResourcePackChunkRequestPacket $packet) : bool
@@ -499,60 +480,32 @@ class PlayerNetworkSessionAdapter extends NetworkSession
 		return $this->player->handleBookEdit($packet);
 	}
 
-	public function handleModalFormResponse(ModalFormResponsePacket $packet) : bool
+	public function handleLecternUpdate(LecternUpdatePacket $packet) : bool
 	{
-		if ($packet->cancelReason !== null) {
-			//TODO: make APIs for this to allow plugins to use this information
-			return $this->player->onFormSubmit($packet->formId, null);
-		} elseif ($packet->formData !== null) {
-			return $this->player->onFormSubmit($packet->formId, self::stupid_json_decode($packet->formData, true));
-		} else {
-			throw new RuntimeException("Expected either formData or cancelReason to be set in ModalFormResponsePacket");
-		}
+		return $this->player->handleLecternUpdate($packet);
 	}
 
-	/**
-	 * Hack to work around a stupid bug in Minecraft W10 which causes empty strings to be sent unquoted in form responses.
-	 *
-	 * @return mixed
-	 */
-	private static function stupid_json_decode(string $json, bool $assoc = false)
-	{
-		if (preg_match('/^\[(.+)\]$/s', $json, $matches) > 0) {
-			$raw = $matches[1];
-			$lastComma = -1;
-			$newParts = [];
-			$quoteType = null;
-			for ($i = 0, $len = strlen($raw); $i <= $len; ++$i) {
-				if ($i === $len || ($raw[$i] === "," && $quoteType === null)) {
-					$part = substr($raw, $lastComma + 1, $i - ($lastComma + 1));
-					if (trim($part) === "") { //regular parts will have quotes or something else that makes them non-empty
-						$part = '""';
-					}
-					$newParts[] = $part;
-					$lastComma = $i;
-				} elseif ($raw[$i] === '"') {
-					if ($quoteType === null) {
-						$quoteType = $raw[$i];
-					} elseif ($raw[$i] === $quoteType) {
-						for ($backslashes = 0; $backslashes < $i && $raw[$i - $backslashes - 1] === "\\"; ++$backslashes) {
-						}
-						if (($backslashes % 2) === 0) { //unescaped quote
-							$quoteType = null;
-						}
-					}
-				}
+	public function handleModalFormResponse(ModalFormResponsePacket $packet) : bool{
+		if($packet->cancelReason !== null){
+			//TODO: make APIs for this to allow plugins to use this information
+			return $this->player->onFormSubmit($packet->formId, null);
+		}elseif($packet->formData !== null){
+			if(strlen($packet->formData) > self::MAX_FORM_RESPONSE_SIZE){
+				throw new PacketHandlingException("Form response data too large, refusing to decode (received" . strlen($packet->formData) . " bytes, max " . self::MAX_FORM_RESPONSE_SIZE . " bytes)");
 			}
-
-			$fixed = "[" . implode(",", $newParts) . "]";
-			if (($ret = json_decode($fixed, $assoc)) === null) {
-				throw new InvalidArgumentException("Failed to fix JSON: " . json_last_error_msg() . "(original: $json, modified: $fixed)");
+			if(!$this->player->hasPendingForm($packet->formId)){
+				$this->server->getLogger()->debug("Got unexpected response for form $packet->formId from " . $this->player->getName());
+				return false;
 			}
-
-			return $ret;
+			try{
+				$responseData = json_decode($packet->formData, true, self::MAX_FORM_RESPONSE_DEPTH, JSON_THROW_ON_ERROR);
+			}catch(\JsonException $e){
+				throw PacketHandlingException::wrap($e, "Failed to decode form response data");
+			}
+			return $this->player->onFormSubmit($packet->formId, $responseData);
+		}else{
+			throw new PacketHandlingException("Expected either formData or cancelReason to be set in ModalFormResponsePacket");
 		}
-
-		return json_decode($json, $assoc);
 	}
 
 	public function handleServerSettingsRequest(ServerSettingsRequestPacket $packet) : bool
@@ -618,6 +571,11 @@ class PlayerNetworkSessionAdapter extends NetworkSession
 		}
 
 		return false;
+	}
+
+	public function handleSetPlayerFurnaceOptions(SetPlayerFurnaceOptionsPacket $packet) : bool
+	{
+		return true; //purely client-side UI state (1.26.50+), nothing to do
 	}
 
 	public function handlePacketViolationWarning(PacketViolationWarningPacket $packet) : bool

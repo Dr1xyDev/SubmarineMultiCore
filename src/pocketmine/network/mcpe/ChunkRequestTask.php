@@ -27,7 +27,9 @@ use pocketmine\level\format\Chunk;
 use pocketmine\level\format\io\FastChunkSerializer;
 use pocketmine\level\Level;
 use pocketmine\network\mcpe\compression\NetworkCompression;
-use pocketmine\network\mcpe\convert\RuntimeBlockMapping;
+use pocketmine\network\mcpe\convert\block\BlockProtocolConvertor;
+use pocketmine\network\mcpe\convert\block\DynamicBlockStateResolver;
+use pocketmine\network\mcpe\convert\block\RuntimeBlockMapping;
 use pocketmine\network\mcpe\protocol\LevelChunkPacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\serializer\PacketBatch;
@@ -35,8 +37,12 @@ use pocketmine\network\mcpe\protocol\types\ChunkPosition;
 use pocketmine\network\mcpe\serializer\ChunkSerializer;
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\Server;
+use pocketmine\thread\NonThreadSafeValue;
 use pocketmine\tile\Spawnable;
 use pocketmine\utils\BinaryStream;
+use function pack;
+use function strlen;
+use function unpack;
 
 class ChunkRequestTask extends AsyncTask
 {
@@ -48,6 +54,10 @@ class ChunkRequestTask extends AsyncTask
 	protected string $tiles;
 	protected int $compressionLevel;
 	protected int $protocol;
+	/** @phpstan-var NonThreadSafeValue<BlockProtocolConvertor> */
+	protected NonThreadSafeValue $blockProtocolConvertor;
+	/** packed (position key, runtime ID) pairs of neighbour-dependent states, see DynamicBlockStateResolver */
+	protected string $dynamicStates = "";
 
 	public function __construct(Level $level, int $dimensionId, Chunk $chunk, int $protocol)
 	{
@@ -62,12 +72,22 @@ class ChunkRequestTask extends AsyncTask
 		$tiles = "";
 		foreach ($chunk->getTiles() as $tile) {
 			if ($tile instanceof Spawnable) {
-				$tiles .= $tile->getProtocolSerializedSpawnCompound($protocol);
+				$tiles .= $tile->getSerializedSpawnCompound($protocol);
 			}
 		}
 		$this->tiles = $tiles;
 
 		$this->protocol = $protocol;
+		$this->blockProtocolConvertor = new NonThreadSafeValue(BlockProtocolConvertor::getInstance());
+
+		if (DynamicBlockStateResolver::isSupported($protocol)) {
+			//needs the neighbouring chunks, which are only available on the main thread
+			$dynamicStates = "";
+			foreach (DynamicBlockStateResolver::getInstance($protocol)->computeChunk($level, $chunk) as $key => $runtimeId) {
+				$dynamicStates .= pack("VV", $key, $runtimeId);
+			}
+			$this->dynamicStates = $dynamicStates;
+		}
 	}
 
 	public function onRun() : void
@@ -79,19 +99,44 @@ class ChunkRequestTask extends AsyncTask
 
 		$protocol = $this->protocol;
 
-		if ($protocol >= ProtocolInfo::PROTOCOL_223) {
-			$legacyToRuntime = function (int $fullId) use ($protocol) : int {
-				$block = BlockFactory::fromFullBlock($fullId);
-				$block = $block->getBlockProtocol($protocol) ?? $block;
-				return RuntimeBlockMapping::getInstance($protocol)->toRuntimeId($block->getFullId());
+		$blockProtocolConvertor = $this->blockProtocolConvertor->deserialize();
+		$cacheFullBlocks = [];
+		if ($protocol >= ProtocolInfo::PROTOCOL_407) {
+			$runtimeBlockMapping = RuntimeBlockMapping::getInstance($protocol);
+			$blockLegacyToRuntime = function (int $fullId) use ($protocol, $blockProtocolConvertor, $runtimeBlockMapping, &$cacheFullBlocks) : int {
+				if (!isset($cacheFullBlocks[$fullId])) {
+					$block = BlockFactory::fromFullBlock($fullId);
+					$blockProtocol = $blockProtocolConvertor->get($block, $protocol) ?? $block;
+					$cacheFullBlocks[$fullId] = $blockProtocol->getFullId();
+				}
+
+				return $runtimeBlockMapping->toRuntimeId($cacheFullBlocks[$fullId]);
+			};
+		} else {
+			$blockLegacyToRuntime = function (int $fullId) use ($protocol, $blockProtocolConvertor, &$cacheFullBlocks) : int {
+				if (!isset($cacheFullBlocks[$fullId])) {
+					$block = BlockFactory::fromFullBlock($fullId);
+					$blockProtocol = $blockProtocolConvertor->get($block, $protocol) ?? $block;
+					$cacheFullBlocks[$fullId] = $blockProtocol->getFullId();
+				}
+
+				return $cacheFullBlocks[$fullId];
 			};
 		}
 
-		$pk = LevelChunkPacket::withoutCache(
+		unset($cacheFullBlocks);
+
+		$biomeLegacyToRuntime = function (int $biomeId) : int {
+			return $biomeId; //TODO: old version
+		};
+
+		$pk = LevelChunkPacket::create(
 			new ChunkPosition($this->chunkX, $this->chunkZ),
 			$dimensionId,
 			ChunkSerializer::getSubChunkCount($chunk, $dimensionId, $protocol),
-			ChunkSerializer::serializeFullChunk($chunk, $protocol, $legacyToRuntime ?? null, $dimensionId, (mt_rand(0, 100) === 1)) . $this->tiles
+			false,
+			null,
+			ChunkSerializer::serializeFullChunk($chunk, $blockLegacyToRuntime, $biomeLegacyToRuntime, $dimensionId, $protocol, $this->unpackDynamicStates()) . $this->tiles
 		);
 		$pk->setProtocol($protocol);
 
@@ -99,6 +144,19 @@ class ChunkRequestTask extends AsyncTask
 		PacketBatch::encodePackets($stream, [$pk], $protocol);
 
 		$this->setResult(NetworkCompression::compress($stream->getBuffer(), $protocol, $this->compressionLevel));
+	}
+
+	/**
+	 * @return int[]
+	 */
+	private function unpackDynamicStates() : array
+	{
+		$result = [];
+		for ($offset = 0, $length = strlen($this->dynamicStates); $offset < $length; $offset += 8) {
+			[, $key, $runtimeId] = unpack("V2", $this->dynamicStates, $offset);
+			$result[$key] = $runtimeId;
+		}
+		return $result;
 	}
 
 	public function onCompletion(Server $server) : void

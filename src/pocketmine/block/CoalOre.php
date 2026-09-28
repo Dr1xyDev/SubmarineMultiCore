@@ -22,8 +22,10 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
+use pocketmine\block\utils\FortuneDropHelper;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
+use pocketmine\item\ItemIds;
 use pocketmine\item\TieredTool;
 
 use function mt_rand;
@@ -59,13 +61,16 @@ class CoalOre extends Solid
 
 	public function getDropsForCompatibleTool(Item $item) : array
 	{
-		return [
-			ItemFactory::get(Item::COAL)
-		];
+		return [ItemFactory::get(ItemIds::COAL)->setCount(FortuneDropHelper::weighted($item, 1, 1))];
 	}
 
 	protected function getXpDropAmount() : int
 	{
 		return mt_rand(0, 2);
+	}
+
+	public function isAffectedBySilkTouch() : bool
+	{
+		return true;
 	}
 }

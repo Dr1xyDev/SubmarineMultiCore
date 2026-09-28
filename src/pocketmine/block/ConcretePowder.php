@@ -22,7 +22,9 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
+use pocketmine\block\utils\BlockEventHelper;
 use pocketmine\block\utils\ColorBlockMetaHelper;
+use pocketmine\math\Facing;
 
 class ConcretePowder extends Fallable
 {
@@ -38,35 +40,37 @@ class ConcretePowder extends Fallable
 		return ColorBlockMetaHelper::getColorFromMeta($this->getVariant()) . " Concrete Powder";
 	}
 
-	public function getHardness() : float
-	{
+	public function getHardness() : float{
 		return 0.5;
 	}
 
-	public function getToolType() : int
-	{
+	public function getToolType() : int{
 		return BlockToolType::TYPE_SHOVEL;
 	}
 
-	public function onNearbyBlockChange() : void
-	{
-		if (($block = $this->checkAdjacentWater()) !== null) {
-			$this->level->setBlock($this, $block);
-		} else {
+	public function onNearbyBlockChange() : void{
+		if(($water = $this->getAdjacentWater()) !== null){
+			BlockEventHelper::form($this, BlockFactory::get(BlockIds::CONCRETE, $this->meta), $water);
+		}else{
 			parent::onNearbyBlockChange();
 		}
 	}
 
-	public function tickFalling() : ?Block
-	{
-		return $this->checkAdjacentWater();
+	public function tickFalling() : ?Block{
+		if($this->getAdjacentWater() === null){
+			return null;
+		}
+		return BlockFactory::get(BlockIds::CONCRETE, $this->meta);
 	}
 
-	private function checkAdjacentWater() : ?Block
-	{
-		for ($i = 1; $i < 6; ++$i) { //Do not check underneath
-			if ($this->getSide($i) instanceof Water) {
-				return BlockFactory::get(Block::CONCRETE, $this->meta);
+	private function getAdjacentWater() : ?Water{
+		foreach(Facing::ALL as $i){
+			if($i === Facing::DOWN){
+				continue;
+			}
+			$block = $this->getSide($i);
+			if($block instanceof Water){
+				return $block;
 			}
 		}
 

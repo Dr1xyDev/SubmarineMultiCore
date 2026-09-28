@@ -42,7 +42,6 @@ use pocketmine\math\Vector3;
 use pocketmine\Player;
 use pocketmine\utils\Random;
 use pocketmine\utils\WeightedRandomItem;
-
 use function array_filter;
 use function count;
 use function is_a;
@@ -78,6 +77,9 @@ class AnimalSpawner
 					if ($j4 <= $k4) {
 						foreach ($eligibleChunks as $chunkHash) {
 							Level::getXZ($chunkHash, $cx, $cz);
+							if ($level->getChunk($cx, $cz, false) === null) {
+								continue;
+							}
 							if (count($level->getChunkEntities($cx, $cz)) === 0) {
 
 								$pos = $level->getSafeSpawn(self::getRandomChunkPosition($level, $cx, $cz));

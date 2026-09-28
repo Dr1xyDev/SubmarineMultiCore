@@ -46,23 +46,37 @@ class InventoryTransactionPacket extends DataPacket
 	public const TYPE_RELEASE_ITEM = 4;
 
 	public int $requestId = 0;
-	/** @var InventoryTransactionChangedSlotsHack[] */
-	public array $requestChangedSlots = [];
-	public TransactionData $trData;
+	/** @var null|InventoryTransactionChangedSlotsHack[] */
+	public ?array $requestChangedSlots = null;
+	public ?TransactionData $trData = null;
 
-	protected function decodePayload() : void
-	{
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_407) {
+	protected function decodePayload() : void{
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->requestId = $this->readLegacyItemStackRequestId();
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_1001) {
+				$hasChangedSlots = $this->getBool();
+			} else {
+				$hasChangedSlots = $this->requestId !== 0;
+			}
+
 			$this->requestChangedSlots = [];
-			if ($this->requestId !== 0) {
+			if ($hasChangedSlots) {
 				for ($i = 0, $len = $this->getUnsignedVarInt(); $i < $len; ++$i) {
 					$this->requestChangedSlots[] = InventoryTransactionChangedSlotsHack::read($this);
 				}
 			}
 		}
 
+		$hasDummyOptionals = self::hasDummyOptionals($this->protocol);
+		if($hasDummyOptionals && !$this->getBool()){
+			throw new PacketDecodeException("Dummy optional bool transactionType should always be 1");
+		}
+
 		$transactionType = $this->getUnsignedVarInt();
+		if($hasDummyOptionals && !$this->getBool()){
+			throw new PacketDecodeException("Dummy optional bool for trData should always be 1");
+		}
+
 		$this->trData = match ($transactionType) {
 			self::TYPE_NORMAL => new NormalTransactionData(),
 			self::TYPE_MISMATCH => new MismatchTransactionData(),
@@ -72,14 +86,17 @@ class InventoryTransactionPacket extends DataPacket
 			default => throw new PacketDecodeException("Unknown transaction type $transactionType"),
 		};
 
-		$this->trData->decode($this, $this->getProtocol());
+		$this->trData->decode($this, true);
 	}
 
-	protected function encodePayload() : void
-	{
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_407) {
+	protected function encodePayload() : void{
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->writeLegacyItemStackRequestId($this->requestId);
-			if ($this->requestId !== 0) {
+			$hasChangedSlots = $this->requestId !== 0;
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_1001) {
+				$this->putBool($hasChangedSlots);
+			}
+			if ($hasChangedSlots) {
 				$this->putUnsignedVarInt(count($this->requestChangedSlots));
 				foreach ($this->requestChangedSlots as $changedSlots) {
 					$changedSlots->write($this);
@@ -87,8 +104,23 @@ class InventoryTransactionPacket extends DataPacket
 			}
 		}
 
+		$hasDummyOptionals = self::hasDummyOptionals($this->protocol);
+		if ($hasDummyOptionals) {
+			$this->putBool(true);
+		}
 		$this->putUnsignedVarInt($this->trData->getTypeId());
-		$this->trData->encode($this, $this->getProtocol());
+		if ($hasDummyOptionals) {
+			$this->putBool(true);
+		}
+		$this->trData->encode($this, true);
+	}
+
+	/**
+	 * The transaction type and data were wrapped in dummy optionals from 1.26.30 until 1.26.50
+	 */
+	private static function hasDummyOptionals(int $protocol) : bool
+	{
+		return $protocol >= ProtocolInfo::PROTOCOL_1001 && $protocol < ProtocolInfo::PROTOCOL_2193;
 	}
 
 	public function handle(PacketHandlerInterface $session) : bool

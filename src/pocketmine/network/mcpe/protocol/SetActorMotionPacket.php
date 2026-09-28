@@ -40,7 +40,7 @@ class SetActorMotionPacket extends DataPacket
 	{
 		$this->entityRuntimeId = $this->getEntityRuntimeId();
 		$this->motion = $this->getVector3();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_662) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_662) {
 			$this->tick = $this->getUnsignedVarLong();
 		}
 	}
@@ -49,7 +49,7 @@ class SetActorMotionPacket extends DataPacket
 	{
 		$this->putEntityRuntimeId($this->entityRuntimeId);
 		$this->putVector3($this->motion);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_662) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_662) {
 			$this->putUnsignedVarLong($this->tick);
 		}
 	}

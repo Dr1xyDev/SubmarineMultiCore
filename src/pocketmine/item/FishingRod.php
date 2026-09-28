@@ -45,6 +45,10 @@ class FishingRod extends Tool
 		return 384;
 	}
 
+	public function getEnchantAbility() : int{
+		return 1;
+	}
+
 	public function onClickAir(Player $player, Vector3 $directionVector) : bool
 	{
 		if ($player->getFishingHook() === null) {

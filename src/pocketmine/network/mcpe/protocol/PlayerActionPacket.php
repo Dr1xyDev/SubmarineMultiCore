@@ -84,9 +84,9 @@ class PlayerActionPacket extends DataPacket
 	protected function decodePayload() : void
 	{
 		$this->entityRuntimeId = $this->getEntityRuntimeId();
-		$this->action = ConstantTranslator::getInstance()->fromNetworkId(PlayerActionPacket::class, $this->getVarInt(), $this->getProtocol());
+		$this->action = ConstantTranslator::getInstance()->fromNetworkId(PlayerActionPacket::class, $this->getVarInt(), $this->protocol);
 		$this->getBlockPosition($this->x, $this->y, $this->z);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_527) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_527) {
 			$this->getBlockPosition($this->rx, $this->ry, $this->rz);
 		}
 		$this->face = $this->getVarInt();
@@ -95,9 +95,9 @@ class PlayerActionPacket extends DataPacket
 	protected function encodePayload() : void
 	{
 		$this->putEntityRuntimeId($this->entityRuntimeId);
-		$this->putVarInt(ConstantTranslator::getInstance()->toNetworkId(PlayerActionPacket::class, $this->action, $this->getProtocol()));
+		$this->putVarInt(ConstantTranslator::getInstance()->toNetworkId(PlayerActionPacket::class, $this->action, $this->protocol));
 		$this->putBlockPosition($this->x, $this->y, $this->z);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_527) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_527) {
 			$this->putBlockPosition($this->rx, $this->ry, $this->rz);
 		}
 		$this->putVarInt($this->face);

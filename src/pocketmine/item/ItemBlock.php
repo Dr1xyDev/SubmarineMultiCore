@@ -24,6 +24,7 @@ namespace pocketmine\item;
 
 use pocketmine\block\Block;
 use pocketmine\block\BlockFactory;
+use pocketmine\network\mcpe\convert\block\BlockProtocolConvertor;
 
 /**
  * Class used for Items that can be Blocks
@@ -58,11 +59,12 @@ class ItemBlock extends Item
 
 	public function getItemProtocol(int $playerProtocol) : ?TranslatedItemData
 	{
-		$blockProtocol = $this->getBlock()->getBlockProtocol($playerProtocol);
+		$blockProtocol = BlockProtocolConvertor::getInstance()->get($this->getBlock(), $playerProtocol);
 		if ($blockProtocol === null) {
 			return null;
 		}
 
-		return new TranslatedItemData($blockProtocol->getId(), $blockProtocol->getDamage());
+		$item = $blockProtocol->asItem();
+		return new TranslatedItemData($item->getId(), $item->getDamage(), $this->getName());
 	}
 }

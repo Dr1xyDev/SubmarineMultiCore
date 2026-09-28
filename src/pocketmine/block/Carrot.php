@@ -22,34 +22,34 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
+use pocketmine\block\utils\FortuneDropHelper;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
 
-use function mt_rand;
+use pocketmine\item\ItemIds;
 
-class Carrot extends Crops
-{
+class Carrot extends Crops {
 	protected $id = self::CARROT_BLOCK;
 
-	public function __construct(int $meta = 0)
-	{
+	public function __construct(int $meta = 0){
 		$this->meta = $meta;
 	}
 
 	public function getName() : string
-	{
-		return "Carrot Block";
+	{return "Carrot Block";
 	}
 
-	public function getDropsForCompatibleTool(Item $item) : array
-	{
+	public function getSeed() : Item {
+		return ItemFactory::get(ItemIds::CARROT);
+	}
+
+	public function getCrop() : Item {
+		return ItemFactory::get(ItemIds::CARROT);
+	}
+
+	public function getDropsForCompatibleTool(Item $item) : array{
 		return [
-			ItemFactory::get(Item::CARROT, 0, $this->meta >= 0x07 ? mt_rand(1, 4) : 1)
+			ItemFactory::get(ItemIds::CARROT, 0, $this->isMaxAge() ? FortuneDropHelper::binomial($item, 1) : 1)
 		];
-	}
-
-	public function getPickedItem(bool $addUserData = false) : Item
-	{
-		return ItemFactory::get(Item::CARROT);
 	}
 }

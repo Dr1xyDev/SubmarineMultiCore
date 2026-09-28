@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace pocketmine\block;
 
 use pocketmine\item\ItemIds;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 class GlowFrame extends ItemFrame
 {
@@ -39,14 +38,5 @@ class GlowFrame extends ItemFrame
 	public function getName() : string
 	{
 		return "Glow Frame";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_440) {
-			return BlockFactory::get(BlockIds::ITEM_FRAME_BLOCK, $this->meta);
-		}
-
-		return null;
 	}
 }

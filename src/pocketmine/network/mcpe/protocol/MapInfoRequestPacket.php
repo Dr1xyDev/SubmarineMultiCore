@@ -39,7 +39,7 @@ class MapInfoRequestPacket extends DataPacket
 	protected function decodePayload() : void
 	{
 		$this->mapId = $this->getEntityUniqueId();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_544) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_544) {
 			$this->clientPixels = [];
 			for ($i = 0, $count = $this->getLInt(); $i < $count; $i++) {
 				$this->clientPixels[] = MapInfoRequestPacketClientPixel::read($this);
@@ -50,7 +50,7 @@ class MapInfoRequestPacket extends DataPacket
 	protected function encodePayload() : void
 	{
 		$this->putEntityUniqueId($this->mapId);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_544) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_544) {
 			$this->putLInt(count($this->clientPixels));
 			foreach ($this->clientPixels as $pixel) {
 				$pixel->write($this);

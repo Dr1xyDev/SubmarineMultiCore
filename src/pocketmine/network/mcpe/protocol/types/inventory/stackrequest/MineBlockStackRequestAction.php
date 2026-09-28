@@ -53,7 +53,7 @@ final class MineBlockStackRequestAction extends ItemStackRequestAction
 		return $this->stackId;
 	}
 
-	public static function read(NetworkBinaryStream $in, int $playerProtocol) : self
+	public static function read(NetworkBinaryStream $in) : self
 	{
 		$hotbarSlot = $in->getVarInt();
 		$predictedDurability = $in->getVarInt();
@@ -61,7 +61,7 @@ final class MineBlockStackRequestAction extends ItemStackRequestAction
 		return new self($hotbarSlot, $predictedDurability, $stackId);
 	}
 
-	public function write(NetworkBinaryStream $out, int $playerProtocol) : void
+	public function write(NetworkBinaryStream $out) : void
 	{
 		$out->putVarInt($this->hotbarSlot);
 		$out->putVarInt($this->predictedDurability);

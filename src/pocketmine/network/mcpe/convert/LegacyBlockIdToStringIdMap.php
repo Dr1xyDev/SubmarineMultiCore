@@ -59,7 +59,7 @@ class LegacyBlockIdToStringIdMap
 
 	public function __construct(int $protocolVersion)
 	{
-		$stringToLegacyId = json_decode(Filesystem::fileGetContents(BEDROCK_DATA_PATH . "block/" . $protocolVersion . "/block_id_map.json"), true);
+		$stringToLegacyId = json_decode(Filesystem::resourceGetContents(BEDROCK_DATA_PATH . "block/" . $protocolVersion . "/block_id_map.json"), true);
 		if (!is_array($stringToLegacyId)) {
 			throw new AssumptionFailedError("Invalid format of ID map");
 		}

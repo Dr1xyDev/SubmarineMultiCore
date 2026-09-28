@@ -122,11 +122,11 @@ class Banner extends Spawnable implements Nameable
 		$this->saveName($nbt);
 	}
 
-	protected function addAdditionalSpawnData(CompoundTag $nbt) : void
+	protected function addAdditionalSpawnData(CompoundTag $nbt, int $protocolVersion) : void
 	{
 		$nbt->setInt(self::TAG_BASE, $this->baseColor);
 		$nbt->setTag($this->patterns);
-		$this->addNameSpawnData($nbt);
+		$this->addNameSpawnData($nbt, $protocolVersion);
 	}
 
 	/**

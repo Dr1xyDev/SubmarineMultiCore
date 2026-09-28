@@ -26,9 +26,7 @@ use pmmp\thread\Thread as NativeThread;
 use pmmp\thread\ThreadSafeArray;
 use pocketmine\event\player\PlayerCreationEvent;
 use pocketmine\network\AdvancedNetworkInterface;
-use pocketmine\network\mcpe\convert\PacketIdTranslator;
 use pocketmine\network\mcpe\PacketSender;
-use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\types\DisconnectFailReason;
 use pocketmine\network\Network;
@@ -37,7 +35,6 @@ use pocketmine\Player;
 use pocketmine\Server;
 use pocketmine\snooze\SleeperNotifier;
 use pocketmine\thread\ThreadCrashException;
-use pocketmine\timings\Timings;
 use pocketmine\utils\Utils;
 use raklib\generic\DisconnectReason;
 use raklib\generic\SocketException;
@@ -172,7 +169,7 @@ class RakLibInterface implements ServerEventListener, AdvancedNetworkInterface, 
 	{
 		if (isset($this->sessions[$sessionId])) {
 			$player = $this->sessions[$sessionId];
-			unset($this->sessions[$sessionId]);
+			unset($this->sessions[$sessionId], $this->identifiersACK[$sessionId]);
 			$player->close($player->getLeaveMessage(), match($reason) {
 				DisconnectReason::CLIENT_DISCONNECT => $this->server->getLanguage()->translateString("pocketmine.disconnect.clientDisconnect"),
 				DisconnectReason::PEER_TIMEOUT => $this->server->getLanguage()->translateString("pocketmine.disconnect.error.timeout"),
@@ -185,7 +182,7 @@ class RakLibInterface implements ServerEventListener, AdvancedNetworkInterface, 
 	public function close(int $sessionId, string $reason = "unknown reason") : void
 	{
 		if (isset($this->sessions[$sessionId])) {
-			unset($this->sessions[$sessionId]);
+			unset($this->sessions[$sessionId], $this->identifiersACK[$sessionId]);
 			$this->interface->closeSession($sessionId);
 		}
 	}
@@ -325,35 +322,16 @@ class RakLibInterface implements ServerEventListener, AdvancedNetworkInterface, 
 		$this->network->addStatistics($bytesSentDiff, $bytesReceivedDiff);
 	}
 
-	public function putPacket(int $sessionId, DataPacket $packet, bool $needACK = false, bool $immediate = true) : ?int
-	{
-		if (isset($this->sessions[$sessionId])) {
-			$player = $this->sessions[$sessionId];
-			if (PacketIdTranslator::getInstance()->toNetworkId($player->getProtocolVersion(), $packet->pid()) === null) {
-				return null;
-			}
-
-			if (!$packet->isEncoded) {
-				$timings = Timings::getEncodeDataPacketTimings($packet);
-				$timings->startTiming();
-				try {
-					$packet->encode();
-				} finally {
-					$timings->stopTiming();
-				}
-			}
-
-			return $this->putBuffer($sessionId, $packet->buffer, $needACK, $immediate);
-		}
-
-		return null;
-	}
-
 	public function putBuffer(int $sessionId, string $payload, bool $needACK = false, bool $immediate = true) : ?int
 	{
 		if (isset($this->sessions[$sessionId])) {
 			$pk = new EncapsulatedPacket();
-			$pk->identifierACK = $needACK ? $this->identifiersACK[$sessionId]++ : null;
+			if ($needACK) {
+				$this->identifiersACK[$sessionId] ??= 0;
+				$pk->identifierACK = $this->identifiersACK[$sessionId]++;
+			} else {
+				$pk->identifierACK = null;
+			}
 			$pk->buffer = self::MCPE_RAKNET_PACKET_ID . $payload;
 			$pk->reliability = PacketReliability::RELIABLE_ORDERED;
 			$pk->orderChannel = 0;

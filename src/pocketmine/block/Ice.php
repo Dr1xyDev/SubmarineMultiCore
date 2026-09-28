@@ -22,7 +22,7 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\event\block\BlockMeltEvent;
+use pocketmine\block\utils\BlockEventHelper;
 use pocketmine\item\enchantment\Enchantment;
 use pocketmine\item\Item;
 use pocketmine\Player;
@@ -61,7 +61,7 @@ class Ice extends Transparent
 		return BlockToolType::TYPE_PICKAXE;
 	}
 
-	public function onBreak(Item $item, Player $player = null) : bool
+	public function onBreak(Item $item, ?Player $player = null) : bool
 	{
 		if (($player === null || $player->isSurvival()) && !$item->hasEnchantment(Enchantment::SILK_TOUCH)) {
 			$this->getLevel()->setBlock($this, BlockFactory::get(Block::WATER), true);
@@ -75,15 +75,10 @@ class Ice extends Transparent
 		return true;
 	}
 
-	public function onRandomTick() : void
-	{
-		$level = $this->getLevel();
-		if ($level->getHighestAdjacentBlockLight($this->x, $this->y, $this->z) >= 12) {
-			$ev = new BlockMeltEvent($this, BlockFactory::get(Block::WATER));
-			$ev->call();
-			if (!$ev->isCancelled()) {
-				$level->setBlock($this, $ev->getNewState());
-			}
+	public function onRandomTick() : void{
+		$level = $this->level;
+		if($level->getHighestAdjacentBlockLight($this->x, $this->y, $this->z) >= 12){
+			BlockEventHelper::melt($this, BlockFactory::get(BlockIds::WATER));
 		}
 	}
 

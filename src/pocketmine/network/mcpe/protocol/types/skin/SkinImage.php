@@ -39,13 +39,13 @@ class SkinImage
 	{
 		switch (strlen($data)) {
 			case 64 * 32 * 4:
-				return new self(64, 32, $data);
+				return new self(32, 64, $data);
 			case 64 * 64 * 4:
 				return new self(64, 64, $data);
 			case 128 * 128 * 4:
 				return new self(128, 128, $data);
 			case 256 * 128 * 4:
-				return new self(256, 128, $data);
+				return new self(128, 256, $data);
 			case 256 * 256 * 4:
 				return new self(256, 256, $data);
 		}

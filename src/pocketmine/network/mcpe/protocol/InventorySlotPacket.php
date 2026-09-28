@@ -24,6 +24,7 @@ namespace pocketmine\network\mcpe\protocol;
 
 use pocketmine\network\mcpe\NetworkSession;
 use pocketmine\network\mcpe\protocol\types\inventory\FullContainerName;
+use pocketmine\network\mcpe\protocol\types\inventory\ItemStack;
 use pocketmine\network\mcpe\protocol\types\inventory\ItemStackWrapper;
 
 class InventorySlotPacket extends DataPacket
@@ -33,19 +34,21 @@ class InventorySlotPacket extends DataPacket
 	public int $windowId;
 	public int $inventorySlot;
 	public int $isNullItem;
-	public FullContainerName $containerName;
-	public ItemStackWrapper $storage;
+	public ?FullContainerName $containerName;
+	public ?ItemStackWrapper $storage;
+	public int $dynamicContainerSize = 0;
 	public ItemStackWrapper $item;
 
 	/**
 	 * @generate-create-func
 	 */
-	public static function create(int $windowId, int $inventorySlot, FullContainerName $containerName, ItemStackWrapper $storage, ItemStackWrapper $item) : self
+	public static function create(int $windowId, int $inventorySlot, ?FullContainerName $containerName, int $dynamicContainerSize, ?ItemStackWrapper $storage, ItemStackWrapper $item) : self
 	{
 		$result = new self();
 		$result->windowId = $windowId;
 		$result->inventorySlot = $inventorySlot;
 		$result->containerName = $containerName;
+		$result->dynamicContainerSize = $dynamicContainerSize;
 		$result->storage = $storage;
 		$result->item = $item;
 		return $result;
@@ -55,44 +58,62 @@ class InventorySlotPacket extends DataPacket
 	{
 		$this->windowId = $this->getUnsignedVarInt();
 		$this->inventorySlot = $this->getUnsignedVarInt();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_407 && $this->getProtocol() <= ProtocolInfo::PROTOCOL_428) {
-			$this->isNullItem = $this->getVarInt();
-		}
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_729) {
-				$this->containerName = FullContainerName::read($this, $this->getProtocol());
-				if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_748) {
-					$this->storage = $this->getItemStackWrapper($this->getProtocol());
+
+		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_975) {
+			$this->containerName = $this->getOptional(fn() => FullContainerName::read($this));
+			$this->storage = $this->getOptional(fn () => $this->getNetworkItemStackDescriptor(ProtocolInfo::PROTOCOL_975));
+		} else {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_407 && $this->protocol <= ProtocolInfo::PROTOCOL_428) {
+				$this->isNullItem = $this->getVarInt();
+			}
+
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_712) {
+				if ($this->protocol < ProtocolInfo::PROTOCOL_729) {
+					$this->containerName = new FullContainerName($this->windowId, $this->getUnsignedVarInt());
 				} else {
-					$this->getUnsignedVarInt(); //TODO: dynamicContainerSize, WTF?
+					$this->containerName = FullContainerName::read($this);
+					if ($this->protocol >= ProtocolInfo::PROTOCOL_748) {
+						$this->storage = $this->getItemStackWrapper();
+					} else {
+						$this->dynamicContainerSize = $this->getUnsignedVarInt();
+					}
 				}
-			} else {
-				$this->containerName = new FullContainerName($this->getUnsignedVarInt());
 			}
 		}
-		$this->item = $this->getItemStackWrapper($this->getProtocol());
+
+		$this->item = $this->getNetworkItemStackDescriptor(ProtocolInfo::PROTOCOL_975);
 	}
 
 	protected function encodePayload() : void
 	{
 		$this->putUnsignedVarInt($this->windowId);
 		$this->putUnsignedVarInt($this->inventorySlot);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_407 && $this->getProtocol() <= ProtocolInfo::PROTOCOL_428) {
-			$this->putVarInt($this->item->getItemStack()->isNull() ? 0 : 1);
-		}
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_729) {
-				($this->containerName ?? new FullContainerName(0))->write($this, $this->getProtocol());
-				if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_748) {
-					$this->putItemStackWrapper($this->storage, $this->getProtocol());
+
+		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_975) {
+			$this->putOptional($this->containerName, fn(FullContainerName $v) => $v->write($this));
+			$this->putOptional($this->storage, fn(ItemStackWrapper $v) => $this->putNetworkItemStackDescriptor($v, ProtocolInfo::PROTOCOL_975));
+		} else {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_407 && $this->protocol <= ProtocolInfo::PROTOCOL_428) {
+				$this->putVarInt($this->item->getItemStack()->isNull() ? 0 : 1);
+			}
+
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_712) {
+				$containerName = $this->containerName ?? new FullContainerName(0);
+				if ($this->protocol < ProtocolInfo::PROTOCOL_729) {
+					$this->putUnsignedVarInt($containerName->getDynamicId() === null ? 0 : $containerName->getDynamicId());
 				} else {
-					$this->putUnsignedVarInt(0); //TODO: dynamicContainerSize, WTF?
+					$containerName->write($this);
+					if ($this->protocol >= ProtocolInfo::PROTOCOL_748) {
+						$this->putItemStackWrapper($this->storage ?? ItemStackWrapper::legacy(ItemStack::null()));
+					} else {
+						$this->putUnsignedVarInt($this->dynamicContainerSize);
+					}
 				}
-			} else {
-				$this->putUnsignedVarInt(($this->containerName ?? new FullContainerName(0))->getContainerId());
 			}
 		}
-		$this->putItemStackWrapper($this->item, $this->getProtocol());
+
+		$this->putNetworkItemStackDescriptor($this->item, ProtocolInfo::PROTOCOL_975);
+
 	}
 
 	public function mustBeDecoded() : bool

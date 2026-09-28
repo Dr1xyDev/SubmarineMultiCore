@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace pocketmine\block;
 
 use pocketmine\item\TieredTool;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 class Tuff extends Solid
 {
@@ -46,7 +45,7 @@ class Tuff extends Solid
 
 	public function getBlastResistance() : float
 	{
-		return 6;
+		return 30;
 	}
 
 	public function getToolType() : int
@@ -57,14 +56,5 @@ class Tuff extends Solid
 	public function getToolHarvestLevel() : int
 	{
 		return TieredTool::TIER_WOODEN;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_440) {
-			return BlockFactory::get(BlockIds::DIRT);
-		}
-
-		return null;
 	}
 }

@@ -24,7 +24,6 @@ namespace pocketmine\block;
 
 use pocketmine\entity\Entity;
 use pocketmine\entity\Living;
-use pocketmine\item\TieredTool;
 
 use function array_filter;
 
@@ -35,23 +34,17 @@ class StonePressurePlate extends PressurePlate
 		return 0.5;
 	}
 
-	public function getVariantBitmask() : int
-	{
-		return 0;
-	}
-
 	public function getToolType() : int
 	{
 		return BlockToolType::TYPE_PICKAXE;
 	}
 
-	public function getToolHarvestLevel() : int
-	{
-		return TieredTool::TIER_WOODEN;
-	}
-
 	protected function filterIrrelevantEntities(array $entities) : array
 	{
 		return array_filter($entities, fn (Entity $e) => $e instanceof Living); //TODO: armor stands should activate stone plates too
+	}
+
+	public function getDeactivationDelayTicks() : int {
+		return 20;
 	}
 }

@@ -42,7 +42,7 @@ class EndRod extends Flowable
 		return "End Rod";
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool
 	{
 		if ($face === Facing::UP || $face === Facing::DOWN) {
 			$this->meta = $face;

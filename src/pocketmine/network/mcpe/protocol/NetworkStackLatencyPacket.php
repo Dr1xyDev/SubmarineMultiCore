@@ -34,7 +34,7 @@ class NetworkStackLatencyPacket extends DataPacket
 	protected function decodePayload() : void
 	{
 		$this->timestamp = $this->getLLong();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_332) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->needResponse = $this->getBool();
 		}
 	}
@@ -42,7 +42,7 @@ class NetworkStackLatencyPacket extends DataPacket
 	protected function encodePayload() : void
 	{
 		$this->putLLong($this->timestamp);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_332) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->putBool($this->needResponse);
 		}
 	}

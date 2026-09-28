@@ -49,17 +49,17 @@ final class ItemStackRequestSlotInfo
 		return $this->stackId;
 	}
 
-	public static function read(NetworkBinaryStream $in, int $playerProtocol) : self
+	public static function read(NetworkBinaryStream $in) : self
 	{
-		$containerName = FullContainerName::read($in, $playerProtocol);
+		$containerName = FullContainerName::read($in);
 		$slotId = $in->getByte();
 		$stackId = $in->readItemStackNetIdVariant();
 		return new self($containerName, $slotId, $stackId);
 	}
 
-	public function write(NetworkBinaryStream $out, int $playerProtocol) : void
+	public function write(NetworkBinaryStream $out) : void
 	{
-		$this->containerName->write($out, $playerProtocol);
+		$this->containerName->write($out);
 		$out->putByte($this->slotId);
 		$out->writeItemStackNetIdVariant($this->stackId);
 	}

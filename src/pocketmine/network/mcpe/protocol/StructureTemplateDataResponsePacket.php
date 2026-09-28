@@ -30,14 +30,25 @@ class StructureTemplateDataResponsePacket extends DataPacket
 
 	/** @var string */
 	public $structureTemplateName;
-	/** @var string|null */
+	public const TYPE_EXPORT = 1;
+	public const TYPE_QUERY = 2;
+	public const TYPE_IMPORT = 3;
+
+	/** @var string|null serialized network NBT */
 	public $namedtag;
+	/** 1.18.0+ */
+	public int $responseType = self::TYPE_EXPORT;
 
 	protected function decodePayload() : void
 	{
 		$this->structureTemplateName = $this->getString();
 		if ($this->getBool()) {
-			$this->namedtag = $this->getRemaining();
+			$start = $this->getOffset();
+			$this->getNbtCompoundRoot();
+			$this->namedtag = substr($this->getBuffer(), $start, $this->getOffset() - $start);
+		}
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_475) {
+			$this->responseType = $this->getByte();
 		}
 	}
 
@@ -47,6 +58,9 @@ class StructureTemplateDataResponsePacket extends DataPacket
 		$this->putBool($this->namedtag !== null);
 		if ($this->namedtag !== null) {
 			$this->put($this->namedtag);
+		}
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_475) {
+			$this->putByte($this->responseType);
 		}
 	}
 

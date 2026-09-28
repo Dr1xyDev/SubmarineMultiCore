@@ -52,12 +52,12 @@ class UpdateAbilitiesPacket extends DataPacket
 
 	protected function decodePayload() : void
 	{
-		$this->data = AbilitiesData::decode($this, $this->getProtocol());
+		$this->data = AbilitiesData::decode($this);
 	}
 
 	protected function encodePayload() : void
 	{
-		$this->data->encode($this, $this->getProtocol());
+		$this->data->encode($this);
 	}
 
 	public function mustBeDecoded() : bool

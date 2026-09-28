@@ -27,7 +27,6 @@ use pocketmine\level\format\io\data\JavaLevelData;
 use pocketmine\level\format\io\WritableLevelProvider;
 use pocketmine\level\LevelCreationOptions;
 use Symfony\Component\Filesystem\Path;
-
 use function file_exists;
 use function mkdir;
 

@@ -23,13 +23,17 @@ declare(strict_types=1);
 namespace pocketmine\level\format\io;
 
 use pocketmine\level\format\Chunk;
+use pocketmine\level\format\io\exception\CorruptedChunkException;
 use pocketmine\level\format\SubChunk;
+use pocketmine\nbt\LittleEndianNBTStream;
+use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\nbt\tag\IntTag;
 use pocketmine\utils\Binary;
 use pocketmine\utils\BinaryStream;
 use pocketmine\world\format\PalettedBlockArray;
-
 use function array_values;
 use function count;
+use function is_array;
 use function pack;
 use function strlen;
 use function unpack;
@@ -49,7 +53,7 @@ final class FastChunkSerializer
 	 * Fast-serializes the chunk for passing between threads
 	 * TODO: tiles and entities
 	 */
-	public static function serializeTerrain(Chunk $chunk) : string
+	public static function serializeTerrain(Chunk $chunk, bool $entitiesAndTiles = false) : string
 	{
 		$stream = new BinaryStream();
 		$stream->putInt($chunk->getX());
@@ -92,13 +96,53 @@ final class FastChunkSerializer
 			}
 		}
 
+		if ($entitiesAndTiles) {
+			$nbt = new LittleEndianNBTStream();
+
+			/** @var CompoundTag[] $entities */
+			$entities = [];
+			if ($chunk->isInit()) {
+				foreach ($chunk->getSavableEntities() as $entity) {
+					$entity->saveNBT();
+					$entities[] = $entity->namedtag;
+				}
+			} else {
+				foreach ($chunk->getNBTEntities() as $entity) {
+					$entities[] = $entity;
+				}
+			}
+
+			$streamEntities = $nbt->write($entities);
+			$stream->putVarInt(strlen($streamEntities));
+			$stream->put($streamEntities);
+
+			/** @var CompoundTag[] $tiles */
+			$tiles = [];
+			if ($chunk->isInit()) {
+				foreach ($chunk->getTiles() as $tile) {
+					$tiles[] = $tile->saveNBT();
+				}
+			} else {
+				foreach ($chunk->getNBTTiles() as $tile) {
+					$tiles[] = $tile;
+				}
+			}
+
+			$streamTiles = $nbt->write($tiles);
+			$stream->putVarInt(strlen($streamTiles));
+			$stream->put($streamTiles);
+		} else {
+			$stream->putVarInt(0); //entities
+			$stream->putVarInt(0); //tiles
+		}
+
 		return $stream->getBuffer();
 	}
 
 	/**
 	 * Deserializes a fast-serialized chunk
 	 */
-	public static function deserializeTerrain(string $data) : Chunk
+	public static function deserializeTerrain(string $data, bool $entitiesAndTiles = false) : Chunk
 	{
 		$stream = new BinaryStream($data);
 		$x = $stream->getInt();
@@ -138,10 +182,44 @@ final class FastChunkSerializer
 			}
 		}
 
-		$chunk = new Chunk($x, $z, $subChunks, [], [], $biomeIds, $heightMap);
+		/** @var CompoundTag[] $entities */
+		$entities = [];
+		/** @var CompoundTag[] $tiles */
+		$tiles = [];
+		if ($entitiesAndTiles) {
+			$nbt = new LittleEndianNBTStream();
+
+			$entityTagsString = $stream->get($stream->getVarInt());
+			if (strlen($entityTagsString) > 0) {
+				$entityTags = $nbt->read($entityTagsString, true);
+				foreach ((is_array($entityTags) ? $entityTags : [$entityTags]) as $entityTag) {
+					if (!($entityTag instanceof CompoundTag)) {
+						throw new CorruptedChunkException("Entity root tag should be TAG_Compound");
+					}
+					if ($entityTag->hasTag("id", IntTag::class)) {
+						$entityTag->setInt("id", $entityTag->getInt("id") & 0xff); //remove type flags - TODO: use these instead of removing them)
+					}
+					$entities[] = $entityTag;
+				}
+			}
+
+			$tileTagsString = $stream->get($stream->getVarInt());
+			if (strlen($tileTagsString) > 0) {
+				$tileTags = $nbt->read($tileTagsString, true);
+				foreach ((is_array($tileTags) ? $tileTags : [$tileTags]) as $tileTag) {
+					if (!($tileTag instanceof CompoundTag)) {
+						throw new CorruptedChunkException("Tile root tag should be TAG_Compound");
+					}
+					$tiles[] = $tileTag;
+				}
+			}
+		}
+
+		$chunk = new Chunk($x, $z, $subChunks, $entities, $tiles, $biomeIds, $heightMap);
 		$chunk->setGenerated($terrainGenerated);
 		$chunk->setPopulated($terrainPopulated);
 		$chunk->setLightPopulated($lightPopulated);
+		$chunk->setChanged(false);
 
 		return $chunk;
 	}

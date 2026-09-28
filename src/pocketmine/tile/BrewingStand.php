@@ -26,8 +26,7 @@ use pocketmine\event\block\BrewingFuelUseEvent;
 use pocketmine\event\block\BrewItemEvent;
 use pocketmine\inventory\BrewingRecipe;
 use pocketmine\inventory\BrewingStandInventory;
-use pocketmine\inventory\Inventory;
-use pocketmine\inventory\InventoryEventProcessor;
+use pocketmine\inventory\BrewingStandInventoryEventProcessor;
 use pocketmine\inventory\InventoryHolder;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
@@ -63,28 +62,15 @@ class BrewingStand extends Spawnable implements InventoryHolder, Container, Name
 
 	protected static function createAdditionalNBT(CompoundTag $nbt, Vector3 $pos, ?int $face = null, ?Item $item = null, ?Player $player = null) : void
 	{
-		$nbt->setShort(self::TAG_REMAINING_FUEL_TIME_PE, 20); //�� ��� ����� 1.1.5
+		$nbt->setShort(self::TAG_REMAINING_FUEL_TIME_PE, 20);
 	}
 
 	public function readSaveData(CompoundTag $nbt) : void
 	{
 		$this->inventory = new BrewingStandInventory($this);
-		$this->inventory->setEventProcessor(new class ($this, $this->level) implements InventoryEventProcessor {
-			private BrewingStand $holder;
-			private Level $level;
-
-			public function __construct(BrewingStand $brewingStand, Level $level)
-			{
-				$this->holder = $brewingStand;
-				$this->level = $level;
-			}
-
-			public function onSlotChange(Inventory $inventory, int $slot, Item $oldItem, Item $newItem) : ?Item
-			{
-				$this->level->scheduleDelayedBlockUpdate($this->holder, 1);
-				return $newItem;
-			}
-		});
+		if ($this->level instanceof Level) {
+			$this->inventory->setEventProcessor(new BrewingStandInventoryEventProcessor($this, $this->level));
+		}
 
 		$this->loadName($nbt);
 		$this->loadItems($nbt);
@@ -110,9 +96,9 @@ class BrewingStand extends Spawnable implements InventoryHolder, Container, Name
 		$nbt->setShort(self::TAG_REMAINING_FUEL_TIME_PE, $this->remainingFuelTime);
 	}
 
-	protected function addAdditionalSpawnData(CompoundTag $nbt) : void
+	protected function addAdditionalSpawnData(CompoundTag $nbt, int $protocolVersion) : void
 	{
-		$this->addNameSpawnData($nbt);
+		$this->addNameSpawnData($nbt, $protocolVersion);
 
 		$nbt->setShort(self::TAG_BREW_TIME_PE, $this->brewTime);
 		$nbt->setShort(self::TAG_MAX_FUEL_TIME, $this->maxFuelTime);
@@ -212,7 +198,6 @@ class BrewingStand extends Spawnable implements InventoryHolder, Container, Name
 
 		$recipes = $this->getBrewableRecipes();
 		$canBrew = count($recipes) !== 0;
-
 		if ($this->remainingFuelTime <= 0 && $canBrew) {
 			$this->checkFuel($fuel);
 		}

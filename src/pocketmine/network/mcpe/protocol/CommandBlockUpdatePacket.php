@@ -79,11 +79,11 @@ class CommandBlockUpdatePacket extends DataPacket
 		$this->command = $this->getString();
 		$this->lastOutput = $this->getString();
 		$this->name = $this->getString();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_776) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_776) {
 			$this->filteredName = $this->getString();
 		}
 		$this->shouldTrackOutput = $this->getBool();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_361) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->tickDelay = $this->getLInt();
 			$this->executeOnFirstTick = $this->getBool();
 		}
@@ -105,11 +105,11 @@ class CommandBlockUpdatePacket extends DataPacket
 		$this->putString($this->command);
 		$this->putString($this->lastOutput);
 		$this->putString($this->name);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_776) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_776) {
 			$this->putString($this->filteredName);
 		}
 		$this->putBool($this->shouldTrackOutput);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_361) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->putLInt($this->tickDelay);
 			$this->putBool($this->executeOnFirstTick);
 		}

@@ -29,6 +29,22 @@ class ClientMovementPredictionSyncPacket extends DataPacket
 {
 	public const NETWORK_ID = ProtocolInfo::CLIENT_MOVEMENT_PREDICTION_SYNC_PACKET;
 
+	/**
+	 * Number of actor flags in the bitset (EntityMetadataFlags::NUMBER_OF_FLAGS of the client version)
+	 */
+	public static function getFlagsLength(int $protocol) : int
+	{
+		return match (true) {
+			$protocol >= ProtocolInfo::PROTOCOL_2168 => 131,
+			$protocol >= ProtocolInfo::PROTOCOL_975 => 128,
+			$protocol >= ProtocolInfo::PROTOCOL_897 => 127,
+			$protocol >= ProtocolInfo::PROTOCOL_844 => 126,
+			$protocol >= ProtocolInfo::PROTOCOL_818 => 125,
+			$protocol >= ProtocolInfo::PROTOCOL_800 => 124,
+			default => 123
+		};
+	}
+
 	private BitSet $flags;
 
 	private float $scale;
@@ -41,6 +57,9 @@ class ClientMovementPredictionSyncPacket extends DataPacket
 	private float $jumpStrength;
 	private float $health;
 	private float $hunger;
+	private float $frictionModifier;
+	private float $bounciness;
+	private float $airDragModifier;
 
 	private int $actorUniqueId;
 	private bool $actorFlyingState;
@@ -59,6 +78,9 @@ class ClientMovementPredictionSyncPacket extends DataPacket
 		float $jumpStrength,
 		float $health,
 		float $hunger,
+		float $frictionModifier,
+		float $bounciness,
+		float $airDragModifier,
 		int $actorUniqueId,
 		bool $actorFlyingState
 	) : self {
@@ -73,6 +95,9 @@ class ClientMovementPredictionSyncPacket extends DataPacket
 		$result->jumpStrength = $jumpStrength;
 		$result->health = $health;
 		$result->hunger = $hunger;
+		$result->frictionModifier = $frictionModifier;
+		$result->bounciness = $bounciness;
+		$result->airDragModifier = $airDragModifier;
 		$result->actorUniqueId = $actorUniqueId;
 		$result->actorFlyingState = $actorFlyingState;
 		return $result;
@@ -89,75 +114,48 @@ class ClientMovementPredictionSyncPacket extends DataPacket
 		float $jumpStrength,
 		float $health,
 		float $hunger,
+		float $frictionModifier,
+		float $bounciness,
+		float $airDragModifier,
 		int $actorUniqueId,
 		bool $actorFlyingState
-	) : self {
-		return self::internalCreate($flags, $scale, $width, $height, $movementSpeed, $underwaterMovementSpeed, $lavaMovementSpeed, $jumpStrength, $health, $hunger, $actorUniqueId, $actorFlyingState);
+	) : self{
+		return self::internalCreate($flags, $scale, $width, $height, $movementSpeed, $underwaterMovementSpeed, $lavaMovementSpeed, $jumpStrength, $health, $hunger, $frictionModifier, $bounciness, $airDragModifier, $actorUniqueId, $actorFlyingState);
 	}
 
-	public function getFlags() : BitSet
-	{
-		return $this->flags;
-	}
+	public function getFlags() : BitSet{ return $this->flags; }
 
-	public function getScale() : float
-	{
-		return $this->scale;
-	}
+	public function getScale() : float{ return $this->scale; }
 
-	public function getWidth() : float
-	{
-		return $this->width;
-	}
+	public function getWidth() : float{ return $this->width; }
 
-	public function getHeight() : float
-	{
-		return $this->height;
-	}
+	public function getHeight() : float{ return $this->height; }
 
-	public function getMovementSpeed() : float
-	{
-		return $this->movementSpeed;
-	}
+	public function getMovementSpeed() : float{ return $this->movementSpeed; }
 
-	public function getUnderwaterMovementSpeed() : float
-	{
-		return $this->underwaterMovementSpeed;
-	}
+	public function getUnderwaterMovementSpeed() : float{ return $this->underwaterMovementSpeed; }
 
-	public function getLavaMovementSpeed() : float
-	{
-		return $this->lavaMovementSpeed;
-	}
+	public function getLavaMovementSpeed() : float{ return $this->lavaMovementSpeed; }
 
-	public function getJumpStrength() : float
-	{
-		return $this->jumpStrength;
-	}
+	public function getJumpStrength() : float{ return $this->jumpStrength; }
 
-	public function getHealth() : float
-	{
-		return $this->health;
-	}
+	public function getHealth() : float{ return $this->health; }
 
-	public function getHunger() : float
-	{
-		return $this->hunger;
-	}
+	public function getHunger() : float{ return $this->hunger; }
 
-	public function getActorUniqueId() : int
-	{
-		return $this->actorUniqueId;
-	}
+	public function getFrictionModifier() : float{ return $this->frictionModifier; }
 
-	public function getActorFlyingState() : bool
-	{
-		return $this->actorFlyingState;
-	}
+	public function getBounciness() : float{ return $this->bounciness; }
+
+	public function getAirDragModifier() : float{ return $this->airDragModifier; }
+
+	public function getActorUniqueId() : int{ return $this->actorUniqueId; }
+
+	public function getActorFlyingState() : bool{ return $this->actorFlyingState; }
 
 	protected function decodePayload() : void
 	{
-		$this->flags = BitSet::read($this, $this->getProtocol() >= ProtocolInfo::PROTOCOL_800 ? 124 : 123);
+		$this->flags = BitSet::read($this, self::getFlagsLength($this->protocol));
 		$this->scale = $this->getLFloat();
 		$this->width = $this->getLFloat();
 		$this->height = $this->getLFloat();
@@ -167,8 +165,14 @@ class ClientMovementPredictionSyncPacket extends DataPacket
 		$this->jumpStrength = $this->getLFloat();
 		$this->health = $this->getLFloat();
 		$this->hunger = $this->getLFloat();
+		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_975) {
+			$this->frictionModifier = $this->getLFloat();
+			$this->bounciness = $this->getLFloat();
+			$this->airDragModifier = $this->getLFloat();
+		}
+
 		$this->actorUniqueId = $this->getEntityUniqueId();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_786) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_786) {
 			$this->actorFlyingState = $this->getBool();
 		}
 	}
@@ -185,8 +189,14 @@ class ClientMovementPredictionSyncPacket extends DataPacket
 		$this->putLFloat($this->jumpStrength);
 		$this->putLFloat($this->health);
 		$this->putLFloat($this->hunger);
+		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_975) {
+			$this->putLFloat($this->frictionModifier);
+			$this->putLFloat($this->bounciness);
+			$this->putLFloat($this->airDragModifier);
+		}
+
 		$this->putEntityUniqueId($this->actorUniqueId);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_786) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_786) {
 			$this->putBool($this->actorFlyingState);
 		}
 	}

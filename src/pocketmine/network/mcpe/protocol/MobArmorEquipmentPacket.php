@@ -60,27 +60,26 @@ class MobArmorEquipmentPacket extends DataPacket
 		return $result;
 	}
 
-	protected function decodePayload() : void
-	{
+	protected function decodePayload() : void{
 		$this->entityRuntimeId = $this->getEntityRuntimeId();
-		$this->head = $this->getItemStackWrapper($this->getProtocol());
-		$this->chest = $this->getItemStackWrapper($this->getProtocol());
-		$this->legs = $this->getItemStackWrapper($this->getProtocol());
-		$this->feet = $this->getItemStackWrapper($this->getProtocol());
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
-			$this->body = $this->getItemStackWrapper($this->getProtocol());
+		$this->head = $this->getNetworkItemStackDescriptor();
+		$this->chest = $this->getNetworkItemStackDescriptor();
+		$this->legs = $this->getNetworkItemStackDescriptor();
+		$this->feet = $this->getNetworkItemStackDescriptor();
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_712) {
+			$this->body = $this->getNetworkItemStackDescriptor();
 		}
 	}
 
 	protected function encodePayload() : void
 	{
 		$this->putEntityRuntimeId($this->entityRuntimeId);
-		$this->putItemStackWrapper($this->head, $this->getProtocol());
-		$this->putItemStackWrapper($this->chest, $this->getProtocol());
-		$this->putItemStackWrapper($this->legs, $this->getProtocol());
-		$this->putItemStackWrapper($this->feet, $this->getProtocol());
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
-			$this->putItemStackWrapper($this->body, $this->getProtocol());
+		$this->putNetworkItemStackDescriptor($this->head);
+		$this->putNetworkItemStackDescriptor($this->chest);
+		$this->putNetworkItemStackDescriptor($this->legs);
+		$this->putNetworkItemStackDescriptor($this->feet);
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_712) {
+			$this->putNetworkItemStackDescriptor($this->body);
 		}
 	}
 

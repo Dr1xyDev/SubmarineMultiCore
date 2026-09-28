@@ -62,7 +62,7 @@ class UpdatePlayerGameTypePacket extends DataPacket
 	{
 		$this->gameMode = $this->getVarInt();
 		$this->playerEntityUniqueId = $this->getEntityUniqueId();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_748) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_748) {
 			$this->tick = $this->getUnsignedVarLong();
 		} else {
 			$this->tick = $this->getUnsignedVarInt();
@@ -73,7 +73,7 @@ class UpdatePlayerGameTypePacket extends DataPacket
 	{
 		$this->putVarInt($this->gameMode);
 		$this->putEntityUniqueId($this->playerEntityUniqueId);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_748) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_748) {
 			$this->putUnsignedVarLong($this->tick);
 		} else {
 			$this->putUnsignedVarInt($this->tick);

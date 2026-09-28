@@ -77,12 +77,7 @@ class Vine extends Flowable
 		$entity->resetFallDistance();
 	}
 
-	protected function recalculateCollisionBoxes() : array
-	{
-		return [];
-	}
-
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool
 	{
 		if (!$blockClicked->isSolid() || $face === Facing::UP || $face === Facing::DOWN) {
 			return false;
@@ -114,24 +109,20 @@ class Vine extends Flowable
 		];
 
 		$meta = $this->meta;
-
+		$up = $this->getSide(Facing::UP);
 		foreach ($sides as $flag => $side) {
-			if (($meta & $flag) === 0) {
-				continue;
-			}
-
-			if (!$this->getSide($side)->isSolid()) {
+			if (!$this->getSide($side)->isSolid() && (!($up instanceof Vine) || ($up->getDamage() & $flag) != $flag)) {
 				$meta &= ~$flag;
 			}
 		}
 
-		if ($meta !== $this->meta) {
-			if ($meta === 0) {
-				$this->level->useBreakOn($this);
-			} else {
-				$this->meta = $meta;
-				$this->level->setBlock($this, $this);
-			}
+		if ($meta == 0 && !$up->isSolid()) {
+			$this->level->useBreakOn($this);
+		}
+
+		if ($meta != $this->getDamage()) {
+			$this->meta = $meta;
+			$this->level->setBlock($this, $this);
 		}
 	}
 

@@ -43,6 +43,10 @@ class ChainChestplate extends Armor
 		return 241;
 	}
 
+	public function getEnchantAbility() : int{
+		return 12;
+	}
+
 	public function getArmorSlot() : int
 	{
 		return ArmorSlot::SLOT_CHESTPLATE;

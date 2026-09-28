@@ -54,8 +54,4 @@ class EmptyMap extends Item
 		return true;
 	}
 
-	public function getMaxStackSize() : int
-	{
-		return 1;
-	}
 }

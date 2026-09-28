@@ -22,20 +22,16 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\block\utils\TreeType;
-use pocketmine\event\block\BlockGrowEvent;
-use pocketmine\item\Fertilizer;
-use pocketmine\item\Item;
-use pocketmine\level\generator\object\TreeFactory;
+use pocketmine\block\utils\BlockEventHelper;
+use pocketmine\block\utils\StaticSupportTrait;
+use pocketmine\block\utils\TreeGrower;
 use pocketmine\math\Facing;
-use pocketmine\math\Vector3;
 use pocketmine\Player;
 use pocketmine\utils\Random;
 
-use function mt_rand;
+class Sapling extends Flowable implements Growable {
+	use StaticSupportTrait;
 
-class Sapling extends Flowable
-{
 	public const OAK = 0;
 	public const SPRUCE = 1;
 	public const BIRCH = 2;
@@ -45,8 +41,7 @@ class Sapling extends Flowable
 
 	protected $id = self::SAPLING;
 
-	public function __construct(int $meta = 0)
-	{
+	public function __construct(int $meta = 0){
 		$this->meta = $meta;
 	}
 
@@ -63,83 +58,57 @@ class Sapling extends Flowable
 		return $names[$this->getVariant()] ?? "Unknown";
 	}
 
-	public function getTreeType() : ?TreeType {
+	public function getTreeGrower() : ?TreeGrower {
 		static $types = [
-			0 => TreeType::OAK(),
-			1 => TreeType::SPRUCE(),
-			2 => TreeType::BIRCH(),
-			3 => TreeType::JUNGLE(),
-			4 => TreeType::ACACIA(),
-			5 => TreeType::DARK_OAK()
+			0 => TreeGrower::OAK(),
+			1 => TreeGrower::SPRUCE(),
+			2 => TreeGrower::BIRCH(),
+			3 => TreeGrower::JUNGLE(),
+			4 => TreeGrower::ACACIA(),
+			5 => TreeGrower::DARK_OAK()
 		];
 		return $types[$this->getVariant()] ?? null;
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
-	{
-		$down = $this->getSide(Facing::DOWN);
-		if ($down->getId() === self::GRASS || $down->getId() === self::DIRT || $down->getId() === self::FARMLAND) {
-			$this->getLevel()->setBlock($blockReplace, $this, true, true);
-
-			return true;
-		}
-
-		return false;
+	protected function canBeSupportedAt(Block $block) : bool{
+		$supportBlock = $block->getSide(Facing::DOWN);
+		return
+			$supportBlock instanceof Grass ||
+			$supportBlock instanceof Dirt ||
+			$supportBlock instanceof Mycelium ||
+			$supportBlock instanceof Podzol ||
+			$supportBlock instanceof Farmland ||
+			$supportBlock instanceof Mud;
 	}
 
-	public function onActivate(Item $item, Player $player = null) : bool
-	{
-		if ($item instanceof Fertilizer && $this->grow()) {
-			$item->pop();
-
-			return true;
-		}
-
-		return false;
-	}
-
-	public function onNearbyBlockChange() : void
-	{
-		if ($this->getSide(Facing::DOWN)->isTransparent()) {
-			$this->getLevel()->useBreakOn($this);
-		}
-	}
-
-	public function ticksRandomly() : bool
-	{
+	public function ticksRandomly() : bool{
 		return true;
 	}
 
-	public function onRandomTick() : void
-	{
-		if ($this->level->getFullLightAt($this->x, $this->y, $this->z) >= 8 && mt_rand(1, 7) === 1) {
+	public function onRandomTick() : void{
+		$random = $this->level->random;
+		if ($this->level->getFullLightAt($this->x, $this->y, $this->z) >= 8 && $random->nextBoundedInt(7) === 0) {
+			$this->grow($random, null);
+		}
+	}
+
+	public function canGrow(Random $random, ?Player $player) : bool{
+		return $this->getTreeGrower() !== null;
+	}
+
+	public function canUseBonemeal(Random $random, ?Player $player) : bool{
+		return $random->nextFloat() < 0.45;
+	}
+
+	public function grow(Random $random, ?Player $player) : void {
+		if (BlockEventHelper::grow($this, $this, $player)) {
 			if ($this->isReady()) {
-				$this->grow();
+				$this->getTreeGrower()->growTree($this->getLevel(), $this, $this, $random);
 			} else {
 				$this->setReady(true);
 				$this->getLevel()->setBlock($this, $this, true);
 			}
 		}
-	}
-
-	public function grow() : bool {
-		$block = clone $this;
-		$ev = new BlockGrowEvent($this, $block);
-		$ev->call();
-		if (!$ev->isCancelled()) {
-			$treeType = $this->getTreeType();
-			if ($treeType !== null) {
-				$random = new Random(mt_rand());
-				$transaction = TreeFactory::get($random, $treeType)?->getBlockTransaction($this->level, $this->x, $this->y, $this->z, $random);
-				if ($transaction === null) {
-					return false;
-				}
-
-				$transaction->apply();
-			}
-		}
-
-		return true;
 	}
 
 	public function getVariantBitmask() : int
@@ -159,8 +128,7 @@ class Sapling extends Flowable
 		$this->meta = ($this->meta & ~$this->getReadyBitmask()) | ($value ? $this->getReadyBitmask() : 0);
 	}
 
-	public function getFuelTime() : int
-	{
+	public function getFuelTime() : int{
 		return 100;
 	}
 }

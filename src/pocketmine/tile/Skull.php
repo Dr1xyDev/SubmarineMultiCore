@@ -64,6 +64,22 @@ class Skull extends Spawnable
 	{
 		$this->skullType = $type;
 		$this->onChanged();
+		$this->resendBlock();
+	}
+
+	/**
+	 * Since 1.21.40 every head type is its own block, so the block itself has to be resent when the type changes
+	 */
+	public function resendBlock() : void
+	{
+		$level = $this->getLevel();
+		if ($level === null || $this->isClosed()) {
+			return;
+		}
+		$chunkX = $this->getFloorX() >> 4;
+		$chunkZ = $this->getFloorZ() >> 4;
+		$level->clearChunkCache($chunkX, $chunkZ);
+		$level->sendBlocks($level->getChunkPlayers($chunkX, $chunkZ), [$this->asVector3()]);
 	}
 
 	public function getType() : int
@@ -71,7 +87,7 @@ class Skull extends Spawnable
 		return $this->skullType;
 	}
 
-	protected function addAdditionalSpawnData(CompoundTag $nbt) : void
+	protected function addAdditionalSpawnData(CompoundTag $nbt, int $protocolVersion) : void
 	{
 		$nbt->setByte(self::TAG_SKULL_TYPE, $this->skullType);
 		$nbt->setByte(self::TAG_ROT, $this->skullRotation);

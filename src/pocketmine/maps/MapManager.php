@@ -25,6 +25,7 @@ namespace pocketmine\maps;
 use pocketmine\nbt\BigEndianNBTStream;
 use pocketmine\nbt\LittleEndianNBTStream;
 use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\network\mcpe\cache\MapCache;
 use pocketmine\Server;
 
 use function file_get_contents;
@@ -53,6 +54,7 @@ class MapManager
 	public static function unsetMapData(int $mapId) : void
 	{
 		unset(self::$maps[$mapId]);
+		MapCache::removeMap($mapId);
 	}
 
 	public static function getMapDataById(int $id) : ?MapData
@@ -119,5 +121,6 @@ class MapManager
 	public static function resetMaps() : void
 	{
 		self::$maps = [];
+		MapCache::clearAll();
 	}
 }

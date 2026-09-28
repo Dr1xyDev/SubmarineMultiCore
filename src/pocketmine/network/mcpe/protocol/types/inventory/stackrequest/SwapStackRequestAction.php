@@ -50,16 +50,16 @@ final class SwapStackRequestAction extends ItemStackRequestAction
 		return $this->slot2;
 	}
 
-	public static function read(NetworkBinaryStream $in, int $playerProtocol) : self
+	public static function read(NetworkBinaryStream $in) : self
 	{
-		$slot1 = ItemStackRequestSlotInfo::read($in, $playerProtocol);
-		$slot2 = ItemStackRequestSlotInfo::read($in, $playerProtocol);
+		$slot1 = ItemStackRequestSlotInfo::read($in);
+		$slot2 = ItemStackRequestSlotInfo::read($in);
 		return new self($slot1, $slot2);
 	}
 
-	public function write(NetworkBinaryStream $out, int $playerProtocol) : void
+	public function write(NetworkBinaryStream $out) : void
 	{
-		$this->slot1->write($out, $playerProtocol);
-		$this->slot2->write($out, $playerProtocol);
+		$this->slot1->write($out);
+		$this->slot2->write($out);
 	}
 }

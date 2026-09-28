@@ -48,8 +48,8 @@ class Record extends Item
 
 	public function getItemProtocol(int $playerProtocol) : ?TranslatedItemData
 	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_137) {
-			return new TranslatedItemData(ItemIds::SLIME_BALL, $this->getDamage());
+		if ($playerProtocol < ProtocolInfo::PROTOCOL_407) {
+			return new TranslatedItemData(ItemIds::SLIME_BALL, $this->getDamage(), $this->getName());
 		}
 
 		return parent::getItemProtocol($playerProtocol);

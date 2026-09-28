@@ -79,11 +79,11 @@ final class BiomeClimateData
 		return $this->snowAccumulationMax;
 	}
 
-	public static function read(NetworkBinaryStream $in, int $protocolVersion) : self
+	public static function read(NetworkBinaryStream $in) : self
 	{
 		$temperature = $in->getLFloat();
 		$downfall = $in->getLFloat();
-		if ($protocolVersion >= ProtocolInfo::PROTOCOL_844) {
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_844) {
 			$redSporeDensity = $in->getLFloat();
 			$blueSporeDensity = $in->getLFloat();
 			$ashDensity = $in->getLFloat();
@@ -105,11 +105,11 @@ final class BiomeClimateData
 		);
 	}
 
-	public function write(NetworkBinaryStream $out, int $protocolVersion) : void
+	public function write(NetworkBinaryStream $out) : void
 	{
 		$out->putLFloat($this->temperature);
 		$out->putLFloat($this->downfall);
-		if ($protocolVersion >= ProtocolInfo::PROTOCOL_844) {
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_844) {
 			$out->putLFloat($this->redSporeDensity);
 			$out->putLFloat($this->blueSporeDensity);
 			$out->putLFloat($this->ashDensity);
@@ -117,6 +117,6 @@ final class BiomeClimateData
 		}
 
 		$out->putLFloat($this->snowAccumulationMin);
-		$out->putFloat($this->snowAccumulationMax);
+		$out->putLFloat($this->snowAccumulationMax);
 	}
 }

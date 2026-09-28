@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace pocketmine\level\format\io\leveldb\upgrade;
 
 use pocketmine\nbt\tag\NamedTag;
-
 use function count;
 
 class BlockStateUpgradeSchema

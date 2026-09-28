@@ -56,13 +56,13 @@ class ServerboundLoadingScreenPacket extends DataPacket
 	protected function decodePayload() : void
 	{
 		$this->loadingScreenType = ServerboundLoadingScreenPacketType::fromPacket($this->getVarInt());
-		$this->loadingScreenId = $this->readOptional(fn () => $this->getLInt());
+		$this->loadingScreenId = $this->getOptional(fn () => $this->getLInt());
 	}
 
 	protected function encodePayload() : void
 	{
 		$this->putVarInt($this->loadingScreenType->value);
-		$this->writeOptional($this->loadingScreenId, $this->putLInt(...));
+		$this->putOptional($this->loadingScreenId, $this->putLInt(...));
 	}
 
 	public function handle(NetworkSession $session) : bool

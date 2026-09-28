@@ -24,6 +24,7 @@ namespace pocketmine\block;
 
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
+use pocketmine\item\ItemIds;
 use pocketmine\math\Facing;
 use pocketmine\math\Vector3;
 use pocketmine\Player;
@@ -66,10 +67,8 @@ class DoublePlant extends Flowable
 		return $names[$this->getVariant()] ?? "";
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
-	{
-		$id = $blockReplace->getSide(Facing::DOWN)->getId();
-		if (($id === Block::GRASS || $id === Block::DIRT) && $blockReplace->getSide(Facing::UP)->canBeReplaced()) {
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool{
+		if ($this->canBeSupportedAt($blockReplace)) {
 			$this->getLevel()->setBlock($blockReplace, $this, false, false);
 			$this->getLevel()->setBlock($blockReplace->getSide(Facing::UP), BlockFactory::get($this->id, $this->meta | self::BITFLAG_TOP), false, false);
 
@@ -77,6 +76,19 @@ class DoublePlant extends Flowable
 		}
 
 		return false;
+	}
+
+	protected function canBeSupportedAt(Block $block) : bool{
+		$supportBlock = $block->getSide(Facing::DOWN);
+		return
+			(
+				$supportBlock instanceof Grass ||
+				$supportBlock instanceof Dirt ||
+				$supportBlock instanceof Mycelium ||
+				$supportBlock instanceof Podzol ||
+				$supportBlock instanceof Farmland ||
+				$supportBlock instanceof Mud
+			) && $block->getSide(Facing::UP)->canBeReplaced();
 	}
 
 	/**
@@ -99,7 +111,7 @@ class DoublePlant extends Flowable
 
 	public function onNearbyBlockChange() : void
 	{
-		if (!$this->isValidHalfPlant() || (($this->meta & self::BITFLAG_TOP) === 0 && $this->getSide(Facing::DOWN)->isTransparent())) {
+		if (!$this->isValidHalfPlant() || (($this->meta & self::BITFLAG_TOP) === 0 && !$this->canBeSupportedAt($this))) {
 			$this->getLevel()->useBreakOn($this);
 		}
 	}
@@ -128,7 +140,7 @@ class DoublePlant extends Flowable
 
 			if (mt_rand(0, 24) === 0) {
 				return [
-					ItemFactory::get(Item::SEEDS)
+					ItemFactory::get(ItemIds::SEEDS)
 				];
 			}
 		}

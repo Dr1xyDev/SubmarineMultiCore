@@ -26,10 +26,12 @@ use pocketmine\block\Block;
 use pocketmine\level\format\io\exception\CorruptedLevelException;
 use pocketmine\level\format\io\exception\UnsupportedLevelFormatException;
 use pocketmine\level\LevelException;
+use pocketmine\utils\BinaryStream;
 use pocketmine\world\format\io\SubChunkConverter;
 use pocketmine\world\format\PalettedBlockArray;
-
+use function array_values;
 use function file_exists;
+use function unpack;
 
 abstract class BaseLevelProvider implements LevelProvider
 {
@@ -86,6 +88,24 @@ abstract class BaseLevelProvider implements LevelProvider
 	protected function palettizeLegacySubChunkFromColumn(string $idArray, string $metaArray, int $yOffset) : PalettedBlockArray
 	{
 		return $this->translatePalette(SubChunkConverter::convertSubChunkFromLegacyColumn($idArray, $metaArray, $yOffset));
+	}
+
+	protected function deserializeBlockLayers(BinaryStream $stream) : array{
+		$airBlockId = $stream->getInt();
+
+		/** @var PalettedBlockArray[] $layers */
+		$layers = [];
+		for ($i = 0, $layerCount = $stream->getByte(); $i < $layerCount; ++$i) {
+			$bitsPerBlock = $stream->getByte();
+			$words = $stream->get(PalettedBlockArray::getExpectedWordArraySize($bitsPerBlock));
+			/** @var int[] $unpackedPalette */
+			$unpackedPalette = unpack("L*", $stream->get($stream->getInt())); //unpack() will never fail here
+			$palette = array_values($unpackedPalette);
+
+			$layers[] = PalettedBlockArray::fromData($bitsPerBlock, $words, $palette);
+		}
+
+		return [$airBlockId, $layers];
 	}
 
 	public function getPath() : string

@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class MangroveSlab extends WoodenSlab
 {
 	protected $id = self::MANGROVE_SLAB;
@@ -46,14 +44,5 @@ class MangroveSlab extends WoodenSlab
 	public function getName() : string
 	{
 		return ($this->isTop() ? "Upper " : "") . "Mangrove Slab";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_527) {
-			return BlockFactory::get(Block::WOODEN_SLAB, ($this->isTop() ? 0x08 : 0));
-		}
-
-		return null;
 	}
 }

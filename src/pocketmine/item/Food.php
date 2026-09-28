@@ -53,6 +53,6 @@ abstract class Food extends Item implements FoodSource
 
 	public function canStartUsingItem(Player $player) : bool
 	{
-		return !($player->getProtocolVersion() <= ProtocolInfo::PROTOCOL_291 && $player->isCreative(true)) && (!$this->requiresHunger() || $player->canEat());
+		return !($player->getProtocolVersion() < ProtocolInfo::PROTOCOL_407 && $player->isCreative(true)) && (!$this->requiresHunger() || $player->canEat());
 	}
 }

@@ -38,7 +38,7 @@ class SetDefaultGameTypePacket extends DataPacket
 
 	protected function encodePayload() : void
 	{
-		$this->putUnsignedVarInt($this->gamemode);
+		$this->putVarInt($this->gamemode); //signed on the wire, same as decode
 	}
 
 	public function mustBeDecoded() : bool

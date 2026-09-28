@@ -23,7 +23,7 @@ declare(strict_types=1);
 namespace pocketmine\block;
 
 use pocketmine\item\Item;
-use pocketmine\math\AxisAlignedBB;
+use pocketmine\level\portal\PortalShape;
 use pocketmine\Player;
 
 class NetherPortal extends Flowable
@@ -60,15 +60,23 @@ class NetherPortal extends Flowable
 		return false;
 	}
 
-	/**
-	 * @return AxisAlignedBB[]
-	 */
-	protected function recalculateCollisionBoxes() : array
+	public function canBeFlowedInto() : bool
 	{
-		return [];
+		return false;
 	}
 
-	public function onBreak(Item $item, Player $player = null) : bool
+	/**
+	 * The portal disappears as soon as its frame is not complete anymore (explosions, pistons, plugins...)
+	 */
+	public function onNearbyBlockChange() : void
+	{
+		$axis = $this->meta === PortalShape::AXIS_X || $this->meta === PortalShape::AXIS_Z ? $this->meta : null;
+		if (PortalShape::find($this->level, (int) $this->x, (int) $this->y, (int) $this->z, $axis) === null) {
+			$this->level->setBlock($this, BlockFactory::get(Block::AIR));
+		}
+	}
+
+	public function onBreak(Item $item, ?Player $player = null) : bool
 	{
 		$result = parent::onBreak($item, $player);
 

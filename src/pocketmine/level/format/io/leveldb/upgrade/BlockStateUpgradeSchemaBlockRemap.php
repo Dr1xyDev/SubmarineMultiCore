@@ -24,7 +24,6 @@ namespace pocketmine\level\format\io\leveldb\upgrade;
 
 use pocketmine\nbt\tag\NamedTag;
 use pocketmine\utils\Utils;
-
 use function array_diff;
 use function count;
 

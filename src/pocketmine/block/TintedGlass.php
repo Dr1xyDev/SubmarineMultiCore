@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class TintedGlass extends Glass
 {
 	protected $id = self::TINTED_GLASS;
@@ -36,14 +34,5 @@ class TintedGlass extends Glass
 	public function getName() : string
 	{
 		return "Tinted Glass";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_440) {
-			return BlockFactory::get(BlockIds::LEAVES);
-		}
-
-		return null;
 	}
 }

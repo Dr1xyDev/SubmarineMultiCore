@@ -34,65 +34,24 @@ class PlayerSkinPacket extends DataPacket
 	public string $oldSkinName = "";
 	public string $newSkinName = "";
 	public ?Skin $skin = null;
-	public bool $premiumSkin = false;
 
-	protected function decodePayload() : void
-	{
+	protected function decodePayload() : void{
 		$this->uuid = $this->getUUID();
-
-		if ($this->getProtocol() < ProtocolInfo::PROTOCOL_370) {
-			$skinId = $this->getString();
-			$this->newSkinName = $this->getString();
-			$this->oldSkinName = $this->getString();
-			$skinData = $this->getString();
-			$capeData = "";
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_137) {
-				$capeData = $this->getString();
-			}
-			$geometryModel = $this->getString();
-			$geometryData = $this->getString();
-
-			$this->skin = new Skin($skinId, $skinData, $capeData, $geometryModel, $geometryData);
-
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_261 && !$this->feof()) {
-				$this->premiumSkin = $this->getBool();
-			}
-		} else {
-			$this->skin = $this->getSkin($this->getProtocol());
-			$this->newSkinName = $this->getString();
-			$this->oldSkinName = $this->getString();
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_390) {
-				$this->getBool(); //TODO: trustedSkin
-			}
+		$this->skin = $this->getSkin();
+		$this->newSkinName = $this->getString();
+		$this->oldSkinName = $this->getString();
+		if ($this->protocol < ProtocolInfo::PROTOCOL_2168) {
+			$this->getBool(); //TODO: trustedSkin (moved into the skin data in 1.26.40)
 		}
 	}
 
-	protected function encodePayload() : void
-	{
+	protected function encodePayload() : void{
 		$this->putUUID($this->uuid);
-
-		if ($this->getProtocol() < ProtocolInfo::PROTOCOL_370) {
-			$this->putString($this->skin->getSkinId());
-			$this->putString($this->newSkinName);
-			$this->putString($this->oldSkinName);
-			$skinData = $this->skin->getClientFriendlySkinData($this->getProtocol());
-			$this->putString($skinData);
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_137) {
-				$this->putString($this->skin->getCapeData());
-			}
-			$this->putString($this->skin->getGeometryName());
-			$this->putString($this->skin->getGeometryData());
-
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_261) {
-				$this->putBool($this->premiumSkin);
-			}
-		} else {
-			$this->putSkin($this->skin, $this->getProtocol());
-			$this->putString($this->newSkinName);
-			$this->putString($this->oldSkinName);
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_390) {
-				$this->putBool($this->skin->getSerializedSkin()->isTrustedSkin());
-			}
+		$this->putSkin($this->skin);
+		$this->putString($this->newSkinName);
+		$this->putString($this->oldSkinName);
+		if ($this->protocol < ProtocolInfo::PROTOCOL_2168) {
+			$this->putBool($this->skin->getSerializedSkin()->isTrustedSkin());
 		}
 	}
 

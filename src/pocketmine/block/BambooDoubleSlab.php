@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class BambooDoubleSlab extends DoubleWoodenSlab
 {
 	protected $id = self::BAMBOO_DOUBLE_SLAB;
@@ -31,14 +29,5 @@ class BambooDoubleSlab extends DoubleWoodenSlab
 	public function getSlabId() : int
 	{
 		return self::BAMBOO_SLAB;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_560) {
-			return BlockFactory::get(BlockIds::DOUBLE_WOODEN_SLAB);
-		}
-
-		return null;
 	}
 }

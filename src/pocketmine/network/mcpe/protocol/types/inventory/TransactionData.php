@@ -50,37 +50,37 @@ abstract class TransactionData
 	 * @throws BinaryDataException
 	 * @throws PacketDecodeException
 	 */
-	final public function decode(NetworkBinaryStream $stream, int $playerProtocol) : void
+	final public function decode(NetworkBinaryStream $in, bool $legacyTransaction) : void
 	{
-		if ($playerProtocol >= ProtocolInfo::PROTOCOL_407 && $playerProtocol < ProtocolInfo::PROTOCOL_431) {
-			$this->hasItemStackIds = $stream->getBool();
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_407 && $in->getProtocol() < ProtocolInfo::PROTOCOL_431) {
+			$this->hasItemStackIds = $in->getBool();
 		}
 
-		$actionCount = $stream->getUnsignedVarInt();
+		$actionCount = $in->getUnsignedVarInt();
 		for ($i = 0; $i < $actionCount; ++$i) {
-			$this->actions[] = (new NetworkInventoryAction())->read($stream, $this->hasItemStackIds, $playerProtocol);
+			$this->actions[] = (new NetworkInventoryAction())->read($in, $legacyTransaction, $this->hasItemStackIds);
 		}
-		$this->decodeData($stream, $playerProtocol);
+		$this->decodeData($in, $legacyTransaction);
 	}
 
 	/**
 	 * @throws BinaryDataException
 	 * @throws PacketDecodeException
 	 */
-	abstract protected function decodeData(NetworkBinaryStream $stream, int $playerProtocol) : void;
+	abstract protected function decodeData(NetworkBinaryStream $in, bool $legacyTransaction) : void;
 
-	final public function encode(NetworkBinaryStream $stream, int $playerProtocol) : void
+	final public function encode(NetworkBinaryStream $out, bool $legacyTransaction) : void
 	{
-		if ($playerProtocol >= ProtocolInfo::PROTOCOL_407 && $playerProtocol < ProtocolInfo::PROTOCOL_431) {
-			$stream->putBool($this->hasItemStackIds);
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_407 && $out->getProtocol() < ProtocolInfo::PROTOCOL_431) {
+			$out->putBool($this->hasItemStackIds);
 		}
 
-		$stream->putUnsignedVarInt(count($this->actions));
+		$out->putUnsignedVarInt(count($this->actions));
 		foreach ($this->actions as $action) {
-			$action->write($stream, $this->hasItemStackIds, $playerProtocol);
+			$action->write($out, $legacyTransaction, $this->hasItemStackIds);
 		}
-		$this->encodeData($stream, $playerProtocol);
+		$this->encodeData($out, $legacyTransaction);
 	}
 
-	abstract protected function encodeData(NetworkBinaryStream $stream, int $playerProtocol) : void;
+	abstract protected function encodeData(NetworkBinaryStream $out, bool $legacyTransaction) : void;
 }

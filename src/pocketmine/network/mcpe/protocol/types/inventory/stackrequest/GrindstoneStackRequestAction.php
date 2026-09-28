@@ -58,22 +58,37 @@ final class GrindstoneStackRequestAction extends ItemStackRequestAction
 		return $this->repetitions;
 	}
 
-	public static function read(NetworkBinaryStream $in, int $playerProtocol) : self
+	public static function read(NetworkBinaryStream $in) : self
 	{
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_2168) {
+			//since 1.26.40: LE uint recipe ID, then repetitions, then repair cost
+			$recipeId = $in->getLInt() & 0xffffffff;
+			$repetitions = $in->getByte();
+			$repairCost = $in->getVarInt();
+			return new self($recipeId, $repairCost, $repetitions);
+		}
+
 		$recipeId = $in->readRecipeNetId();
 		$repairCost = $in->getVarInt(); //WHY!!!!
-		if ($playerProtocol >= ProtocolInfo::PROTOCOL_712) {
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
 			$repetitions = $in->getByte();
 		}
 
 		return new self($recipeId, $repairCost, $repetitions ?? 1);
 	}
 
-	public function write(NetworkBinaryStream $out, int $playerProtocol) : void
+	public function write(NetworkBinaryStream $out) : void
 	{
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_2168) {
+			$out->putLInt($this->recipeId);
+			$out->putByte($this->repetitions);
+			$out->putVarInt($this->repairCost);
+			return;
+		}
+
 		$out->writeRecipeNetId($this->recipeId);
 		$out->putVarInt($this->repairCost);
-		if ($playerProtocol >= ProtocolInfo::PROTOCOL_712) {
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
 			$out->putByte($this->repetitions);
 		}
 	}

@@ -27,7 +27,6 @@ use pocketmine\item\ItemIds;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Facing;
 use pocketmine\math\Vector3;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\Player;
 use pocketmine\tile\Skull as TileSkull;
 use pocketmine\tile\Tile;
@@ -86,7 +85,7 @@ class Skull extends Flowable
 		);
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool
 	{
 		if ($face === Facing::DOWN) {
 			return false;
@@ -94,7 +93,11 @@ class Skull extends Flowable
 
 		$this->meta = $this->meta + ($face % 6);
 		$this->getLevel()->setBlock($blockReplace, $this, true);
-		Tile::createTile(Tile::SKULL, $this->getLevel(), TileSkull::createNBT($this, $face, $item, $player));
+		$tile = Tile::createTile(Tile::SKULL, $this->getLevel(), TileSkull::createNBT($this, $face, $item, $player));
+		if ($tile instanceof TileSkull) {
+			//the block was sent before its tile existed, newer clients need the head type in the block itself
+			$tile->resendBlock();
+		}
 
 		return true;
 	}
@@ -116,13 +119,5 @@ class Skull extends Flowable
 
 	public function getVariant() : int{
 		return (int) floor($this->meta / 6);
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_766) {
-			return BlockFactory::get(BlockIds::SKULL_BLOCK, ($this->meta % 6));
-		}
-
-		return null;
 	}
 }

@@ -22,75 +22,116 @@ declare(strict_types=1);
 
 namespace pocketmine\entity\object;
 
-use pocketmine\block\Block;
-use pocketmine\block\Fire;
 use pocketmine\entity\Entity;
+use pocketmine\entity\Explosive;
 use pocketmine\event\entity\EntityDamageEvent;
+use pocketmine\event\entity\EntityPreExplodeEvent;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
+use pocketmine\item\ItemIds;
 use pocketmine\level\Explosion;
-use pocketmine\level\GameRules;
-use pocketmine\level\generator\end\End;
+use pocketmine\math\Vector3;
+use pocketmine\nbt\tag\IntTag;
 
-class EnderCrystal extends Entity
+class EnderCrystal extends Entity implements Explosive
 {
 	public const NETWORK_ID = self::ENDER_CRYSTAL;
 
-	public float $height = 0.98;
-	public float $width = 0.98;
+	public const TAG_SHOWBASE = "ShowBottom"; //TAG_Byte
 
-	public $gravity = 0;
-	public $drag = 0;
+	public const TAG_BLOCKTARGET_X = "BlockTargetX"; //TAG_Int
+	public const TAG_BLOCKTARGET_Y = "BlockTargetY"; //TAG_Int
+	public const TAG_BLOCKTARGET_Z = "BlockTargetZ"; //TAG_Int
 
-	public function onMovementUpdate() : void
-	{
-		// NOOP
-	}
+	public float $height = 2.0;
+	public float $width = 2.0;
 
-	public function onUpdate(int $currentTick) : bool
-	{
-		if ($this->level->getProvider()->getPath() === End::class) {
-			if ($this->level->getBlock($this)->getId() !== Block::FIRE) {
-				$this->level->setBlock($this, new Fire());
-			}
-		}
+	protected $gravity = 0;
+	protected $drag = 1.0;
 
-		return parent::onUpdate($currentTick);
-	}
+	private bool $primed = false;
 
-	public function attack(EntityDamageEvent $source) : void
-	{
-		parent::attack($source);
+	protected function initEntity() : void{
+		parent::initEntity();
 
-		if (!$this->isFlaggedForDespawn() && !$source->isCancelled() && $source->getCause() !== EntityDamageEvent::CAUSE_FIRE && $source->getCause() !== EntityDamageEvent::CAUSE_FIRE_TICK) {
-			$this->flagForDespawn();
+		$this->setMaxHealth(1);
+		$this->setHealth(1);
 
-			if ($this->level->getGameRules()->getBool(GameRules::RULE_TNT_EXPLODES)) {
-				$exp = new Explosion($this, 6, $this);
+		$this->setShowBase($this->namedtag->getByte(self::TAG_SHOWBASE, 0) === 1);
 
-				$exp->explodeA();
-				$exp->explodeB();
-			}
+		if(
+			($beamXTag = $this->namedtag->getTag(self::TAG_BLOCKTARGET_X)) instanceof IntTag &&
+			($beamYTag = $this->namedtag->getTag(self::TAG_BLOCKTARGET_Y)) instanceof IntTag &&
+			($beamZTag = $this->namedtag->getTag(self::TAG_BLOCKTARGET_Z)) instanceof IntTag
+		){
+			$this->setBeamTarget(new Vector3($beamXTag->getValue(), $beamYTag->getValue(), $beamZTag->getValue()));
 		}
 	}
 
-	public function canBeCollidedWith() : bool
-	{
-		return false;
+	public function saveNBT() : void{
+		parent::saveNBT();
+
+		$this->namedtag->setByte(self::TAG_SHOWBASE, $this->isShowBase() ? 1 : 0);
+
+		$beamTarget = $this->getBeamTarget();
+		if($beamTarget !== null){
+			$this->namedtag->setInt(self::TAG_BLOCKTARGET_X, $beamTarget->getFloorX());
+			$this->namedtag->setInt(self::TAG_BLOCKTARGET_Y, $beamTarget->getFloorY());
+			$this->namedtag->setInt(self::TAG_BLOCKTARGET_Z, $beamTarget->getFloorZ());
+		}
 	}
 
-	public function setShowBase(bool $value) : void
-	{
-		$this->setGenericFlag(self::DATA_FLAG_SHOWBASE, $value);
-	}
-
-	public function showBase() : bool
-	{
+	public function isShowBase() : bool{
 		return $this->getGenericFlag(self::DATA_FLAG_SHOWBASE);
 	}
 
-	public function getPickedItem() : ?Item
-	{
-		return ItemFactory::get(Item::END_CRYSTAL);
+	public function setShowBase(bool $value) : void{
+		$this->setGenericFlag(self::DATA_FLAG_SHOWBASE, $value);
+	}
+
+	public function getBeamTarget() : ?Vector3 {
+		return $this->getDataPropertyManager()->getVector3(self::DATA_BLOCK_TARGET);
+	}
+
+	public function setBeamTarget(?Vector3 $target) : void{
+		$this->getDataPropertyManager()->setVector3(self::DATA_BLOCK_TARGET, $target);
+	}
+
+	public function attack(EntityDamageEvent $source) : void{
+		parent::attack($source);
+
+		if(
+			$source->getCause() !== EntityDamageEvent::CAUSE_VOID &&
+			!$source->isCancelled()
+		){
+			$this->primed = true;
+		}
+	}
+
+	protected function onDeathUpdate(int $tickDiff) : bool{
+		if($this->primed){
+			$this->explode();
+		}
+		return true;
+	}
+
+	public function explode() : void{
+		$ev = new EntityPreExplodeEvent($this, 6);
+		$ev->call();
+		if(!$ev->isCancelled()){
+			$explosion = new Explosion($this->getPosition(), $ev->getRadius(), $this, $ev->getFireChance());
+			if($ev->isBlockBreaking()){
+				$explosion->explodeA();
+			}
+			$explosion->explodeB();
+		}
+	}
+
+	public function isFireProof() : bool{
+		return true;
+	}
+
+	public function getPickedItem() : ?Item{
+		return ItemFactory::get(ItemIds::END_CRYSTAL);
 	}
 }

@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\protocol;
 
+use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\NetworkSession;
 
 class ActorEventPacket extends DataPacket
@@ -88,22 +89,25 @@ class ActorEventPacket extends DataPacket
 	public const VIBRATION_DETECTED = 77;
 	public const DRINK_MILK = 78;
 	public const SHAKE_WETNESS_STOP = 79;
+	public const KINETIC_DAMAGE_DEALT = 80;
+	public const HURT_WITHOUT_RECEIVING_DAMAGE = 81;
 
 	//TODO: add more events
 
 	public int $entityRuntimeId;
 	public int $event;
 	public int $data = 0;
+	public ?Vector3 $firePosition = null;
 
 	/**
 	 * @generate-create-func
 	 */
-	public static function create(int $entityRuntimeId, int $event, int $data) : self
-	{
+	public static function create(int $actorRuntimeId, int $eventId, int $eventData, ?Vector3 $firePosition) : self{
 		$result = new self();
-		$result->entityRuntimeId = $entityRuntimeId;
-		$result->event = $event;
-		$result->data = $data;
+		$result->entityRuntimeId = $actorRuntimeId;
+		$result->event = $eventId;
+		$result->data = $eventData;
+		$result->firePosition = $firePosition;
 		return $result;
 	}
 
@@ -112,6 +116,9 @@ class ActorEventPacket extends DataPacket
 		$this->entityRuntimeId = $this->getEntityRuntimeId();
 		$this->event = $this->getByte();
 		$this->data = $this->getVarInt();
+		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_975) {
+			$this->firePosition = $this->getOptional($this->getVector3(...));
+		}
 	}
 
 	protected function encodePayload() : void
@@ -119,6 +126,9 @@ class ActorEventPacket extends DataPacket
 		$this->putEntityRuntimeId($this->entityRuntimeId);
 		$this->putByte($this->event);
 		$this->putVarInt($this->data);
+		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_975) {
+			$this->putOptional($this->firePosition, $this->putVector3(...));
+		}
 	}
 
 	public function handle(NetworkSession $session) : bool

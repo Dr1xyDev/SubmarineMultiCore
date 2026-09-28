@@ -110,26 +110,36 @@ class SubChunkPacket extends DataPacket
 
 	protected function decodePayload() : void
 	{
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_2168) {
+			//since 1.26.40: fixed-int base position, varint list, and every entry carries an optional blob hash
+			$cacheEnabled = $this->getBool();
+			$this->dimension = $this->getVarInt();
+			$this->baseSubChunkPosition = SubChunkPosition::readFixedInts($this);
+			$entries = $this->getList(fn() => $cacheEnabled ? EntryWithBlobHash::read($this) : EntryWithoutBlobHash::read($this));
+			$this->entries = $cacheEnabled ? new ListWithBlobHashes($entries) : new ListWithoutBlobHashes($entries);
+			return;
+		}
+
 		$cacheEnabled = true;
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_486) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_486) {
 			$cacheEnabled = $this->getBool();
 		}
 
 		$this->dimension = $this->getVarInt();
-		$this->baseSubChunkPosition = SubChunkPosition::read($this);
+		$this->baseSubChunkPosition = SubChunkPosition::readVarInts($this);
 
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_486) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_486) {
 			$count = $this->getLInt();
 			if ($cacheEnabled) {
 				$entries = [];
 				for ($i = 0; $i < $count; $i++) {
-					$entries[] = EntryWithBlobHash::read($this, $this->getProtocol());
+					$entries[] = EntryWithBlobHash::read($this);
 				}
 				$this->entries = new ListWithBlobHashes($entries);
 			} else {
 				$entries = [];
 				for ($i = 0; $i < $count; $i++) {
-					$entries[] = EntryWithoutBlobHash::read($this, $this->getProtocol());
+					$entries[] = EntryWithoutBlobHash::read($this);
 				}
 				$this->entries = new ListWithoutBlobHashes($entries);
 			}
@@ -145,26 +155,34 @@ class SubChunkPacket extends DataPacket
 				default => throw new PacketDecodeException("Unknown heightmap data type $heightMapDataType")
 			};
 
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_475) {
-				$this->usedBlobHash = $this->readOptional($this->getLLong(...));
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_475) {
+				$this->usedBlobHash = $this->getOptional($this->getLLong(...));
 			}
 		}
 	}
 
 	protected function encodePayload() : void
 	{
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_486) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_2168) {
+			$this->putBool($this->entries instanceof ListWithBlobHashes);
+			$this->putVarInt($this->dimension);
+			$this->baseSubChunkPosition->writeFixedInts($this);
+			$this->putList($this->entries->getEntries(), fn(EntryWithBlobHash|EntryWithoutBlobHash $entry) => $entry->write($this));
+			return;
+		}
+
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_486) {
 			$this->putBool($this->entries instanceof ListWithBlobHashes);
 		}
 
 		$this->putVarInt($this->dimension);
-		$this->baseSubChunkPosition->write($this);
+		$this->baseSubChunkPosition->writeVarInts($this);
 
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_486) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_486) {
 			$this->putLInt(count($this->entries->getEntries()));
 
 			foreach ($this->entries->getEntries() as $entry) {
-				$entry->write($this, $this->getProtocol());
+				$entry->write($this);
 			}
 		} else {
 			$this->putString($this->data);
@@ -181,8 +199,8 @@ class SubChunkPacket extends DataPacket
 				$heightMapData->write($this);
 			}
 
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_475) {
-				$this->writeOptional($this->usedBlobHash, $this->putLLong(...));
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_475) {
+				$this->putOptional($this->usedBlobHash, $this->putLLong(...));
 			}
 		}
 	}

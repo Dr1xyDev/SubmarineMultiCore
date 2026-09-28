@@ -87,7 +87,10 @@ class Cow extends Animal
 					return false;
 				}
 
-				$item->pop();
+				if ($player->hasFiniteResources()) {
+					$item->pop();
+					$player->getInventory()->setItemInHand($item);
+				}
 				$player->getInventory()->addItem(ItemFactory::get(Item::BUCKET, 1));
 				$this->milkingTicks = self::MILKING_COOLDOWN;
 				return true;
@@ -120,9 +123,10 @@ class Cow extends Animal
 
 	public function getDrops() : array
 	{
+		$looting = $this->getLootingLevel();
 		return [
-			ItemFactory::get(Item::LEATHER, 0, rand(0, 2)),
-			($this->isOnFire() ? ItemFactory::get(Item::STEAK, 0, rand(1, 3)) : ItemFactory::get(Item::RAW_BEEF, 0, rand(1, 3)))
+			ItemFactory::get(Item::LEATHER, 0, rand(0, 2 + $looting)),
+			($this->isOnFire() ? ItemFactory::get(Item::STEAK, 0, rand(1, 3 + $looting)) : ItemFactory::get(Item::RAW_BEEF, 0, rand(1, 3 + $looting)))
 		];
 	}
 }

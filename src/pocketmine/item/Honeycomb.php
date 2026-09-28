@@ -63,8 +63,8 @@ class Honeycomb extends Item
 
 	public function getItemProtocol(int $playerProtocol) : ?TranslatedItemData
 	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_389) {
-			return new TranslatedItemData(ItemIds::BLAZE_POWDER, $this->getDamage());
+		if ($playerProtocol < ProtocolInfo::PROTOCOL_407) {
+			return new TranslatedItemData(ItemIds::BLAZE_POWDER, $this->getDamage(), $this->getName());
 		}
 
 		return parent::getItemProtocol($playerProtocol);

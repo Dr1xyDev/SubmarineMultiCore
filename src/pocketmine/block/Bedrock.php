@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace pocketmine\block;
 
 use pocketmine\item\Item;
+use pocketmine\network\mcpe\protocol\types\DimensionIds;
 
 class Bedrock extends Solid
 {
@@ -51,6 +52,10 @@ class Bedrock extends Solid
 	public function isBreakable(Item $item) : bool
 	{
 		return false;
+	}
+
+	public function burnsForever() : bool{
+		return $this->level->getDimension() === DimensionIds::THE_END;
 	}
 
 	public function getBlock() : Block

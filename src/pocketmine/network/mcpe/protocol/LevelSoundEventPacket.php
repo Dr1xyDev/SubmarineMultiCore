@@ -24,10 +24,10 @@ namespace pocketmine\network\mcpe\protocol;
 
 use pocketmine\block\Block;
 use pocketmine\math\Vector3;
+use pocketmine\network\mcpe\convert\block\RuntimeBlockMapping;
 use pocketmine\network\mcpe\convert\ConstantTranslator;
-use pocketmine\network\mcpe\convert\RuntimeBlockMapping;
+use pocketmine\network\mcpe\convert\LevelSoundIdToStringMap;
 use pocketmine\network\mcpe\NetworkSession;
-
 use function array_search;
 
 class LevelSoundEventPacket extends DataPacket
@@ -564,7 +564,52 @@ class LevelSoundEventPacket extends DataPacket
 	public const SOUND_PLACE_ITEM = 563;
 	public const SOUND_SINGLE_ITEM_SWAP = 564;
 	public const SOUND_MULTI_ITEM_SWAP = 565;
-	public const SOUND_UNDEFINED = 566;
+	public const SOUND_ITEM_ENCHANT_LUNGE1 = 566;
+	public const SOUND_ITEM_ENCHANT_LUNGE2 = 567;
+	public const SOUND_ITEM_ENCHANT_LUNGE3 = 568;
+	public const SOUND_ATTACK_CRITICAL = 569;
+	public const SOUND_ITEM_SPEAR_ATTACK_HIT = 570;
+	public const SOUND_ITEM_SPEAR_ATTACK_MISS = 571;
+	public const SOUND_ITEM_WOODEN_SPEAR_ATTACK_HIT = 572;
+	public const SOUND_ITEM_WOODEN_SPEAR_ATTACK_MISS = 573;
+	public const SOUND_IMITATE_PARCHED = 574;
+	public const SOUND_IMITATE_CAMEL_HUSK = 575;
+	public const SOUND_ITEM_SPEAR_USE = 576;
+	public const SOUND_ITEM_WOODEN_SPEAR_USE = 577;
+	public const SOUND_SADDLE_IN_WATER = 578;
+	public const SOUND_ITEM_STONE_SPEAR_ATTACK_HIT = 579;
+	public const SOUND_ITEM_IRON_SPEAR_ATTACK_HIT = 580;
+	public const SOUND_ITEM_COPPER_SPEAR_ATTACK_HIT = 581;
+	public const SOUND_ITEM_GOLDEN_SPEAR_ATTACK_HIT = 582;
+	public const SOUND_ITEM_DIAMOND_SPEAR_ATTACK_HIT = 583;
+	public const SOUND_ITEM_NETHERITE_SPEAR_ATTACK_HIT = 584;
+	public const SOUND_ITEM_STONE_SPEAR_ATTACK_MISS = 585;
+	public const SOUND_ITEM_IRON_SPEAR_ATTACK_MISS = 586;
+	public const SOUND_ITEM_COPPER_SPEAR_ATTACK_MISS = 587;
+	public const SOUND_ITEM_GOLDEN_SPEAR_ATTACK_MISS = 588;
+	public const SOUND_ITEM_DIAMOND_SPEAR_ATTACK_MISS = 589;
+	public const SOUND_ITEM_NETHERITE_SPEAR_ATTACK_MISS = 590;
+	public const SOUND_ITEM_STONE_SPEAR_USE = 591;
+	public const SOUND_ITEM_IRON_SPEAR_USE = 592;
+	public const SOUND_ITEM_COPPER_SPEAR_USE = 593;
+	public const SOUND_ITEM_GOLDEN_SPEAR_USE = 594;
+	public const SOUND_ITEM_DIAMOND_SPEAR_USE = 595;
+	public const SOUND_ITEM_NETHERITE_SPEAR_USE = 596;
+	public const SOUND_PAUSE_GROWTH = 597;
+	public const SOUND_RESET_GROWTH = 598;
+	public const SOUND_PUSHED_BY_PLAYER = 599;
+	public const SOUND_BOUNCE = 600;
+	public const SOUND_SLIME_LANDING = 601;
+	public const SOUND_ABSORB_BLOCK = 602;
+	public const SOUND_EJECT_BLOCK = 603;
+	public const SOUND_GEYSER_ERUPTION_START = 604;
+	public const SOUND_GEYSER_ERUPTION_ACTIVE = 605;
+	public const SOUND_RECORD_BOUNCE = 606;
+	public const SOUND_BUCKET_FILL_LAND_ANIMAL = 607;
+	public const SOUND_BUCKET_EMPTY_LAND_ANIMAL = 608;
+	public const SOUND_GEYSER_CONTINUOUS_ERUPTION_START = 609;
+	public const SOUND_GEYSER_CONTINUOUS_ERUPTION_ACTIVE = 610;
+	public const SOUND_UNDEFINED = 611;
 
 	public int $sound;
 	public Vector3 $position;
@@ -573,6 +618,7 @@ class LevelSoundEventPacket extends DataPacket
 	public bool $isBabyMob = false;
 	public bool $disableRelativeVolume = false;
 	public int $actorUniqueId = -1;
+	public ?Vector3 $firePosition = null;
 
 	/**
 	 * @generate-create-func
@@ -585,6 +631,7 @@ class LevelSoundEventPacket extends DataPacket
 		bool $isBabyMob,
 		bool $disableRelativeVolume,
 		int $actorUniqueId,
+		?Vector3 $firePosition,
 	) : self {
 		$result = new self();
 		$result->sound = $sound;
@@ -594,34 +641,35 @@ class LevelSoundEventPacket extends DataPacket
 		$result->isBabyMob = $isBabyMob;
 		$result->disableRelativeVolume = $disableRelativeVolume;
 		$result->actorUniqueId = $actorUniqueId;
+		$result->firePosition = $firePosition;
 		return $result;
 	}
 
-	public static function nonActorSound(int $sound, Vector3 $position, bool $disableRelativeVolume, int $extraData = -1) : self
-	{
-		return self::create($sound, $position, $extraData, ":", false, $disableRelativeVolume, -1);
+	public static function nonActorSound(int $sound, Vector3 $position, bool $disableRelativeVolume, int $extraData = -1) : self{
+		return self::create($sound, $position, $extraData, ":", false, $disableRelativeVolume, -1, null);
 	}
 
 	protected function decodePayload() : void
 	{
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_332) {
-			$this->sound = $this->getUnsignedVarInt();
-		} else {
-			$this->sound = $this->getByte();
-		}
-		$this->sound = ConstantTranslator::getInstance()->fromNetworkId(LevelSoundEventPacket::class, $this->sound, $this->getProtocol());
+		$this->sound = ConstantTranslator::getInstance()->fromNetworkId(
+			LevelSoundEventPacket::class,
+			$this->protocol >= ProtocolInfo::PROTOCOL_1001 ?
+				(LevelSoundIdToStringMap::getInstance()->stringToLegacy($this->getString()) ?? self::SOUND_UNDEFINED) :
+				($this->protocol >= ProtocolInfo::PROTOCOL_407 ? $this->getUnsignedVarInt() : $this->getByte()),
+			$this->protocol
+		);
 		$this->position = $this->getVector3();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_223) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$runtimeId = $this->getVarInt();
 			if ($runtimeId < 0) {
 				$this->extraData = -1;
 			} else {
-				$this->extraData = RuntimeBlockMapping::getInstance($this->getProtocol())->fromRuntimeId($runtimeId) >> Block::INTERNAL_METADATA_BITS;
+				$this->extraData = RuntimeBlockMapping::getInstance($this->protocol)->fromRuntimeId($runtimeId) >> Block::INTERNAL_METADATA_BITS;
 			}
 		} else {
 			$this->extraData = $this->getVarInt();
 		}
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_313) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->entityType = $this->getString();
 		} else {
 			$entityType = $this->getVarInt();
@@ -634,22 +682,27 @@ class LevelSoundEventPacket extends DataPacket
 		$this->isBabyMob = $this->getBool();
 		$this->disableRelativeVolume = $this->getBool();
 
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_786) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_786) {
 			$this->actorUniqueId = $this->getLLong(); //WHY IS THIS NON-STANDARD?
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_975) {
+				$this->firePosition = $this->getOptional($this->getVector3(...));
+			}
 		}
 	}
 
 	protected function encodePayload() : void
 	{
-		$sound = ConstantTranslator::getInstance()->toNetworkId(LevelSoundEventPacket::class, $this->sound, $this->getProtocol(), LevelSoundEventPacket::SOUND_UNDEFINED);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_332) {
+		$sound = ConstantTranslator::getInstance()->toNetworkId(LevelSoundEventPacket::class, $this->sound, $this->protocol, LevelSoundEventPacket::SOUND_UNDEFINED);
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_1001) {
+			$this->putString(LevelSoundIdToStringMap::getInstance()->legacyToString($this->sound) ?? "");
+		} elseif ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->putUnsignedVarInt($sound);
 		} else {
 			$this->putByte($sound);
 		}
 
 		$this->putVector3($this->position);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_223) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->putVarInt($this->extraData);
 		} else {
 			if ($this->sound === self::SOUND_NOTE) {
@@ -658,11 +711,11 @@ class LevelSoundEventPacket extends DataPacket
 				$this->putVarInt($this->extraData);
 			}
 		}
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_313) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->putString($this->entityType);
 		} else {
 			if ($this->sound === self::SOUND_NOTE) {
-				$entityType = $this->extraData & 0xf;
+				$entityType = $this->extraData & 0xff;
 			} elseif ($this->entityType === "minecraft:player") {
 				$entityType = 319;
 			} else {
@@ -673,8 +726,11 @@ class LevelSoundEventPacket extends DataPacket
 		$this->putBool($this->isBabyMob);
 		$this->putBool($this->disableRelativeVolume);
 
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_786) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_786) {
 			$this->putLLong($this->actorUniqueId);
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_975) {
+				$this->putOptional($this->firePosition, $this->putVector3(...));
+			}
 		}
 	}
 

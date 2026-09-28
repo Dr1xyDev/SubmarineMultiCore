@@ -24,6 +24,43 @@ namespace pocketmine\item;
 
 interface ItemIds
 {
+	public const SULFAR_SPIKE = -897;
+	public const POLISHED_CINNABAR_STAIRS = -896;
+	public const POLISHED_CINNABAR_WALL = -895;
+	public const POLISHED_SULFUR = -894;
+	public const POLISHED_SULFUR_DOUBLE_SLAB = -893;
+	public const POLISHED_SULFUR_SLAB = -892;
+	public const POLISHED_SULFUR_STAIRS = -891;
+	public const POLISHED_SULFUR_WALL = -890;
+	public const POTENT_SULFUR = -889;
+	public const SULFUR = -888;
+	public const SULFUR_BRICK_DOUBLE_SLAB = -887;
+	public const SULFUR_BRICK_SLAB = -886;
+	public const SULFUR_BRICK_STAIRS = -885;
+	public const SULFUR_BRICK_WALL = -884;
+	public const SULFUR_BRICKS = -883;
+	public const SULFUR_CUBE_BUCKET = -882;
+	public const SULFUR_CUBE_SPAWN_EGG = -881;
+	public const SULFUR_DOUBLE_SLAB = -880;
+	public const SULFUR_SLAB = -879;
+	public const SULFUR_STAIRS = -878;
+	public const SULFUR_WALL = -877;
+	public const POLISHED_CINNABAR_SLAB = -876;
+	public const POLISHED_CINNABAR_DOUBLE_SLAB = -875;
+	public const POLISHED_CINNABAR = -874;
+	public const CINNABAR_WALL = -873;
+	public const CINNABAR_STAIRS = -872;
+	public const CINNABAR_SLAB = -871;
+	public const CINNABAR_DOUBLE_SLAB = -870;
+	public const CINNABAR_BRICKS = -869;
+	public const CINNABAR_BRICK_WALL = -868;
+	public const CINNABAR_BRICK_STAIRS = -867;
+	public const CINNABAR_BRICK_SLAB = -866;
+	public const CINNABAR_BRICK_DOUBLE_SLAB = -865;
+	public const CINNABAR = -864;
+	public const CHISELED_SULFUR = -863;
+	public const CHISELED_CINNABAR = -862;
+	public const GOLDEN_DANDELION = -861;
 	public const ACACIA_SHELF = -860;
 	public const BAMBOO_SHELF = -859;
 	public const BIRCH_SHELF = -858;
@@ -1149,7 +1186,7 @@ interface ItemIds
 	public const COMPARATOR = 404;
 	public const NETHERBRICK = 405, NETHER_BRICK = 405;
 	public const QUARTZ = 406, NETHER_QUARTZ = 406;
-	public const TNT_MINECART = 407, TNT_MIMINECART_WITH_TNTNECART = 407;
+	public const TNT_MINECART = 407, MINECART_WITH_TNT = 407;
 	public const HOPPER_MINECART = 408, MINECART_WITH_HOPPER = 408;
 	public const PRISMARINE_SHARD = 409;
 	public const HOPPER = 410;
@@ -1389,4 +1426,20 @@ interface ItemIds
 	public const COPPER_SWORD = 969;
 	public const RECORD_LAVA_CHICKEN = 970;
 	public const COPPER_HORSE_ARMOR = 971;
+
+	public const COPPER_NAUTILUS_ARMOR = 981;
+	public const COPPER_SPEAR = 982;
+	public const DIAMOND_NAUTILUS_ARMOR = 983;
+	public const DIAMOND_SPEAR = 984;
+	public const GOLDEN_NAUTILUS_ARMOR = 985;
+	public const GOLDEN_SPEAR = 986;
+	public const IRON_NAUTILUS_ARMOR = 987;
+	public const IRON_SPEAR = 988;
+	public const NETHERITE_HORSE_ARMOR = 989;
+	public const NETHERITE_NAUTILUS_ARMOR = 990;
+	public const NETHERITE_SPEAR = 991;
+	public const STONE_SPEAR = 992;
+	public const WOODEN_SPEAR = 993;
+	public const RECORD_BOUNCE = 994;
+
 }

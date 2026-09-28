@@ -36,7 +36,7 @@ class CommandParameter
 	public ?CommandEnum $enum = null;
 	public ?string $postfix = null;
 
-	public function __construct(string $paramName = "args", int $paramType = AvailableCommandsPacket::ARG_TYPE_RAWTEXT, bool $isOptional = true, int $flags = 0, CommandEnum $enum = null)
+	public function __construct(string $paramName = "args", int $paramType = AvailableCommandsPacket::ARG_TYPE_RAWTEXT, bool $isOptional = true, int $flags = 0, ?CommandEnum $enum = null)
 	{
 		$this->paramName = $paramName;
 		$this->paramType = AvailableCommandsPacket::ARG_FLAG_VALID | $paramType;

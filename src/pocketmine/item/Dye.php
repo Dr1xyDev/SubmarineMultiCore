@@ -65,7 +65,7 @@ class Dye extends Item
 			];
 
 			if (isset($colorsDyeNew[$this->getDamage()])) {
-				return new TranslatedItemData($this->getId(), $colorsDyeNew[$this->getDamage()]);
+				return new TranslatedItemData($this->getId(), $colorsDyeNew[$this->getDamage()], $this->getName());
 			}
 		}
 

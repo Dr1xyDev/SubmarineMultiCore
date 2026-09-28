@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace pocketmine\network\mcpe\protocol\types\recipe;
 
 use pocketmine\network\mcpe\NetworkBinaryStream;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\types\GetTypeIdFromConstTrait;
 
 final class TagItemDescriptor implements ItemDescriptor{
@@ -30,19 +31,40 @@ final class TagItemDescriptor implements ItemDescriptor{
 
 	public const ID = ItemDescriptorType::TAG;
 
+	/** Used to indicate that the item has multiple selectable variants (1.26.40+) */
+	public const DEFAULT_META = 32767;
+
 	public function __construct(
-		private string $tag
+		private string $tag,
+		private int $meta = self::DEFAULT_META
 	){}
 
 	public function getTag() : string{ return $this->tag; }
 
+	public function getMeta() : int{ return $this->meta; }
+
 	public static function read(NetworkBinaryStream $in) : self{
 		$tag = $in->getString();
+		$meta = $in->getProtocol() >= ProtocolInfo::PROTOCOL_2168 ? $in->getVarInt() : self::DEFAULT_META;
 
-		return new self($tag);
+		return new self($tag, $meta);
 	}
 
 	public function write(NetworkBinaryStream $out) : void{
+		$out->putString($this->tag);
+		if($out->getProtocol() >= ProtocolInfo::PROTOCOL_2168){
+			$out->putVarInt($this->meta);
+		}
+	}
+
+	/**
+	 * Tag-only representation, used by item stack requests since 1.26.40
+	 */
+	public static function readTagOnly(NetworkBinaryStream $in) : self{
+		return new self($in->getString());
+	}
+
+	public function writeTagOnly(NetworkBinaryStream $out) : void{
 		$out->putString($this->tag);
 	}
 }

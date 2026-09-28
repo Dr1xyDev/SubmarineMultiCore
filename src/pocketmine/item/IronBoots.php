@@ -43,6 +43,10 @@ class IronBoots extends Armor
 		return 196;
 	}
 
+	public function getEnchantAbility() : int{
+		return 9;
+	}
+
 	public function getArmorSlot() : int
 	{
 		return ArmorSlot::SLOT_BOOTS;

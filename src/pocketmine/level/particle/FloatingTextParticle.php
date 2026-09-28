@@ -27,7 +27,7 @@ use pocketmine\block\BlockIds;
 use pocketmine\entity\Entity;
 use pocketmine\entity\EntityIds;
 use pocketmine\math\Vector3;
-use pocketmine\network\mcpe\convert\RuntimeBlockMapping;
+use pocketmine\network\mcpe\convert\block\RuntimeBlockMapping;
 use pocketmine\network\mcpe\protocol\AddActorPacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\RemoveActorPacket;
@@ -108,7 +108,7 @@ class FloatingTextParticle extends Particle
 				Entity::DATA_NAMETAG => [Entity::DATA_TYPE_STRING, $name],
 			];
 
-			if ($this->protocol >= ProtocolInfo::PROTOCOL_223) {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 				$actorMetadata[Entity::DATA_VARIANT][1] = RuntimeBlockMapping::getInstance($this->protocol)->toRuntimeId(BlockFactory::get(BlockIds::AIR)->getFullId());
 			}
 

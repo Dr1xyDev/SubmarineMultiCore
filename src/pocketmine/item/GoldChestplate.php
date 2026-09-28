@@ -39,6 +39,10 @@ class GoldChestplate extends Armor
 		return 113;
 	}
 
+	public function getEnchantAbility() : int{
+		return 25;
+	}
+
 	public function getArmorSlot() : int
 	{
 		return ArmorSlot::SLOT_CHESTPLATE;

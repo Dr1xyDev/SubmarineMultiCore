@@ -62,4 +62,22 @@ final class CameraSetInstructionEaseType
 	public const OUT_ELASTIC = 30;
 	public const IN_OUT_ELASTIC = 31;
 
+	/**
+	 * Ease names used on the wire since 1.26.10 (spline keyframes) and in camera JSON definitions
+	 */
+	public static function toName(int $easeType) : string
+	{
+		foreach ((new \ReflectionClass(self::class))->getConstants() as $name => $value) {
+			if ($value === $easeType) {
+				return strtolower($name);
+			}
+		}
+		return "linear";
+	}
+
+	public static function fromName(string $name) : int
+	{
+		$constant = self::class . "::" . strtoupper($name);
+		return defined($constant) ? (int) constant($constant) : self::LINEAR;
+	}
 }

@@ -51,7 +51,7 @@ final class GlobalItemTypeDictionary
 
 	private static function make(int $protocolVersion) : self
 	{
-		$table = json_decode(Filesystem::fileGetContents(BEDROCK_DATA_PATH . "items/" . $protocolVersion . "/required_item_list.json"), true);
+		$table = json_decode(Filesystem::resourceGetContents(BEDROCK_DATA_PATH . "items/" . $protocolVersion . "/required_item_list.json"), true);
 		if (!is_array($table)) {
 			throw new AssumptionFailedError("Invalid item list format");
 		}

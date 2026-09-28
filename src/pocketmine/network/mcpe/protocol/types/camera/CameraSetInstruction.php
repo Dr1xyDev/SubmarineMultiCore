@@ -87,21 +87,21 @@ final class CameraSetInstruction
 		return $this->ignoreStartingValuesComponent;
 	}
 
-	public static function read(NetworkBinaryStream $in, int $protocol) : self
+	public static function read(NetworkBinaryStream $in) : self
 	{
 		$preset = $in->getLInt();
-		$ease = $in->readOptional(fn () => CameraSetInstructionEase::read($in));
-		$cameraPosition = $in->readOptional($in->getVector3(...));
-		$rotation = $in->readOptional(fn () => CameraSetInstructionRotation::read($in));
-		$facingPosition = $in->readOptional($in->getVector3(...));
-		if ($protocol >= ProtocolInfo::PROTOCOL_712) {
-			$viewOffset = $in->readOptional($in->getVector2(...));
-			if ($protocol >= ProtocolInfo::PROTOCOL_748) {
-				$entityOffset = $in->readOptional($in->getVector3(...));
+		$ease = $in->getOptional(fn () => CameraSetInstructionEase::read($in));
+		$cameraPosition = $in->getOptional($in->getVector3(...));
+		$rotation = $in->getOptional(fn () => CameraSetInstructionRotation::read($in));
+		$facingPosition = $in->getOptional($in->getVector3(...));
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
+			$viewOffset = $in->getOptional($in->getVector2(...));
+			if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_748) {
+				$entityOffset = $in->getOptional($in->getVector3(...));
 			}
 		}
-		$default = $in->readOptional($in->getBool(...));
-		if ($protocol >= ProtocolInfo::PROTOCOL_818) {
+		$default = $in->getOptional($in->getBool(...));
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_818) {
 			$ignoreStartingValuesComponent = $in->getBool();
 		}
 
@@ -118,21 +118,21 @@ final class CameraSetInstruction
 		);
 	}
 
-	public function write(NetworkBinaryStream $out, int $protocol) : void
+	public function write(NetworkBinaryStream $out) : void
 	{
 		$out->putLInt($this->preset);
-		$out->writeOptional($this->ease, fn (CameraSetInstructionEase $v) => $v->write($out));
-		$out->writeOptional($this->cameraPosition, $out->putVector3(...));
-		$out->writeOptional($this->rotation, fn (CameraSetInstructionRotation $v) => $v->write($out));
-		$out->writeOptional($this->facingPosition, $out->putVector3(...));
-		if ($protocol >= ProtocolInfo::PROTOCOL_712) {
-			$out->writeOptional($this->viewOffset, $out->putVector2(...));
-			if ($protocol >= ProtocolInfo::PROTOCOL_748) {
-				$out->writeOptional($this->entityOffset, $out->putVector3(...));
+		$out->putOptional($this->ease, fn (CameraSetInstructionEase $v) => $v->write($out));
+		$out->putOptional($this->cameraPosition, $out->putVector3(...));
+		$out->putOptional($this->rotation, fn (CameraSetInstructionRotation $v) => $v->write($out));
+		$out->putOptional($this->facingPosition, $out->putVector3(...));
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
+			$out->putOptional($this->viewOffset, $out->putVector2(...));
+			if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_748) {
+				$out->putOptional($this->entityOffset, $out->putVector3(...));
 			}
 		}
-		$out->writeOptional($this->default, $out->putBool(...));
-		if ($protocol >= ProtocolInfo::PROTOCOL_818) {
+		$out->putOptional($this->default, $out->putBool(...));
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_818) {
 			$out->putBool($this->ignoreStartingValuesComponent);
 		}
 	}

@@ -23,14 +23,14 @@ declare(strict_types=1);
 namespace pocketmine\block;
 
 use pocketmine\block\utils\ColorBlockMetaHelper;
-use pocketmine\item\Item;
+use pocketmine\block\utils\StaticSupportTrait;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Facing;
-use pocketmine\math\Vector3;
-use pocketmine\Player;
 
 class Carpet extends Flowable
 {
+	use StaticSupportTrait;
+
 	protected $id = self::CARPET;
 
 	public function __construct(int $meta = 0)
@@ -65,32 +65,15 @@ class Carpet extends Flowable
 		);
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
-	{
-		$down = $this->getSide(Facing::DOWN);
-		if ($down->getId() !== self::AIR) {
-			$this->getLevel()->setBlock($blockReplace, $this, true, true);
-
-			return true;
-		}
-
-		return false;
+	protected function canBeSupportedAt(Block $block) : bool{
+		return $block->getSide(Facing::DOWN)->getId() !== BlockIds::AIR;
 	}
 
-	public function onNearbyBlockChange() : void
-	{
-		if ($this->getSide(Facing::DOWN)->getId() === self::AIR) {
-			$this->getLevel()->useBreakOn($this);
-		}
-	}
-
-	public function getFlameEncouragement() : int
-	{
+	public function getFlameEncouragement() : int{
 		return 30;
 	}
 
-	public function getFlammability() : int
-	{
+	public function getFlammability() : int{
 		return 20;
 	}
 }

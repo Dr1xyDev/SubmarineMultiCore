@@ -24,10 +24,17 @@ namespace pocketmine\tile;
 
 use pocketmine\inventory\Inventory;
 use pocketmine\item\Item;
+use pocketmine\loot\LootContext;
+use pocketmine\loot\LootTableManager;
 use pocketmine\nbt\NBT;
 use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\nbt\tag\IntTag;
 use pocketmine\nbt\tag\ListTag;
+use pocketmine\nbt\tag\LongTag;
 use pocketmine\nbt\tag\StringTag;
+use pocketmine\Player;
+use pocketmine\utils\Random;
+use function mt_rand;
 
 /**
  * This trait implements most methods in the {@link Container} interface. It should only be used by Tiles.
@@ -36,14 +43,48 @@ trait ContainerTrait
 {
 	/** @var string|null */
 	private $lock;
+	/** Vanilla loot table which fills the inventory the first time it is used */
+	private ?string $lootTable = null;
+	private int $lootTableSeed = 0;
 
 	/**
 	 * @return Inventory
 	 */
 	abstract public function getRealInventory();
 
+	public function getLootTable() : ?string
+	{
+		return $this->lootTable;
+	}
+
+	public function setLootTable(?string $lootTable, int $seed = 0) : void
+	{
+		$this->lootTable = $lootTable;
+		$this->lootTableSeed = $seed;
+	}
+
+	public function unpackLootTable(?Player $player = null) : void
+	{
+		if ($this->lootTable === null) {
+			return;
+		}
+		$table = $this->lootTable;
+		$random = new Random($this->lootTableSeed !== 0 ? $this->lootTableSeed : mt_rand());
+		//generate only once, even if something goes wrong
+		$this->lootTable = null;
+		$this->lootTableSeed = 0;
+
+		LootTableManager::getInstance()->fillInventory($table, $this->getRealInventory(), new LootContext($random, 0.0, null, $player), $this->getLevel(), $this->add(0.5, 0.5, 0.5));
+	}
+
 	protected function loadItems(CompoundTag $tag) : void
 	{
+		if ($tag->hasTag(LootContainer::TAG_LOOT_TABLE, StringTag::class)) {
+			$this->lootTable = $tag->getString(LootContainer::TAG_LOOT_TABLE);
+			$seedTag = $tag->getTag(LootContainer::TAG_LOOT_TABLE_SEED);
+			$this->lootTableSeed = $seedTag instanceof LongTag || $seedTag instanceof IntTag ? $seedTag->getValue() : 0;
+		}
+
 		if ($tag->hasTag(Container::TAG_ITEMS, ListTag::class)) {
 			$inventoryTag = $tag->getListTag(Container::TAG_ITEMS);
 			$inventory = $this->getRealInventory();
@@ -72,6 +113,13 @@ trait ContainerTrait
 
 		if ($this->lock !== null) {
 			$tag->setString(Container::TAG_LOCK, $this->lock);
+		}
+
+		if ($this->lootTable !== null) {
+			$tag->setString(LootContainer::TAG_LOOT_TABLE, $this->lootTable);
+			$tag->setLong(LootContainer::TAG_LOOT_TABLE_SEED, $this->lootTableSeed);
+		} else {
+			$tag->removeTag(LootContainer::TAG_LOOT_TABLE, LootContainer::TAG_LOOT_TABLE_SEED);
 		}
 	}
 

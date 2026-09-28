@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class StoneSlab4 extends StoneSlab
 {
 	public const TYPE_MOSSY_STONE_BRICK = 0;
@@ -50,14 +48,5 @@ class StoneSlab4 extends StoneSlab
 		];
 
 		return ($this->isTop() ? "Upper " : "") . ($names[$this->getVariant()] ?? "") . " Slab";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_332) {
-			return BlockFactory::get(BlockIds::STONE_SLAB, $this->isTop() ? 0x08 : 0);
-		}
-
-		return null;
 	}
 }

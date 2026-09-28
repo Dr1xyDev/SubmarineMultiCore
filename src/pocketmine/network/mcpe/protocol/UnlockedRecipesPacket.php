@@ -33,7 +33,7 @@ class UnlockedRecipesPacket extends DataPacket
 	private bool $newRecipes;
 	private int $type;
 	/** @var string[] */
-	private array $recipes;
+	private array $recipes = [];
 
 	public const TYPE_EMPTY = 0;
 	public const TYPE_INITIALLY_UNLOCKED = 1;
@@ -74,7 +74,7 @@ class UnlockedRecipesPacket extends DataPacket
 
 	protected function decodePayload() : void
 	{
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_589) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_589) {
 			$this->type = $this->getLInt();
 		} else {
 			$this->newRecipes = $this->getBool();
@@ -87,7 +87,7 @@ class UnlockedRecipesPacket extends DataPacket
 
 	protected function encodePayload() : void
 	{
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_589) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_589) {
 			$this->putLInt($this->type);
 		} else {
 			$this->putBool($this->newRecipes);

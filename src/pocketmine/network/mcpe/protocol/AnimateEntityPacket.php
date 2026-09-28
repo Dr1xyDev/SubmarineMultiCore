@@ -40,7 +40,7 @@ class AnimateEntityPacket extends DataPacket
 	 * @var int[]
 	 * @phpstan-var list<int>
 	 */
-	public array $actorRuntimeIds;
+	public array $actorRuntimeIds = [];
 
 	/**
 	 * @param int[] $actorRuntimeIds
@@ -103,7 +103,7 @@ class AnimateEntityPacket extends DataPacket
 		$this->animation = $this->getString();
 		$this->nextState = $this->getString();
 		$this->stopExpression = $this->getString();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_465) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_465) {
 			$this->stopExpressionVersion = $this->getLInt();
 		}
 		$this->controller = $this->getString();
@@ -123,7 +123,7 @@ class AnimateEntityPacket extends DataPacket
 		$this->putString($this->animation);
 		$this->putString($this->nextState);
 		$this->putString($this->stopExpression);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_465) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_465) {
 			$this->putLInt($this->stopExpressionVersion);
 		}
 		$this->putString($this->controller);

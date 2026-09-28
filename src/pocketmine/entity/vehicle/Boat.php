@@ -294,7 +294,7 @@ class Boat extends Vehicle
 		return $this->propertyManager->getFloat(self::DATA_PADDLE_TIME_RIGHT) ?? 0.0;
 	}
 
-	protected function broadcastLink(Player $player = null, int $type = EntityLink::TYPE_RIDER) : void
+	protected function broadcastLink(?Player $player = null, int $type = EntityLink::TYPE_RIDER) : void
 	{
 		$id = spl_object_id($player);
 		foreach ($this->getViewers() as $viewer) {

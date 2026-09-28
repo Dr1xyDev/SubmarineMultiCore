@@ -23,16 +23,16 @@ declare(strict_types=1);
 namespace pocketmine\network\mcpe\protocol\types\inventory;
 
 use InvalidArgumentException;
-use InvalidStateException;
 use pocketmine\network\mcpe\NetworkBinaryStream;
 use pocketmine\network\mcpe\protocol\PacketDecodeException;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\Player;
+use pocketmine\utils\Binary;
 
 class NetworkInventoryAction
 {
 	public const SOURCE_CONTAINER = 0;
-
+	public const SOURCE_GLOBAL = 1;
 	public const SOURCE_WORLD = 2; //drop/pickup item entity
 	public const SOURCE_CREATIVE = 3;
 	public const SOURCE_UNTRACKED_INTERACTION_UI = 100;
@@ -77,85 +77,118 @@ class NetworkInventoryAction
 	public const ACTION_MAGIC_SLOT_PICKUP_ITEM = 1;
 
 	public int $sourceType;
-	public int $windowId;
-	public int $sourceFlags = 0;
+	public ?int $windowId = null;
+	public ?int $sourceFlags = null;
 	public int $inventorySlot;
 	public ItemStackWrapper $oldItem;
 	public ItemStackWrapper $newItem;
-	public ?int $newItemStackId = null;
 
 	/**
-	 * @return $this
+	 * Since 1.26.30 inventory transactions (and since 1.26.40 also PlayerAuthInput item interactions) use a format with
+	 * optionals instead of source-type-dependent fields.
 	 */
-	public function read(NetworkBinaryStream $packet, bool $hasItemStackIds, int $protocol)
+	private static function usesOptionalFormat(int $protocol, bool $legacyTransaction) : bool
 	{
-		$this->sourceType = $packet->getUnsignedVarInt();
+		return $protocol >= ProtocolInfo::PROTOCOL_2168 || ($protocol >= ProtocolInfo::PROTOCOL_1001 && $legacyTransaction);
+	}
 
-		switch ($this->sourceType) {
-			case self::SOURCE_CONTAINER:
-				$this->windowId = $packet->getVarInt();
-				break;
-			case self::SOURCE_WORLD:
-				$this->sourceFlags = $packet->getUnsignedVarInt();
-				break;
-			case self::SOURCE_CREATIVE:
-				break;
-			case self::SOURCE_UNTRACKED_INTERACTION_UI:
-			case self::SOURCE_TODO:
-				$this->windowId = $packet->getVarInt();
-				break;
-			default:
-				throw new PacketDecodeException("Unknown inventory action source type $this->sourceType");
+	public function read(NetworkBinaryStream $in, bool $legacyTransaction, bool $hasItemStackIds) : self {
+		$this->sourceType = $in->getUnsignedVarInt();
+
+		$optionalFormat = self::usesOptionalFormat($in->getProtocol(), $legacyTransaction);
+		if ($optionalFormat) {
+			//the dummy optionals were removed in 1.26.50
+			if ($in->getProtocol() < ProtocolInfo::PROTOCOL_2193 && !$in->getBool()) {
+				throw new PacketDecodeException("Inconsistent optional state for windowId");
+			}
+			//window IDs of fake inventories are negative, so this must be read as a signed byte
+			$this->windowId = $in->getOptional(fn() => Binary::signByte($in->getByte()));
+
+			if ($in->getProtocol() < ProtocolInfo::PROTOCOL_2193 && !$in->getBool()) {
+				throw new PacketDecodeException("Inconsistent optional state for sourceFlags");
+			}
+			$this->sourceFlags = $in->getOptional($in->getUnsignedVarInt(...));
+		} else {
+			switch ($this->sourceType) {
+				case self::SOURCE_TODO:
+				case self::SOURCE_UNTRACKED_INTERACTION_UI:
+				case self::SOURCE_CONTAINER:
+					$this->windowId = $in->getVarInt();
+					break;
+				case self::SOURCE_WORLD:
+					$this->sourceFlags = $in->getUnsignedVarInt();
+					break;
+				case self::SOURCE_CREATIVE:
+					break;
+				default:
+					throw new PacketDecodeException("Unknown inventory action source type $this->sourceType");
+			}
 		}
 
-		$this->inventorySlot = $packet->getUnsignedVarInt();
-		$this->oldItem = $packet->getItemStackWrapper($protocol);
-		$this->newItem = $packet->getItemStackWrapper($protocol);
+		$this->inventorySlot = $in->getUnsignedVarInt();
+		if ($optionalFormat) {
+			$this->oldItem = $in->getNetworkItemStackDescriptor();
+			$this->newItem = $in->getNetworkItemStackDescriptor();
+		} else {
+			$this->oldItem = $in->getItemStackWrapper();
+			$this->newItem = $in->getItemStackWrapper();
+		}
 
-		if ($protocol >= ProtocolInfo::PROTOCOL_407 && $protocol < ProtocolInfo::PROTOCOL_431) {
-			if ($hasItemStackIds) {
-				$this->newItemStackId = $packet->readServerItemStackId();
-			}
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_407 && $in->getProtocol() < ProtocolInfo::PROTOCOL_431 && $hasItemStackIds) {
+			$this->newItem = new ItemStackWrapper($in->readServerItemStackId(), $this->newItem->getItemStack());
 		}
 
 		return $this;
 	}
 
-	/**
-	 * @return void
-	 */
-	public function write(NetworkBinaryStream $packet, bool $hasItemStackIds, int $protocol)
-	{
-		$packet->putUnsignedVarInt($this->sourceType);
+	public function write(NetworkBinaryStream $out, bool $legacyTransaction, bool $hasItemStackIds) : void{
+		$out->putUnsignedVarInt($this->sourceType);
 
-		switch ($this->sourceType) {
-			case self::SOURCE_CONTAINER:
-				$packet->putVarInt($this->windowId);
-				break;
-			case self::SOURCE_WORLD:
-				$packet->putUnsignedVarInt($this->sourceFlags);
-				break;
-			case self::SOURCE_CREATIVE:
-				break;
-			case self::SOURCE_UNTRACKED_INTERACTION_UI:
-			case self::SOURCE_TODO:
-				$packet->putVarInt($this->windowId);
-				break;
-			default:
-				throw new InvalidArgumentException("Unknown inventory action source type $this->sourceType");
+		$optionalFormat = self::usesOptionalFormat($out->getProtocol(), $legacyTransaction);
+		if ($optionalFormat) {
+			if ($out->getProtocol() < ProtocolInfo::PROTOCOL_2193) {
+				$out->putBool(true);
+			}
+			$out->putOptional($this->windowId, $out->putByte(...));
+
+			if ($out->getProtocol() < ProtocolInfo::PROTOCOL_2193) {
+				$out->putBool(true);
+			}
+			$out->putOptional($this->sourceFlags, $out->putUnsignedVarInt(...));
+		} else {
+			switch ($this->sourceType) {
+				case self::SOURCE_TODO:
+				case self::SOURCE_UNTRACKED_INTERACTION_UI:
+				case self::SOURCE_CONTAINER:
+					if ($this->windowId === null) {
+						throw new \LogicException("WindowID must be set for SOURCE_CONTAINER");
+					}
+					$out->putVarInt($this->windowId);
+					break;
+				case self::SOURCE_WORLD:
+					if ($this->sourceFlags === null) {
+						throw new \LogicException("SourceFlags must be set for SOURCE_WORLD");
+					}
+					$out->putUnsignedVarInt($this->sourceFlags);
+					break;
+				case self::SOURCE_CREATIVE:
+					break;
+				default:
+					throw new InvalidArgumentException("Unknown inventory action source type $this->sourceType");
+			}
 		}
 
-		$packet->putUnsignedVarInt($this->inventorySlot);
-		$packet->putItemStackWrapper($this->oldItem, $protocol);
-		$packet->putItemStackWrapper($this->newItem, $protocol);
+		$out->putUnsignedVarInt($this->inventorySlot);
+		if ($optionalFormat) {
+			$out->putNetworkItemStackDescriptor($this->oldItem);
+			$out->putNetworkItemStackDescriptor($this->newItem);
+		} else {
+			$out->putItemStackWrapper($this->oldItem);
+			$out->putItemStackWrapper($this->newItem);
+		}
 
-		if ($protocol >= ProtocolInfo::PROTOCOL_407 && $protocol < ProtocolInfo::PROTOCOL_431) {
-			if ($hasItemStackIds) {
-				if ($this->newItemStackId === null) {
-					throw new InvalidStateException("Item stack ID for newItem must be provided");
-				}
-				$packet->writeServerItemStackId($this->newItemStackId);
-			}
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_407 && $out->getProtocol() < ProtocolInfo::PROTOCOL_431 && $hasItemStackIds) {
+			$out->writeServerItemStackId($this->newItem->getStackId());
 		}
 	}
 }

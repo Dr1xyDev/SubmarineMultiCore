@@ -26,7 +26,6 @@ use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\NamedTag;
 use pocketmine\utils\Utils;
 use pocketmine\VersionInfo;
-
 use function array_keys;
 use function count;
 use function implode;
@@ -45,8 +44,8 @@ final class BlockStateData
 	public const CURRENT_VERSION =
 		(1 << 24) | //major
 		(21 << 16) | //minor
-		(70 << 8) | //patch
-		(1); //revision
+		(60 << 8) | //patch
+		(33); //revision
 
 	public const TAG_NAME = "name";
 	public const TAG_STATES = "states";

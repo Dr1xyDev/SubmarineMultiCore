@@ -38,7 +38,6 @@ use function boolval;
 use function cos;
 use function deg2rad;
 use function floor;
-use function in_array;
 use function intval;
 use function sin;
 
@@ -73,6 +72,12 @@ abstract class Mob extends Living
 	protected $bodyHelper;
 	/** @var EntityLookHelper */
 	protected $lookHelper;
+
+	protected bool $hasPlayerAround = false;
+	protected int $lastPlayerAroundCheck = -1;
+	protected int $sightCacheTick = 0;
+	protected int $despawnCheckTick = 0;
+	protected int $entityCollisionTick = 0;
 
 	public $yawOffset = 0.0;
 
@@ -157,6 +162,21 @@ abstract class Mob extends Living
 			return false;
 		}
 
+		if ($this->isAlive() && ($this->lastPlayerAroundCheck === -1 || $this->lastPlayerAroundCheck + 20 < $currentTick)) {
+			$this->hasPlayerAround = false;
+			foreach ($this->getViewers() as $viewer) {
+				if ($viewer instanceof Player && $this->distanceSquared($viewer) < 1024) { // 32^2
+					$this->hasPlayerAround = true;
+					break;
+				}
+			}
+			$this->lastPlayerAroundCheck = $currentTick;
+		}
+
+		if ($this->isAlive() && !$this->hasPlayerAround) { //freeze entity till no player around
+			return true;
+		}
+
 		$hasUpdate = false;
 
 		if (!$this->isImmobile()) {
@@ -195,7 +215,10 @@ abstract class Mob extends Living
 		$this->lookHelper->onUpdate();
 		$this->jumpHelper->doJump();
 
-		$this->clearSightCache();
+		if (++$this->sightCacheTick >= 5) {
+			$this->clearSightCache();
+			$this->sightCacheTick = 0;
+		}
 
 		if ($this->isJumping) {
 			if ($this->isInsideOfWater()) {
@@ -216,25 +239,29 @@ abstract class Mob extends Living
 
 		$this->bodyHelper->onUpdate();
 
-		$this->tryToDespawn();
+		if (++$this->despawnCheckTick >= 100) {
+			$this->tryToDespawn();
+			$this->despawnCheckTick = 0;
+		}
 
 		return (bool) $hasUpdate;
 	}
 
 	public function canSeeEntity(Entity $target) : bool
 	{
-		if (in_array($target->getId(), $this->unseenEntities, true)) {
+		$targetId = $target->getId();
+		if (isset($this->unseenEntities[$targetId])) {
 			return false;
-		} elseif (in_array($target->getId(), $this->seenEntities, true)) {
+		} elseif (isset($this->seenEntities[$targetId])) {
 			return true;
 		} else {
 			// TODO: Fix seen from corners
 			$canSee = $this->getNavigator()->isClearBetweenPoints($this, $target);
 
 			if ($canSee) {
-				$this->seenEntities[] = $target->getId();
+				$this->seenEntities[$targetId] = true;
 			} else {
-				$this->unseenEntities[] = $target->getId();
+				$this->unseenEntities[$targetId] = true;
 			}
 
 			return $canSee;
@@ -282,6 +309,13 @@ abstract class Mob extends Living
 		return 40;
 	}
 
+	protected function checkEntityCollision() : void
+	{
+		if (++$this->entityCollisionTick % 4 === 0) {
+			parent::checkEntityCollision();
+		}
+	}
+
 	public function canBePushed() : bool
 	{
 		return !$this->isImmobile();
@@ -324,7 +358,7 @@ abstract class Mob extends Living
 
 	protected function tryToDespawn() : void
 	{
-		if ($this->canDespawn() && $this->level->getNearestEntity($this, 128, Player::class, true) === null) {
+		if ($this->canDespawn() && !$this->hasPlayerAround && $this->level->getNearestEntity($this, 128, Player::class, true) === null) {
 			$this->flagForDespawn();
 		}
 	}

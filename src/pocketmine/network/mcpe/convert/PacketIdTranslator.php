@@ -22,17 +22,10 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\convert;
 
-use pocketmine\network\mcpe\convert\protocol\ProtocolInfo110;
-use pocketmine\network\mcpe\convert\protocol\ProtocolInfo137;
-use pocketmine\network\mcpe\convert\protocol\ProtocolInfo261;
-use pocketmine\network\mcpe\convert\protocol\ProtocolInfo274;
-use pocketmine\network\mcpe\convert\protocol\ProtocolInfo282;
-use pocketmine\network\mcpe\convert\protocol\ProtocolInfo313;
-use pocketmine\network\mcpe\convert\protocol\ProtocolInfo332;
-use pocketmine\network\mcpe\convert\protocol\ProtocolInfo340;
-use pocketmine\network\mcpe\convert\protocol\ProtocolInfo354;
-use pocketmine\network\mcpe\convert\protocol\ProtocolInfo361;
-use pocketmine\network\mcpe\convert\protocol\ProtocolInfo388;
+use pocketmine\network\mcpe\convert\protocol\ProtocolInfo1001;
+use pocketmine\network\mcpe\convert\protocol\ProtocolInfo113;
+use pocketmine\network\mcpe\convert\protocol\ProtocolInfo2168;
+use pocketmine\network\mcpe\convert\protocol\ProtocolInfo2193;
 use pocketmine\network\mcpe\convert\protocol\ProtocolInfo407;
 use pocketmine\network\mcpe\convert\protocol\ProtocolInfo419;
 use pocketmine\network\mcpe\convert\protocol\ProtocolInfo422;
@@ -70,6 +63,10 @@ use pocketmine\network\mcpe\convert\protocol\ProtocolInfo800;
 use pocketmine\network\mcpe\convert\protocol\ProtocolInfo818;
 use pocketmine\network\mcpe\convert\protocol\ProtocolInfo844;
 use pocketmine\network\mcpe\convert\protocol\ProtocolInfo859;
+use pocketmine\network\mcpe\convert\protocol\ProtocolInfo897;
+use pocketmine\network\mcpe\convert\protocol\ProtocolInfo924;
+use pocketmine\network\mcpe\convert\protocol\ProtocolInfo944;
+use pocketmine\network\mcpe\convert\protocol\ProtocolInfo975;
 use pocketmine\network\mcpe\protocol\PacketDecodeException;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\utils\SingletonTrait;
@@ -87,6 +84,13 @@ class PacketIdTranslator
 	private static function make() : self
 	{
 		return new self([
+			ProtocolInfo::PROTOCOL_2193 => ProtocolInfo2193::class,
+			ProtocolInfo::PROTOCOL_2168 => ProtocolInfo2168::class,
+			ProtocolInfo::PROTOCOL_1001 => ProtocolInfo1001::class,
+			ProtocolInfo::PROTOCOL_975 => ProtocolInfo975::class,
+			ProtocolInfo::PROTOCOL_944 => ProtocolInfo944::class,
+			ProtocolInfo::PROTOCOL_924 => ProtocolInfo924::class,
+			ProtocolInfo::PROTOCOL_897 => ProtocolInfo897::class,
 			ProtocolInfo::PROTOCOL_859 => ProtocolInfo859::class,
 			ProtocolInfo::PROTOCOL_844 => ProtocolInfo844::class,
 			ProtocolInfo::PROTOCOL_818 => ProtocolInfo818::class,
@@ -124,17 +128,7 @@ class PacketIdTranslator
 			ProtocolInfo::PROTOCOL_422 => ProtocolInfo422::class,
 			ProtocolInfo::PROTOCOL_419 => ProtocolInfo419::class,
 			ProtocolInfo::PROTOCOL_407 => ProtocolInfo407::class,
-			ProtocolInfo::PROTOCOL_388 => ProtocolInfo388::class,
-			ProtocolInfo::PROTOCOL_361 => ProtocolInfo361::class,
-			ProtocolInfo::PROTOCOL_354 => ProtocolInfo354::class,
-			ProtocolInfo::PROTOCOL_340 => ProtocolInfo340::class,
-			ProtocolInfo::PROTOCOL_332 => ProtocolInfo332::class,
-			ProtocolInfo::PROTOCOL_313 => ProtocolInfo313::class,
-			ProtocolInfo::PROTOCOL_282 => ProtocolInfo282::class,
-			ProtocolInfo::PROTOCOL_274 => ProtocolInfo274::class,
-			ProtocolInfo::PROTOCOL_261 => ProtocolInfo261::class,
-			ProtocolInfo::PROTOCOL_137 => ProtocolInfo137::class,
-			ProtocolInfo::PROTOCOL_110 => ProtocolInfo110::class,
+			ProtocolInfo::PROTOCOL_113 => ProtocolInfo113::class,
 		]);
 	}
 

@@ -83,9 +83,9 @@ final class BiomeCappedSurfaceData
 			$ceilingBlocks[] = $in->getLInt();
 		}
 
-		$seaBlock = $in->readOptional($in->getLInt(...));
-		$foundationBlock = $in->readOptional($in->getLInt(...));
-		$beachBlock = $in->readOptional($in->getLInt(...));
+		$seaBlock = $in->getOptional($in->getLInt(...));
+		$foundationBlock = $in->getOptional($in->getLInt(...));
+		$beachBlock = $in->getOptional($in->getLInt(...));
 
 		return new self(
 			$floorBlocks,
@@ -108,8 +108,8 @@ final class BiomeCappedSurfaceData
 			$out->putLInt($block);
 		}
 
-		$out->writeOptional($this->seaBlock, $out->putLInt(...));
-		$out->writeOptional($this->foundationBlock, $out->putLInt(...));
-		$out->writeOptional($this->beachBlock, $out->putLInt(...));
+		$out->putOptional($this->seaBlock, $out->putLInt(...));
+		$out->putOptional($this->foundationBlock, $out->putLInt(...));
+		$out->putOptional($this->beachBlock, $out->putLInt(...));
 	}
 }

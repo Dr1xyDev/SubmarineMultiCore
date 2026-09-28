@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class WoodenButton extends Button
 {
 	public function getHardness() : float
@@ -39,14 +37,5 @@ class WoodenButton extends Button
 	protected function getActivationTime() : int
 	{
 		return 30;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_261) {
-			return BlockFactory::get(BlockIds::WOODEN_BUTTON, $this->meta);
-		}
-
-		return null;
 	}
 }

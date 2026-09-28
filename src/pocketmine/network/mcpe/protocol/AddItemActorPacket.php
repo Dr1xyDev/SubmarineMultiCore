@@ -66,11 +66,11 @@ class AddItemActorPacket extends DataPacket
 	{
 		$this->entityUniqueId = $this->getEntityUniqueId();
 		$this->entityRuntimeId = $this->getEntityRuntimeId();
-		$this->item = $this->getItemStackWrapper($this->getProtocol());
+		$this->item = $this->getItemStackWrapper();
 		$this->position = $this->getVector3();
 		$this->motion = $this->getVector3();
-		$this->metadata = $this->getEntityMetadata($this->getProtocol());
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_223) {
+		$this->metadata = $this->getEntityMetadata();
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->isFromFishing = $this->getBool();
 		}
 	}
@@ -79,11 +79,11 @@ class AddItemActorPacket extends DataPacket
 	{
 		$this->putEntityUniqueId($this->entityUniqueId ?? $this->entityRuntimeId);
 		$this->putEntityRuntimeId($this->entityRuntimeId);
-		$this->putItemStackWrapper($this->item, $this->getProtocol());
+		$this->putItemStackWrapper($this->item);
 		$this->putVector3($this->position);
 		$this->putVector3Nullable($this->motion);
-		$this->putEntityMetadata($this->metadata, $this->getProtocol());
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_223) {
+		$this->putEntityMetadata($this->metadata);
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->putBool($this->isFromFishing);
 		}
 	}

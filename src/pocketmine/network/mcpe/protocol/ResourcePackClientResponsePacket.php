@@ -40,8 +40,37 @@ class ResourcePackClientResponsePacket extends DataPacket
 	/** @var string[] */
 	public $packIds = [];
 
+	/**
+	 * Since 1.26.40 the status is 0-based and followed by a name. Indexed by network status (= core status - 1).
+	 */
+	private const STATUS_NAMES_V2168 = [
+		"cancel",
+		"downloading",
+		"downloadingfinished",
+		"resourcepackstackfinished",
+	];
+
 	protected function decodePayload() : void
 	{
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_2168) {
+			$networkStatus = $this->getUnsignedVarInt();
+			$statusName = $this->getString();
+			if ((self::STATUS_NAMES_V2168[$networkStatus] ?? null) !== $statusName) {
+				throw new PacketDecodeException("Unexpected resource pack client response status $networkStatus ($statusName)");
+			}
+			$this->status = $networkStatus + 1;
+			if ($this->status === self::STATUS_SEND_PACKS) {
+				$entryCount = $this->getUnsignedVarInt();
+				if ($entryCount > 128) {
+					throw new PacketDecodeException("Too many entry count in resource pack response: " . $entryCount);
+				}
+				while ($entryCount-- > 0) {
+					$this->packIds[] = $this->getString();
+				}
+			}
+			return;
+		}
+
 		$this->status = $this->getByte();
 		$entryCount = $this->getLShort();
 		if ($entryCount > 128) {
@@ -54,6 +83,22 @@ class ResourcePackClientResponsePacket extends DataPacket
 
 	protected function encodePayload() : void
 	{
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_2168) {
+			$networkStatus = $this->status - 1;
+			if (!isset(self::STATUS_NAMES_V2168[$networkStatus])) {
+				throw new \LogicException("Unknown resource pack client response status $this->status");
+			}
+			$this->putUnsignedVarInt($networkStatus);
+			$this->putString(self::STATUS_NAMES_V2168[$networkStatus]);
+			if ($this->status === self::STATUS_SEND_PACKS) {
+				$this->putUnsignedVarInt(count($this->packIds));
+				foreach ($this->packIds as $id) {
+					$this->putString($id);
+				}
+			}
+			return;
+		}
+
 		$this->putByte($this->status);
 		$this->putLShort(count($this->packIds));
 		foreach ($this->packIds as $id) {

@@ -43,6 +43,10 @@ class GoldLeggings extends Armor
 		return 106;
 	}
 
+	public function getEnchantAbility() : int{
+		return 25;
+	}
+
 	public function getArmorSlot() : int
 	{
 		return ArmorSlot::SLOT_LEGGINGS;

@@ -25,7 +25,8 @@ namespace pocketmine\level\sound;
 use pocketmine\block\Block;
 use pocketmine\entity\Entity;
 use pocketmine\math\Vector3;
-use pocketmine\network\mcpe\convert\RuntimeBlockMapping;
+use pocketmine\network\mcpe\convert\block\BlockProtocolConvertor;
+use pocketmine\network\mcpe\convert\block\RuntimeBlockMapping;
 use pocketmine\network\mcpe\protocol\AddActorPacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
@@ -43,11 +44,11 @@ final class EntityLandSound extends Sound
 
 	public function encode()
 	{
-		$blockLandedOn = $this->blockLandedOn->getBlockProtocol($this->protocol) ?? $this->blockLandedOn;
+		$blockLandedOn = BlockProtocolConvertor::getInstance()->get($this->blockLandedOn, $this->protocol) ?? $this->blockLandedOn;
 		return [LevelSoundEventPacket::create(
 			LevelSoundEventPacket::SOUND_FALL,
 			$this,
-			($this->protocol >= ProtocolInfo::PROTOCOL_223 ?
+			($this->protocol >= ProtocolInfo::PROTOCOL_407 ?
 				RuntimeBlockMapping::getInstance($this->protocol)->toRuntimeId($blockLandedOn->getFullId()) :
 				$blockLandedOn->getId()),
 			($this->entity instanceof Player ?
@@ -55,7 +56,8 @@ final class EntityLandSound extends Sound
 				(AddActorPacket::LEGACY_ID_MAP_BC[$this->entity::NETWORK_ID] ?? ":")), //TODO: bad hack, stuff depends on players having a -1 network ID :(
 			false, //TODO: is isBaby relevant here?
 			false,
-			$this->entity->getId()
+			$this->entity->getId(),
+			null
 		)];
 	}
 

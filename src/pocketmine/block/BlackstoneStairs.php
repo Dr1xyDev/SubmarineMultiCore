@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace pocketmine\block;
 
 use pocketmine\item\TieredTool;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 class BlackstoneStairs extends Stair
 {
@@ -45,13 +44,5 @@ class BlackstoneStairs extends Stair
 	public function getBlastResistance() : float
 	{
 		return 6;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_419) {
-			return BlockFactory::get(BlockIds::STONE_BRICK_STAIRS, $this->meta);
-		}
-
-		return null;
 	}
 }

@@ -31,8 +31,8 @@ use pocketmine\Server;
 use pocketmine\thread\NonThreadSafeValue;
 use pocketmine\timings\Timings;
 use RuntimeException;
-use SplObjectStorage;
 use Throwable;
+use WeakMap;
 
 use function is_null;
 use function is_scalar;
@@ -59,10 +59,10 @@ use function unserialize;
 abstract class AsyncTask extends Runnable
 {
 	/**
-	 * @var SplObjectStorage|null
+	 * @var WeakMap|null
 	 * Used to store objects on the main thread which should not be serialized.
 	 */
-	private static $localObjectStorage;
+	private static ?WeakMap $localObjectStorage = null;
 
 	/** @var AsyncWorker $worker */
 	protected $worker = null;
@@ -276,7 +276,7 @@ abstract class AsyncTask extends Runnable
 		}
 
 		if (self::$localObjectStorage === null) {
-			self::$localObjectStorage = new SplObjectStorage(); //lazy init
+			self::$localObjectStorage = new WeakMap(); //lazy init
 		}
 
 		if (isset(self::$localObjectStorage[$this])) {

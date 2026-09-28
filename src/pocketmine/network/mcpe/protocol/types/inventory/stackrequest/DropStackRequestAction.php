@@ -56,18 +56,18 @@ final class DropStackRequestAction extends ItemStackRequestAction
 		return $this->randomly;
 	}
 
-	public static function read(NetworkBinaryStream $in, int $playerProtocol) : self
+	public static function read(NetworkBinaryStream $in) : self
 	{
 		$count = $in->getByte();
-		$source = ItemStackRequestSlotInfo::read($in, $playerProtocol);
+		$source = ItemStackRequestSlotInfo::read($in);
 		$random = $in->getBool();
 		return new self($count, $source, $random);
 	}
 
-	public function write(NetworkBinaryStream $out, int $playerProtocol) : void
+	public function write(NetworkBinaryStream $out) : void
 	{
 		$out->putByte($this->count);
-		$this->source->write($out, $playerProtocol);
+		$this->source->write($out);
 		$out->putBool($this->randomly);
 	}
 }

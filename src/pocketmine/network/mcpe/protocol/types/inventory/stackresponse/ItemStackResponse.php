@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace pocketmine\network\mcpe\protocol\types\inventory\stackresponse;
 
 use pocketmine\network\mcpe\NetworkBinaryStream;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 use function count;
 
@@ -62,27 +63,36 @@ final class ItemStackResponse
 		return $this->containerInfos;
 	}
 
-	public static function read(NetworkBinaryStream $in, int $playerProtocol) : self
+	public static function read(NetworkBinaryStream $in) : self
 	{
 		$result = $in->getByte();
 		$requestId = $in->readItemStackRequestId();
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_2168) {
+			//since 1.26.40 the container infos are an optional list (wrapped in a dummy optional until 1.26.50)
+			$containerInfos = $in->getProtocolOptional(fn() => $in->getList(fn() => ItemStackResponseContainerInfo::read($in), 256)) ?? [];
+			return new self($result, $requestId, $containerInfos);
+		}
 		$containerInfos = [];
 		if($result === self::RESULT_OK) {
 			for ($i = 0, $len = $in->getUnsignedVarInt(); $i < $len; ++$i) {
-				$containerInfos[] = ItemStackResponseContainerInfo::read($in, $playerProtocol);
+				$containerInfos[] = ItemStackResponseContainerInfo::read($in);
 			}
 		}
 		return new self($result, $requestId, $containerInfos);
 	}
 
-	public function write(NetworkBinaryStream $out, int $playerProtocol) : void
+	public function write(NetworkBinaryStream $out) : void
 	{
 		$out->putByte($this->result);
 		$out->writeItemStackRequestId($this->requestId);
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_2168) {
+			$out->putProtocolOptional($this->result === self::RESULT_OK ? $this->containerInfos : null, fn(array $infos) => $out->putList($infos, fn(ItemStackResponseContainerInfo $info) => $info->write($out)));
+			return;
+		}
 		if($this->result === self::RESULT_OK) {
 			$out->putUnsignedVarInt(count($this->containerInfos));
 			foreach ($this->containerInfos as $containerInfo) {
-				$containerInfo->write($out, $playerProtocol);
+				$containerInfo->write($out);
 			}
 		}
 	}

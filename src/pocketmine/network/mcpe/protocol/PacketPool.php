@@ -254,12 +254,34 @@ class PacketPool
 		self::registerPacket(new PlayerVideoCapturePacket());
 		self::registerPacket(new PlayerLocationPacket());
 		self::registerPacket(new ClientboundControlSchemeSetPacket());
-		self::registerPacket(new DebugDrawerPacket());
+		self::registerPacket(new DebugDrawePrimitiveShapesPacket());
 		self::registerPacket(new ServerboundPackSettingChangePacket());
 		self::registerPacket(new SubChunkRequestPacket());
 		self::registerPacket(new SubChunkPacket());
-		self::registerPacket(new DataStoreSyncPacket());
+		self::registerPacket(new ClientboundDataStorePacket());
 		self::registerPacket(new GraphicsOverrideParameterPacket());
+		self::registerPacket(new ServerboundDataStorePacket());
+		self::registerPacket(new CameraAimAssistActorPriorityPacket());
+		self::registerPacket(new CameraSplinePacket());
+		self::registerPacket(new ClientboundDataDrivenUICloseAllScreensPacket());
+		self::registerPacket(new ClientboundDataDrivenUIReloadPacket());
+		self::registerPacket(new ClientboundDataDrivenUIShowScreenPacket());
+		self::registerPacket(new ClientboundTextureShiftPacket());
+		self::registerPacket(new VoxelShapesPacket());
+		self::registerPacket(new ResourcePacksReadyForValidationPacket());
+		self::registerPacket(new LocatorBarPacket());
+		self::registerPacket(new PartyChangedPacket());
+		self::registerPacket(new ServerboundDataDrivenScreenClosedPacket());
+		self::registerPacket(new SyncWorldClocksPacket());
+		self::registerPacket(new ClientboundAttributeLayerSyncPacket());
+		self::registerPacket(new ServerStoreInfoPacket());
+		self::registerPacket(new ServerPresenceInfoPacket());
+		self::registerPacket(new ClientboundUpdateSoundDataPacket());
+		self::registerPacket(new PartyDestinationCookieResponsePacket());
+		self::registerPacket(new SendPartyDestinationCookiePacket());
+		self::registerPacket(new SetPlayerFurnaceOptionsPacket());
+		self::registerPacket(new RecordStartedPacket());
+		self::registerPacket(new ClientboundCloseFormPacket());
 		// ExplodePacket - TickSyncPacket
 		self::registerPacket(new ExplodePacket());
 		// 1.1

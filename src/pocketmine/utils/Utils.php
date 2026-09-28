@@ -470,7 +470,7 @@ class Utils
 	 * @deprecated
 	 * @see Process::execute()
 	 */
-	public static function execute(string $command, string &$stdout = null, string &$stderr = null) : int
+	public static function execute(string $command, ?string &$stdout = null, ?string &$stderr = null) : int
 	{
 		return Process::execute($command, $stdout, $stderr);
 	}
@@ -481,7 +481,7 @@ class Utils
 	 */
 	public static function decodeJWT(string $token) : array
 	{
-		[$headB64, $payloadB64, $sigB64] = explode(".", $token);
+		[$headB64, $payloadB64, $sigB64] = explode(".", $token, 3) + ["", "", ""];
 
 		$rawPayloadJSON = base64_decode(strtr($payloadB64, '-_', '+/'), true);
 		if ($rawPayloadJSON === false) {
@@ -868,5 +868,21 @@ class Utils
 	public static function getRandomFloat() : float
 	{
 		return mt_rand() / mt_getrandmax();
+	}
+
+	public static function shuffledCopy(array $list, ?Random $random = null) : array {
+		if ($random === null) {
+			$random = new Random();
+		}
+
+		$intArrayList = $list;
+		$size = count($intArrayList);
+
+		for ($i = $size; $i > 1; $i--) {
+			$j = $random->nextBoundedInt($i);
+			[$intArrayList[$i - 1], $intArrayList[$j]] = [$intArrayList[$j], $intArrayList[$i - 1]];
+		}
+
+		return $intArrayList;
 	}
 }

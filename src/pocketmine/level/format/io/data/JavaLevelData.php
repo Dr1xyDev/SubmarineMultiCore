@@ -37,13 +37,11 @@ use pocketmine\utils\Filesystem;
 use pocketmine\utils\Utils;
 use Symfony\Component\Filesystem\Path;
 use UnexpectedValueException;
-
 use function ceil;
 use function file_put_contents;
 use function microtime;
 use function zlib_decode;
 use function zlib_encode;
-
 use const ZLIB_ENCODING_GZIP;
 
 class JavaLevelData extends BaseNbtLevelData

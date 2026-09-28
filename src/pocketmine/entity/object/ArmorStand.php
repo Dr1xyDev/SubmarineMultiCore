@@ -101,13 +101,11 @@ class ArmorStand extends Living
 		$this->propertyManager->setString(self::DATA_INTERACTIVE_TAG, "armorstand.change.pose");
 	}
 
-	public function setPose(int $pose) : void
-	{
+	public function setPose(int $pose) : void{
 		$this->propertyManager->setInt(self::DATA_ARMOR_STAND_POSE_INDEX, $pose);
 	}
 
-	public function getPose() : int
-	{
+	public function getPose() : int{
 		return $this->propertyManager->getInt(self::DATA_ARMOR_STAND_POSE_INDEX);
 	}
 
@@ -157,24 +155,34 @@ class ArmorStand extends Living
 		return false;
 	}
 
-	protected function tryChangeEquipment(Player $player, Item $targetItem, int $slot, bool $isArmorSlot = false) : void
-	{
+	protected function tryChangeEquipment(Player $player, Item $targetItem, int $slot, bool $isArmorSlot = false) : void{
 		$sourceItem = $isArmorSlot ? $this->armorInventory->getItem($slot) : $this->equipment->getItem($slot);
 
-		if ($isArmorSlot) {
-			$this->armorInventory->setItem($slot, (clone $targetItem)->setCount(1));
+		if ($player->isCreative() && $sourceItem->isNull() && !$targetItem->isNull()) {
+			$newItem = (clone $targetItem)->setCount(1);
+			if ($isArmorSlot) {
+				$this->armorInventory->setItem($slot, $newItem);
+			} else {
+				$this->equipment->setItem($slot, $newItem);
+			}
+		} elseif ($targetItem->isNull() || $targetItem->getCount() <= 1) {
+			if ($isArmorSlot) {
+				$this->armorInventory->setItem($slot, $targetItem);
+			} else {
+				$this->equipment->setItem($slot, $targetItem);
+			}
+			$player->getInventory()->setItemInHand($sourceItem);
+		} elseif (!$sourceItem->isNull()) {
+			return;
 		} else {
-			$this->equipment->setItem($slot, (clone $targetItem)->setCount(1));
-		}
-
-		if (!$targetItem->isNull() && $player->isSurvival()) {
-			$targetItem->pop();
-		}
-
-		if (!$targetItem->isNull() && $targetItem->equals($sourceItem)) {
-			$targetItem->setCount($targetItem->getCount() + $sourceItem->getCount());
-		} else {
-			$player->getInventory()->addItem($sourceItem);
+			//$targetItem is a copy of the held item: the held stack itself must shrink, or the item gets duplicated
+			$newItem = $targetItem->pop(1);
+			if ($isArmorSlot) {
+				$this->armorInventory->setItem($slot, $newItem);
+			} else {
+				$this->equipment->setItem($slot, $newItem);
+			}
+			$player->getInventory()->setItemInHand($targetItem);
 		}
 
 		$this->equipment->sendContents($player);
@@ -255,7 +263,7 @@ class ArmorStand extends Living
 
 	protected function sendSpawnPacket(Player $player) : void
 	{
-		if ($player->getProtocolVersion() >= ProtocolInfo::PROTOCOL_137) {
+		if ($player->getProtocolVersion() >= ProtocolInfo::PROTOCOL_407) {
 			parent::sendSpawnPacket($player);
 
 			$this->equipment->sendContents($player);

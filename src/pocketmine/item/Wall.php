@@ -36,10 +36,10 @@ class Wall extends ItemBlock
 
 	public function getItemProtocol(int $playerProtocol) : ?TranslatedItemData
 	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_332) {
-			return new TranslatedItemData(ItemIds::COBBLESTONE_WALL, ($this->olderMetaBlockId % 2));
+		if ($playerProtocol < ProtocolInfo::PROTOCOL_407) {
+			return new TranslatedItemData(ItemIds::COBBLESTONE_WALL, ($this->olderMetaBlockId % 2), $this->getName());
 		}elseif ($playerProtocol < ProtocolInfo::PROTOCOL_729) {
-			return new TranslatedItemData(ItemIds::COBBLESTONE_WALL, $this->olderMetaBlockId);
+			return new TranslatedItemData(ItemIds::COBBLESTONE_WALL, $this->olderMetaBlockId, $this->getName());
 		}
 
 		return null;

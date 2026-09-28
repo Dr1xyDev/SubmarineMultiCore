@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace pocketmine\network\mcpe\protocol\types\inventory;
 
 use pocketmine\network\mcpe\NetworkBinaryStream;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 final class CreativeGroupEntry
 {
@@ -48,18 +49,23 @@ final class CreativeGroupEntry
 		return $this->icon;
 	}
 
-	public static function read(NetworkBinaryStream $in, int $protocolVersion) : self
+	public static function read(NetworkBinaryStream $in) : self
 	{
-		$categoryId = $in->getLInt();
+		//since 1.26.40 the category is a byte
+		$categoryId = $in->getProtocol() >= ProtocolInfo::PROTOCOL_2168 ? $in->getByte() : $in->getLInt();
 		$categoryName = $in->getString();
-		$icon = $in->getItemStackWithoutStackId($protocolVersion);
+		$icon = $in->getItemStackWithoutStackId();
 		return new self($categoryId, $categoryName, $icon);
 	}
 
-	public function write(NetworkBinaryStream $out, int $protocolVersion) : void
+	public function write(NetworkBinaryStream $out) : void
 	{
-		$out->putLInt($this->categoryId);
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_2168) {
+			$out->putByte($this->categoryId);
+		} else {
+			$out->putLInt($this->categoryId);
+		}
 		$out->putString($this->categoryName);
-		$out->putItemStackWithoutStackId($this->icon, $protocolVersion);
+		$out->putItemStackWithoutStackId($this->icon);
 	}
 }

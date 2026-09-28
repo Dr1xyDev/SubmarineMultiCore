@@ -95,9 +95,17 @@ class Spider extends Monster implements Ageable, Arthropod
 
 	public function getDrops() : array
 	{
-		$drops = [ItemFactory::get(Item::STRING, 0, rand(0, 2))];
+		$looting = $this->getLootingLevel();
+		$drops = [];
+
+		$string = rand(0, 2 + $looting);
+		if ($string > 0) {
+			$drops[] = ItemFactory::get(Item::STRING, 0, $string);
+		}
+
 		if ($this->getRevengeTarget() instanceof Player && $this->level->random->nextBoundedInt(3) === 0) {
-			$drops[] = ItemFactory::get(Item::SPIDER_EYE);
+			$spiderEyes = 1 + ($looting > 0 ? rand(0, $looting) : 0);
+			$drops[] = ItemFactory::get(Item::SPIDER_EYE, 0, $spiderEyes);
 		}
 		return $drops;
 	}

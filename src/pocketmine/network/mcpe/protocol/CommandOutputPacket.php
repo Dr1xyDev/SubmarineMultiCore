@@ -26,44 +26,57 @@ use pocketmine\network\mcpe\NetworkSession;
 use pocketmine\network\mcpe\protocol\types\command\CommandOriginData;
 use pocketmine\network\mcpe\protocol\types\command\CommandOutputMessage;
 
+use pocketmine\network\mcpe\protocol\types\OutputType;
 use function count;
 
-class CommandOutputPacket extends DataPacket
-{
+class CommandOutputPacket extends DataPacket {
 	public const NETWORK_ID = ProtocolInfo::COMMAND_OUTPUT_PACKET;
 
-	/** @var CommandOriginData */
-	public $originData;
-	/** @var int */
-	public $outputType;
-	/** @var int */
-	public $successCount;
+	public CommandOriginData $originData;
+	public OutputType $outputType;
+	public int $successCount;
 	/** @var CommandOutputMessage[] */
-	public $messages = [];
-	/** @var string */
-	public $unknownString;
+	public array $messages = [];
+	public ?string $data = null;
 
 	protected function decodePayload() : void
 	{
 		$this->originData = $this->getCommandOriginData();
-		$this->outputType = $this->getByte();
-		$this->successCount = $this->getUnsignedVarInt();
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_897) {
+			$this->outputType = OutputType::fromName($this->getString());
+		} else {
+			$this->outputType = OutputType::fromPacket($this->getByte());
+		}
+
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_897) {
+			$this->successCount = $this->getLInt();
+		} else {
+			$this->successCount = $this->getUnsignedVarInt();
+		}
 
 		for ($i = 0, $size = $this->getUnsignedVarInt(); $i < $size; ++$i) {
 			$this->messages[] = $this->getCommandMessage();
 		}
 
-		if ($this->outputType === 4) {
-			$this->unknownString = $this->getString();
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_897) {
+			$this->data = $this->getOptional($this->getString(...));
+		} else {
+			if ($this->outputType === OutputType::DATA_SET) {
+				$this->data = $this->getString();
+			}
 		}
 	}
 
-	protected function getCommandMessage() : CommandOutputMessage
-	{
+	protected function getCommandMessage() : CommandOutputMessage{
 		$message = new CommandOutputMessage();
 
-		$message->isInternal = $this->getBool();
-		$message->messageId = $this->getString();
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_897) {
+			$message->messageId = $this->getString();
+			$message->isInternal = $this->getBool();
+		} else {
+			$message->isInternal = $this->getBool();
+			$message->messageId = $this->getString();
+		}
 
 		for ($i = 0, $size = $this->getUnsignedVarInt(); $i < $size; ++$i) {
 			$message->parameters[] = $this->getString();
@@ -72,26 +85,42 @@ class CommandOutputPacket extends DataPacket
 		return $message;
 	}
 
-	protected function encodePayload() : void
-	{
+	protected function encodePayload() : void{
 		$this->putCommandOriginData($this->originData);
-		$this->putByte($this->outputType);
-		$this->putUnsignedVarInt($this->successCount);
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_897) {
+			$this->putString($this->outputType->getName());
+		} else {
+			$this->putByte($this->outputType->value);
+		}
+
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_897) {
+			$this->putLInt($this->successCount);
+		} else {
+			$this->putUnsignedVarInt($this->successCount);
+		}
 
 		$this->putUnsignedVarInt(count($this->messages));
 		foreach ($this->messages as $message) {
 			$this->putCommandMessage($message);
 		}
 
-		if ($this->outputType === 4) {
-			$this->putString($this->unknownString);
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_897) {
+			$this->putOptional($this->data, $this->putString(...));
+		} else {
+			if ($this->outputType === OutputType::DATA_SET) {
+				$this->putString($this->data);
+			}
 		}
 	}
 
-	protected function putCommandMessage(CommandOutputMessage $message)
-	{
-		$this->putBool($message->isInternal);
-		$this->putString($message->messageId);
+	protected function putCommandMessage(CommandOutputMessage $message) : void{
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_897) {
+			$this->putString($message->messageId);
+			$this->putBool($message->isInternal);
+		} else {
+			$this->putBool($message->isInternal);
+			$this->putString($message->messageId);
+		}
 
 		$this->putUnsignedVarInt(count($message->parameters));
 		foreach ($message->parameters as $parameter) {
@@ -99,13 +128,11 @@ class CommandOutputPacket extends DataPacket
 		}
 	}
 
-	public function mustBeDecoded() : bool
-	{
+	public function mustBeDecoded() : bool{
 		return false;
 	}
 
-	public function handle(NetworkSession $session) : bool
-	{
+	public function handle(NetworkSession $session) : bool{
 		return $session->handleCommandOutput($this);
 	}
 }

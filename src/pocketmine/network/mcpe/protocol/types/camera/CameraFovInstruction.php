@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace pocketmine\network\mcpe\protocol\types\camera;
 
 use pocketmine\network\mcpe\NetworkBinaryStream;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 final class CameraFovInstruction
 {
@@ -32,7 +33,7 @@ final class CameraFovInstruction
 	public function __construct(
 		private float $fieldOfView,
 		private float $easeTime,
-		private int $easeType,
+		private int|string $easeType,
 		private bool $clear,
 	) {
 	}
@@ -52,7 +53,13 @@ final class CameraFovInstruction
 	 */
 	public function getEaseType() : int
 	{
-		return $this->easeType;
+		return is_int($this->easeType) ? $this->easeType : CameraSetInstructionEaseType::fromName($this->easeType);
+	}
+
+	/** Ease name, sent as a string since 1.26.10 */
+	public function getEaseTypeName() : string
+	{
+		return is_int($this->easeType) ? CameraSetInstructionEaseType::toName($this->easeType) : $this->easeType;
 	}
 
 	public function getClear() : bool
@@ -64,7 +71,7 @@ final class CameraFovInstruction
 	{
 		$fieldOfView = $in->getLFloat();
 		$easeTime = $in->getLFloat();
-		$easeType = $in->getByte();
+		$easeType = $in->getProtocol() >= ProtocolInfo::PROTOCOL_944 ? $in->getString() : $in->getByte();
 		$clear = $in->getBool();
 		return new self(
 			$fieldOfView,
@@ -78,7 +85,11 @@ final class CameraFovInstruction
 	{
 		$out->putLFloat($this->fieldOfView);
 		$out->putLFloat($this->easeTime);
-		$out->putByte($this->easeType);
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_944) {
+			$out->putString($this->getEaseTypeName());
+		} else {
+			$out->putByte($this->getEaseType());
+		}
 		$out->putBool($this->clear);
 	}
 }

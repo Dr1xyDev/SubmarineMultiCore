@@ -39,8 +39,8 @@ class ChangeDimensionPacket extends DataPacket
 		$this->dimension = $this->getVarInt();
 		$this->position = $this->getVector3();
 		$this->respawn = $this->getBool();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
-			$this->loadingScreenId = $this->readOptional(fn () => $this->getLInt());
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_712) {
+			$this->loadingScreenId = $this->getOptional(fn () => $this->getLInt());
 		}
 	}
 
@@ -49,8 +49,8 @@ class ChangeDimensionPacket extends DataPacket
 		$this->putVarInt($this->dimension);
 		$this->putVector3($this->position);
 		$this->putBool($this->respawn);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_712) {
-			$this->writeOptional($this->loadingScreenId, $this->putLInt(...));
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_712) {
+			$this->putOptional($this->loadingScreenId, $this->putLInt(...));
 		}
 	}
 

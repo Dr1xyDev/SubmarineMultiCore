@@ -45,7 +45,12 @@ class SetScoreboardIdentityPacket extends DataPacket
 		for ($i = 0, $count = $this->getUnsignedVarInt(); $i < $count; ++$i) {
 			$entry = new ScoreboardIdentityPacketEntry();
 			$entry->scoreboardId = $this->getVarLong();
-			if ($this->type === self::TYPE_REGISTER_IDENTITY) {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_2168) {
+				$entityUniqueId = $this->getOptional(fn() => $this->getEntityUniqueId());
+				if ($entityUniqueId !== null) {
+					$entry->entityUniqueId = $entityUniqueId;
+				}
+			} elseif ($this->type === self::TYPE_REGISTER_IDENTITY) {
 				$entry->entityUniqueId = $this->getEntityUniqueId();
 			}
 
@@ -59,7 +64,9 @@ class SetScoreboardIdentityPacket extends DataPacket
 		$this->putUnsignedVarInt(count($this->entries));
 		foreach ($this->entries as $entry) {
 			$this->putVarLong($entry->scoreboardId);
-			if ($this->type === self::TYPE_REGISTER_IDENTITY) {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_2168) {
+				$this->putOptional($this->type === self::TYPE_REGISTER_IDENTITY ? $entry->entityUniqueId : null, fn(int $v) => $this->putEntityUniqueId($v));
+			} elseif ($this->type === self::TYPE_REGISTER_IDENTITY) {
 				$this->putEntityUniqueId($entry->entityUniqueId);
 			}
 		}

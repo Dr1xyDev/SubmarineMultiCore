@@ -38,69 +38,58 @@ class AddActorPacket extends DataPacket
 	public const NETWORK_ID = ProtocolInfo::ADD_ACTOR_PACKET;
 
 	public const LEGACY_ID_MAP_BC = [
-		EntityIds::NPC => "minecraft:npc",
-		EntityIds::PLAYER => "minecraft:player",
-		EntityIds::WITHER_SKELETON => "minecraft:wither_skeleton",
-		EntityIds::HUSK => "minecraft:husk",
-		EntityIds::STRAY => "minecraft:stray",
-		EntityIds::WITCH => "minecraft:witch",
-		EntityIds::ZOMBIE_VILLAGER => "minecraft:zombie_villager",
-		EntityIds::BLAZE => "minecraft:blaze",
-		EntityIds::MAGMA_CUBE => "minecraft:magma_cube",
-		EntityIds::GHAST => "minecraft:ghast",
-		EntityIds::CAVE_SPIDER => "minecraft:cave_spider",
-		EntityIds::SILVERFISH => "minecraft:silverfish",
-		EntityIds::ENDERMAN => "minecraft:enderman",
-		EntityIds::SLIME => "minecraft:slime",
-		EntityIds::ZOMBIE_PIGMAN => "minecraft:zombie_pigman",
-		EntityIds::SPIDER => "minecraft:spider",
-		EntityIds::SKELETON => "minecraft:skeleton",
-		EntityIds::CREEPER => "minecraft:creeper",
-		EntityIds::ZOMBIE => "minecraft:zombie",
-		EntityIds::SKELETON_HORSE => "minecraft:skeleton_horse",
-		EntityIds::MULE => "minecraft:mule",
-		EntityIds::DONKEY => "minecraft:donkey",
-		EntityIds::DOLPHIN => "minecraft:dolphin",
-		EntityIds::TROPICALFISH => "minecraft:tropicalfish",
-		EntityIds::WOLF => "minecraft:wolf",
-		EntityIds::SQUID => "minecraft:squid",
-		EntityIds::DROWNED => "minecraft:drowned",
-		EntityIds::SHEEP => "minecraft:sheep",
-		EntityIds::MOOSHROOM => "minecraft:mooshroom",
-		EntityIds::PANDA => "minecraft:panda",
-		EntityIds::SALMON => "minecraft:salmon",
-		EntityIds::PIG => "minecraft:pig",
-		EntityIds::VILLAGER => "minecraft:villager",
-		EntityIds::COD => "minecraft:cod",
-		EntityIds::PUFFERFISH => "minecraft:pufferfish",
-		EntityIds::COW => "minecraft:cow",
 		EntityIds::CHICKEN => "minecraft:chicken",
-		EntityIds::BALLOON => "minecraft:balloon",
-		EntityIds::LLAMA => "minecraft:llama",
-		EntityIds::IRON_GOLEM => "minecraft:iron_golem",
+		EntityIds::COW => "minecraft:cow",
+		EntityIds::PIG => "minecraft:pig",
+		EntityIds::SHEEP => "minecraft:sheep",
+		EntityIds::WOLF => "minecraft:wolf",
+		EntityIds::VILLAGER => "minecraft:villager",
+		EntityIds::MOOSHROOM => "minecraft:mooshroom",
+		EntityIds::SQUID => "minecraft:squid",
 		EntityIds::RABBIT => "minecraft:rabbit",
-		EntityIds::SNOW_GOLEM => "minecraft:snow_golem",
 		EntityIds::BAT => "minecraft:bat",
+		EntityIds::IRON_GOLEM => "minecraft:iron_golem",
+		EntityIds::SNOW_GOLEM => "minecraft:snow_golem",
 		EntityIds::OCELOT => "minecraft:ocelot",
 		EntityIds::HORSE => "minecraft:horse",
-		EntityIds::CAT => "minecraft:cat",
-		EntityIds::POLAR_BEAR => "minecraft:polar_bear",
+		EntityIds::DONKEY => "minecraft:donkey",
+		EntityIds::MULE => "minecraft:mule",
+		EntityIds::SKELETON_HORSE => "minecraft:skeleton_horse",
 		EntityIds::ZOMBIE_HORSE => "minecraft:zombie_horse",
-		EntityIds::TURTLE => "minecraft:turtle",
+		EntityIds::POLAR_BEAR => "minecraft:polar_bear",
+		EntityIds::LLAMA => "minecraft:llama",
 		EntityIds::PARROT => "minecraft:parrot",
+		EntityIds::DOLPHIN => "minecraft:dolphin",
+		EntityIds::ZOMBIE => "minecraft:zombie",
+		EntityIds::CREEPER => "minecraft:creeper",
+		EntityIds::SKELETON => "minecraft:skeleton",
+		EntityIds::SPIDER => "minecraft:spider",
+		EntityIds::ZOMBIE_PIGMAN => "minecraft:zombie_pigman",
+		EntityIds::SLIME => "minecraft:slime",
+		EntityIds::ENDERMAN => "minecraft:enderman",
+		EntityIds::SILVERFISH => "minecraft:silverfish",
+		EntityIds::CAVE_SPIDER => "minecraft:cave_spider",
+		EntityIds::GHAST => "minecraft:ghast",
+		EntityIds::MAGMA_CUBE => "minecraft:magma_cube",
+		EntityIds::BLAZE => "minecraft:blaze",
+		EntityIds::ZOMBIE_VILLAGER => "minecraft:zombie_villager",
+		EntityIds::WITCH => "minecraft:witch",
+		EntityIds::STRAY => "minecraft:stray",
+		EntityIds::HUSK => "minecraft:husk",
+		EntityIds::WITHER_SKELETON => "minecraft:wither_skeleton",
 		EntityIds::GUARDIAN => "minecraft:guardian",
 		EntityIds::ELDER_GUARDIAN => "minecraft:elder_guardian",
-		EntityIds::VINDICATOR => "minecraft:vindicator",
+		EntityIds::NPC => "minecraft:npc",
 		EntityIds::WITHER => "minecraft:wither",
 		EntityIds::ENDER_DRAGON => "minecraft:ender_dragon",
 		EntityIds::SHULKER => "minecraft:shulker",
 		EntityIds::ENDERMITE => "minecraft:endermite",
-		EntityIds::MINECART => "minecraft:minecart",
-		EntityIds::HOPPER_MINECART => "minecraft:hopper_minecart",
-		EntityIds::TNT_MINECART => "minecraft:tnt_minecart",
-		EntityIds::CHEST_MINECART => "minecraft:chest_minecart",
-		EntityIds::COMMAND_BLOCK_MINECART => "minecraft:command_block_minecart",
+		EntityIds::AGENT => "minecraft:agent",
+		EntityIds::VINDICATOR => "minecraft:vindicator",
+		EntityIds::PHANTOM => "minecraft:phantom",
+		EntityIds::RAVAGER => "minecraft:ravager",
 		EntityIds::ARMOR_STAND => "minecraft:armor_stand",
+		EntityIds::TRIPOD_CAMERA => "minecraft:tripod_camera",
 		EntityIds::ITEM => "minecraft:item",
 		EntityIds::TNT => "minecraft:tnt",
 		EntityIds::FALLING_BLOCK => "minecraft:falling_block",
@@ -108,6 +97,10 @@ class AddActorPacket extends DataPacket
 		EntityIds::XP_ORB => "minecraft:xp_orb",
 		EntityIds::EYE_OF_ENDER_SIGNAL => "minecraft:eye_of_ender_signal",
 		EntityIds::ENDER_CRYSTAL => "minecraft:ender_crystal",
+		EntityIds::FIREWORKS_ROCKET => "minecraft:fireworks_rocket",
+		EntityIds::THROWN_TRIDENT => "minecraft:thrown_trident",
+		EntityIds::TURTLE => "minecraft:turtle",
+		EntityIds::CAT => "minecraft:cat",
 		EntityIds::SHULKER_BULLET => "minecraft:shulker_bullet",
 		EntityIds::FISHING_HOOK => "minecraft:fishing_hook",
 		EntityIds::DRAGON_FIREBALL => "minecraft:dragon_fireball",
@@ -115,27 +108,71 @@ class AddActorPacket extends DataPacket
 		EntityIds::SNOWBALL => "minecraft:snowball",
 		EntityIds::EGG => "minecraft:egg",
 		EntityIds::PAINTING => "minecraft:painting",
-		EntityIds::THROWN_TRIDENT => "minecraft:thrown_trident",
+		EntityIds::MINECART => "minecraft:minecart",
 		EntityIds::FIREBALL => "minecraft:fireball",
 		EntityIds::SPLASH_POTION => "minecraft:splash_potion",
 		EntityIds::ENDER_PEARL => "minecraft:ender_pearl",
 		EntityIds::LEASH_KNOT => "minecraft:leash_knot",
 		EntityIds::WITHER_SKULL => "minecraft:wither_skull",
-		EntityIds::WITHER_SKULL_DANGEROUS => "minecraft:wither_skull_dangerous",
 		EntityIds::BOAT => "minecraft:boat",
+		EntityIds::WITHER_SKULL_DANGEROUS => "minecraft:wither_skull_dangerous",
 		EntityIds::LIGHTNING_BOLT => "minecraft:lightning_bolt",
 		EntityIds::SMALL_FIREBALL => "minecraft:small_fireball",
-		EntityIds::LLAMA_SPIT => "minecraft:llama_spit",
 		EntityIds::AREA_EFFECT_CLOUD => "minecraft:area_effect_cloud",
+		EntityIds::HOPPER_MINECART => "minecraft:hopper_minecart",
+		EntityIds::TNT_MINECART => "minecraft:tnt_minecart",
+		EntityIds::CHEST_MINECART => "minecraft:chest_minecart",
+		EntityIds::COMMAND_BLOCK_MINECART => "minecraft:command_block_minecart",
 		EntityIds::LINGERING_POTION => "minecraft:lingering_potion",
-		EntityIds::FIREWORKS_ROCKET => "minecraft:fireworks_rocket",
+		EntityIds::LLAMA_SPIT => "minecraft:llama_spit",
 		EntityIds::EVOCATION_FANG => "minecraft:evocation_fang",
 		EntityIds::EVOCATION_ILLAGER => "minecraft:evocation_illager",
 		EntityIds::VEX => "minecraft:vex",
-		EntityIds::AGENT => "minecraft:agent",
 		EntityIds::ICE_BOMB => "minecraft:ice_bomb",
-		EntityIds::PHANTOM => "minecraft:phantom",
-		EntityIds::TRIPOD_CAMERA => "minecraft:tripod_camera"
+		EntityIds::BALLOON => "minecraft:balloon",
+		EntityIds::PUFFERFISH => "minecraft:pufferfish",
+		EntityIds::SALMON => "minecraft:salmon",
+		EntityIds::DROWNED => "minecraft:drowned",
+		EntityIds::TROPICALFISH => "minecraft:tropicalfish",
+		EntityIds::COD => "minecraft:cod",
+		EntityIds::PANDA => "minecraft:panda",
+		EntityIds::PILLAGER => "minecraft:pillager",
+		EntityIds::VILLAGER_V2 => "minecraft:villager_v2",
+		EntityIds::ZOMBIE_VILLAGER_V2 => "minecraft:zombie_villager_v2",
+		EntityIds::WANDERING_TRADER => "minecraft:wandering_trader",
+		EntityIds::ELDER_GUARDIAN_GHOST => "minecraft:elder_guardian_ghost",
+		EntityIds::FOX => "minecraft:fox",
+		EntityIds::BEE => "minecraft:bee",
+		EntityIds::PIGLIN => "minecraft:piglin",
+		EntityIds::HOGLIN => "minecraft:hoglin",
+		EntityIds::STRIDER => "minecraft:strider",
+		EntityIds::ZOGLIN => "minecraft:zoglin",
+		EntityIds::PIGLIN_BRUTE => "minecraft:piglin_brute",
+		EntityIds::GOAT => "minecraft:goat",
+		EntityIds::GLOW_SQUID => "minecraft:glow_squid",
+		EntityIds::AXOLOTL => "minecraft:axolotl",
+		EntityIds::WARDEN => "minecraft:warden",
+		EntityIds::FROG => "minecraft:frog",
+		EntityIds::TADPOLE => "minecraft:tadpole",
+		EntityIds::ALLAY => "minecraft:allay",
+		EntityIds::CAMEL => "minecraft:camel",
+		EntityIds::SNIFFER => "minecraft:sniffer",
+		EntityIds::BREEZE => "minecraft:breeze",
+		EntityIds::BREEZE_WIND_CHARGE_PROJECTILE => "minecraft:breeze_wind_charge_projectile",
+		EntityIds::ARMADILLO => "minecraft:armadillo",
+		EntityIds::WIND_CHARGE_PROJECTILE => "minecraft:wind_charge_projectile",
+		EntityIds::BOGGED => "minecraft:bogged",
+		EntityIds::OMINOUS_ITEM_SPAWNER => "minecraft:ominous_item_spawner",
+		EntityIds::CREAKING => "minecraft:creaking",
+		EntityIds::HAPPY_GHAST => "minecraft:happy_ghast",
+		EntityIds::COPPER_GOLEM => "minecraft:copper_golem",
+		EntityIds::NAUTILUS => "minecraft:nautilus",
+		EntityIds::ZOMBIE_NAUTILUS => "minecraft:zombie_nautilus",
+		EntityIds::PARCHED => "minecraft:parched",
+		EntityIds::CAMEL_HUSK => "minecraft:camel_husk",
+		EntityIds::TRADER_LLAMA => "minecraft:trader_llama",
+		EntityIds::CHEST_BOAT => "minecraft:chest_boat",
+		EntityIds::PLAYER => "minecraft:player",
 	];
 
 	public ?int $entityUniqueId = null; //TODO
@@ -198,7 +235,7 @@ class AddActorPacket extends DataPacket
 	{
 		$this->entityUniqueId = $this->getEntityUniqueId();
 		$this->entityRuntimeId = $this->getEntityRuntimeId();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_313) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->type = array_search($t = $this->getString(), self::LEGACY_ID_MAP_BC, true);
 			if ($this->type === false) {
 				throw new PacketDecodeException("Can't map ID $t to legacy ID");
@@ -210,9 +247,9 @@ class AddActorPacket extends DataPacket
 		$this->motion = $this->getVector3();
 		$this->pitch = $this->getLFloat();
 		$this->yaw = $this->getLFloat();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_274) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->headYaw = $this->getLFloat();
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_534) {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_534) {
 				$this->bodyYaw = $this->getLFloat();
 			}
 		}
@@ -236,13 +273,13 @@ class AddActorPacket extends DataPacket
 			}
 		}
 
-		$this->metadata = $this->getEntityMetadata($this->getProtocol());
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_557) {
+		$this->metadata = $this->getEntityMetadata();
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_557) {
 			$this->syncedProperties = PropertySyncData::read($this);
 		}
 		$linkCount = $this->getUnsignedVarInt();
 		for ($i = 0; $i < $linkCount; ++$i) {
-			$this->links[] = $this->getEntityLink($this->getProtocol());
+			$this->links[] = $this->getEntityLink();
 		}
 	}
 
@@ -250,7 +287,7 @@ class AddActorPacket extends DataPacket
 	{
 		$this->putEntityUniqueId($this->entityUniqueId ?? $this->entityRuntimeId);
 		$this->putEntityRuntimeId($this->entityRuntimeId);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_313) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			if (!isset(self::LEGACY_ID_MAP_BC[$this->type])) {
 				throw new InvalidArgumentException("Unknown entity numeric ID $this->type");
 			}
@@ -262,9 +299,9 @@ class AddActorPacket extends DataPacket
 		$this->putVector3Nullable($this->motion);
 		$this->putLFloat($this->pitch);
 		$this->putLFloat($this->yaw);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_274) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->putLFloat($this->headYaw);
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_534) {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_534) {
 				$this->putLFloat($this->bodyYaw);
 			}
 		}
@@ -277,8 +314,8 @@ class AddActorPacket extends DataPacket
 			$this->putLFloat($attribute->getMaxValue());
 		}
 
-		$this->putEntityMetadata($this->metadata, $this->getProtocol());
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_557) {
+		$this->putEntityMetadata($this->metadata);
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_557) {
 			if ($this->syncedProperties === null) {
 				$this->syncedProperties = new PropertySyncData([], []);
 			}
@@ -287,7 +324,7 @@ class AddActorPacket extends DataPacket
 		}
 		$this->putUnsignedVarInt(count($this->links));
 		foreach ($this->links as $link) {
-			$this->putEntityLink($link, $this->getProtocol());
+			$this->putEntityLink($link);
 		}
 	}
 

@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace pocketmine\event\entity;
 
 use pocketmine\entity\Entity;
+use pocketmine\entity\Living;
 
 /**
  * Called when an entity takes damage from an entity sourced from another entity, for example being hit by a snowball thrown by a Player.
@@ -35,7 +36,7 @@ class EntityDamageByChildEntityEvent extends EntityDamageByEntityEvent
 	/**
 	 * @param float[] $modifiers
 	 */
-	public function __construct(Entity $damager, Entity $childEntity, Entity $entity, int $cause, float $damage, array $modifiers = [], float $knockBack = 1.0)
+	public function __construct(Entity $damager, Entity $childEntity, Entity $entity, int $cause, float $damage, array $modifiers = [], float $knockBack = Living::DEFAULT_KNOCKBACK_FORCE)
 	{
 		$this->childEntityEid = $childEntity->getId();
 		parent::__construct($damager, $entity, $cause, $damage, $modifiers, $knockBack);

@@ -22,9 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\block\utils\ColorBlockMetaHelper;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class PaleMossCarpet extends Carpet
 {
 	protected $id = self::PALE_MOSS_CARPET;
@@ -37,14 +34,5 @@ class PaleMossCarpet extends Carpet
 	public function getName() : string
 	{
 		return "Pale Moss Carpet";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_766) {
-			return BlockFactory::get(BlockIds::CARPET, ColorBlockMetaHelper::GRAY);
-		}
-
-		return null;
 	}
 }

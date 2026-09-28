@@ -114,6 +114,7 @@ class Cat extends Tamable
 			if ($item->getId() == Item::RAW_SALMON || $item->getId() == Item::RAW_FISH) {
 				if ($player->isSurvival()) {
 					$item->pop();
+					$player->getInventory()->setItemInHand($item);
 				}
 				if ($this->isTamed()) {
 					$this->setInLove(true);
@@ -150,9 +151,8 @@ class Cat extends Tamable
 
 	public function getDrops() : array
 	{
-		return [
-			ItemFactory::get(Item::STRING, 0, rand(0, 2)),
-		];
+		$string = rand(0, 2 + $this->getLootingLevel());
+		return $string > 0 ? [ItemFactory::get(Item::STRING, 0, $string)] : [];
 	}
 
 	public function setSittingFromBehavior(bool $value) : void
@@ -163,7 +163,7 @@ class Cat extends Tamable
 	protected function sendSpawnPacket(Player $player) : void
 	{
 		$metadata = $this->propertyManager->getAll();
-		if ($player->getProtocolVersion() < ProtocolInfo::PROTOCOL_313) {
+		if ($player->getProtocolVersion() < ProtocolInfo::PROTOCOL_407) {
 			if (isset($metadata[self::DATA_VARIANT])) {
 				$metadata[self::DATA_VARIANT][1] = self::translateToOcelotColor($metadata[self::DATA_VARIANT][1]);
 			}
@@ -189,7 +189,7 @@ class Cat extends Tamable
 		$player->dataPacket(AddActorPacket::create(
 			$this->getId(),
 			$this->getId(),
-			($player->getProtocolVersion() >= ProtocolInfo::PROTOCOL_313 ? static::NETWORK_ID : Ocelot::NETWORK_ID),
+			($player->getProtocolVersion() >= ProtocolInfo::PROTOCOL_407 ? static::NETWORK_ID : Ocelot::NETWORK_ID),
 			$this->asVector3(),
 			$this->getMotion(),
 			$this->pitch,
@@ -216,7 +216,7 @@ class Cat extends Tamable
 
 		foreach ($player as $p) {
 			if (isset($pk->metadata[self::DATA_VARIANT])) {
-				if ($p->getProtocolVersion() < ProtocolInfo::PROTOCOL_313) {
+				if ($p->getProtocolVersion() < ProtocolInfo::PROTOCOL_407) {
 					$pk->metadata[self::DATA_VARIANT][1] = self::translateToOcelotColor($pk->metadata[self::DATA_VARIANT][1]);
 				}
 			}

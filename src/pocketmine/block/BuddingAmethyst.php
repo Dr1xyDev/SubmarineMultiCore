@@ -22,8 +22,8 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
+use pocketmine\block\utils\BlockEventHelper;
 use pocketmine\entity\projectile\Projectile;
-use pocketmine\event\block\BlockSpreadEvent;
 use pocketmine\item\Item;
 use pocketmine\item\TieredTool;
 use pocketmine\level\particle\DestroyBlockParticle;
@@ -31,7 +31,6 @@ use pocketmine\level\sound\AmethystBlockChimeSound;
 use pocketmine\level\sound\BlockPunchSound;
 use pocketmine\math\Facing;
 use pocketmine\math\RayTraceResult;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\Player;
 
 use function array_rand;
@@ -85,7 +84,6 @@ class BuddingAmethyst extends Solid
 			//TODO: amethyst buds can spawn in water - we need waterlogging support for this
 
 			$targetBlock = null;
-
 			if ($adjacent->getId() === BlockIds::AIR || (($adjacent->getId() == BlockIds::WATER || $adjacent->getId() == BlockIds::STILL_WATER) && $adjacent->getDamage() == 8)) {
 				$targetBlock = BlockFactory::get(BlockIds::SMALL_AMETHYST_BUD);
 			} elseif ($adjacent->getId() == BlockIds::SMALL_AMETHYST_BUD && $adjacent->getDamage() == $face) {
@@ -98,16 +96,12 @@ class BuddingAmethyst extends Solid
 
 			if ($targetBlock != null) {
 				$targetBlock->setDamage($face);
-				$event = new BlockSpreadEvent($adjacent, $this, $targetBlock);
-				$event->call();
-				if (!$event->isCancelled()) {
-					$this->level->setBlock($adjacent, $event->getNewState(), false, true);
-				}
+				BlockEventHelper::spread($adjacent, $targetBlock, $this);
 			}
 		}
 	}
 
-	public function onBreak(Item $item, Player $player = null) : bool
+	public function onBreak(Item $item, ?Player $player = null) : bool
 	{
 		foreach (Facing::ALL as $face) {
 			$side = $this->getSide($face);
@@ -129,13 +123,5 @@ class BuddingAmethyst extends Solid
 	{
 		$this->level->addSound(new AmethystBlockChimeSound($this));
 		$this->level->addSound(new BlockPunchSound($this, $this));
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_440) {
-			return BlockFactory::get(BlockIds::STONE, Stone::DIORITE);
-		}
-
-		return null;
 	}
 }

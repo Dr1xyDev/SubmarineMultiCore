@@ -38,9 +38,9 @@ class CreativeContentPacket extends DataPacket
 	public const CATEGORY_ITEMS = 4;
 
 	/** @var CreativeGroupEntry[] */
-	private array $groups;
+	private array $groups = [];
 	/** @var CreativeItemEntry[] */
-	private array $items;
+	private array $items = [];
 
 	/**
 	 * @generate-create-func
@@ -67,23 +67,30 @@ class CreativeContentPacket extends DataPacket
 		return $this->items;
 	}
 
-	protected function decodePayload() : void
-	{
-		//TODO:
+	protected function decodePayload() : void{
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_776) {
+			for ($i = 0, $count = $this->getUnsignedVarInt(); $i < $count; ++$i) {
+				$this->groups[] = CreativeGroupEntry::read($this);
+			}
+		}
+
+		for ($i = 0, $count = $this->getUnsignedVarInt(); $i < $count; ++$i) {
+			$this->items[] = CreativeItemEntry::read($this);
+		}
 	}
 
 	protected function encodePayload() : void
 	{
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_776) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_776) {
 			$this->putUnsignedVarInt(count($this->groups));
 			foreach ($this->groups as $entry) {
-				$entry->write($this, $this->getProtocol());
+				$entry->write($this);
 			}
 		}
 
 		$this->putUnsignedVarInt(count($this->items));
 		foreach ($this->items as $entry) {
-			$entry->write($this, $this->getProtocol());
+			$entry->write($this);
 		}
 	}
 

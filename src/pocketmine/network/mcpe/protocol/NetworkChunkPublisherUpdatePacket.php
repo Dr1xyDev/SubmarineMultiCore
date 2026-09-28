@@ -48,7 +48,7 @@ class NetworkChunkPublisherUpdatePacket extends DataPacket
 	{
 		$this->getSignedBlockPosition($this->x, $this->y, $this->z);
 		$this->radius = $this->getUnsignedVarInt();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_544) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_544) {
 			$count = $this->getLInt();
 			if ($count > self::MAX_SAVED_CHUNKS) {
 				throw new PacketDecodeException("Expected at most " . self::MAX_SAVED_CHUNKS . " saved chunks, got " . $count);
@@ -63,7 +63,7 @@ class NetworkChunkPublisherUpdatePacket extends DataPacket
 	{
 		$this->putSignedBlockPosition($this->x, $this->y, $this->z);
 		$this->putUnsignedVarInt($this->radius);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_544) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_544) {
 			$this->putLInt(count($this->savedChunks));
 			foreach ($this->savedChunks as $chunk) {
 				$chunk->write($this);

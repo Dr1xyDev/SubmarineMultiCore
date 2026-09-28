@@ -38,7 +38,11 @@ class FurnaceInventory extends ContainerInventory
 
 	public function getNetworkType() : int
 	{
-		return WindowTypes::FURNACE;
+		return match($this->holder->getFurnaceType()){
+			FurnaceType::BLAST_FURNACE => WindowTypes::BLAST_FURNACE,
+			FurnaceType::SMOKER => WindowTypes::SMOKER,
+			default => WindowTypes::FURNACE
+		};
 	}
 
 	public function getName() : string

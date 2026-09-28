@@ -275,8 +275,138 @@ class PlayerAuthInputPacket extends DataPacket
 		return ($this->inputFlags & (1 << $flag)) !== 0;
 	}
 
+	/** Input flags are a list of set flag indices since 1.26.40; flags above this can't be stored in an int */
+	private const MAX_STORABLE_FLAG = 63;
+
+	private function decodePayloadV2168() : void
+	{
+		$this->pitch = $this->getLFloat();
+		$this->yaw = $this->getLFloat();
+		$this->position = $this->getVector3();
+		$this->moveVecX = $this->getLFloat();
+		$this->moveVecZ = $this->getLFloat();
+		$this->headYaw = $this->getLFloat();
+
+		if ($this->protocol < ProtocolInfo::PROTOCOL_2193) {
+			$this->getDummyOptional();
+		}
+		$this->inputFlags = 0;
+		$seenFlags = [];
+		foreach ($this->getList(fn() => $this->getVarInt(), 256) as $flag) {
+			if (isset($seenFlags[$flag])) {
+				throw new PacketDecodeException("Duplicate input flag $flag");
+			}
+			$seenFlags[$flag] = true;
+			if ($flag >= 0 && $flag <= self::MAX_STORABLE_FLAG) {
+				$this->inputFlags |= 1 << $flag;
+			}
+		}
+
+		$this->inputMode = $this->getUnsignedVarInt();
+		$this->playMode = $this->getUnsignedVarInt();
+		$this->interactionMode = $this->getVarInt();
+		$this->interactRotation = $this->getVector2();
+		$this->tick = $this->getUnsignedVarLong();
+		$this->delta = $this->getVector3();
+
+		$this->itemInteractionData = $this->getProtocolOptional(fn() => ItemInteractionData::read($this));
+		$this->itemStackRequest = $this->getProtocolOptional(fn() => ItemStackRequest::read($this));
+		$this->blockActions = $this->getProtocolOptional(fn() => $this->getList(function() : PlayerBlockAction{
+			$actionType = ConstantTranslator::getInstance()->fromNetworkId(PlayerActionPacket::class, $this->getVarInt(), $this->protocol);
+			if ($actionType === PlayerActionPacket::ACTION_STOP_BREAK) {
+				$x = $y = $z = 0;
+				$this->getBlockPosition($x, $y, $z); //since 1.26.40 every block action has a position and face
+				$this->getVarInt();
+				return new PlayerBlockActionStopBreak();
+			}
+			if (!PlayerBlockActionWithBlockInfo::isValidActionType($actionType)) {
+				throw new PacketDecodeException("Unexpected block action type $actionType");
+			}
+			return PlayerBlockActionWithBlockInfo::read($this, $actionType);
+		}, 256));
+		$vehicleRotation = $this->getProtocolOptional(fn() => $this->getVector2());
+		$vehicleActorUniqueId = $this->getProtocolOptional(fn() => $this->getEntityUniqueId());
+		if ($vehicleRotation !== null && $vehicleActorUniqueId !== null) {
+			$this->vehicleInfo = new PlayerAuthInputVehicleInfo($vehicleRotation->x, $vehicleRotation->y, $vehicleActorUniqueId);
+		} elseif ($vehicleRotation !== null || $vehicleActorUniqueId !== null) {
+			throw new PacketDecodeException("Vehicle rotation and actor unique ID must both be present or both be absent");
+		}
+
+		//keep the legacy flags consistent with the data that is actually present
+		$this->setFlag(PlayerAuthInputFlags::PERFORM_ITEM_INTERACTION, $this->itemInteractionData !== null);
+		$this->setFlag(PlayerAuthInputFlags::PERFORM_ITEM_STACK_REQUEST, $this->itemStackRequest !== null);
+		$this->setFlag(PlayerAuthInputFlags::PERFORM_BLOCK_ACTIONS, $this->blockActions !== null);
+		$this->setFlag(PlayerAuthInputFlags::IN_CLIENT_PREDICTED_VEHICLE, $this->vehicleInfo !== null);
+
+		$this->analogMoveVecX = $this->getLFloat();
+		$this->analogMoveVecZ = $this->getLFloat();
+		$this->cameraOrientation = $this->getVector3();
+		$this->rawMove = $this->getVector2();
+	}
+
+	private function encodePayloadV2168() : void
+	{
+		$this->putLFloat($this->pitch);
+		$this->putLFloat($this->yaw);
+		$this->putVector3($this->position);
+		$this->putLFloat($this->moveVecX);
+		$this->putLFloat($this->moveVecZ);
+		$this->putLFloat($this->headYaw);
+
+		if ($this->protocol < ProtocolInfo::PROTOCOL_2193) {
+			$this->putDummyOptional();
+		}
+		$flags = [];
+		for ($i = 0; $i <= self::MAX_STORABLE_FLAG; ++$i) {
+			if ($this->hasFlag($i)) {
+				$flags[] = $i;
+			}
+		}
+		$this->putList($flags, fn(int $flag) => $this->putVarInt($flag));
+
+		$this->putUnsignedVarInt($this->inputMode);
+		$this->putUnsignedVarInt($this->playMode);
+		$this->putVarInt($this->interactionMode);
+		$this->putVector2($this->interactRotation);
+		$this->putUnsignedVarLong($this->tick);
+		$this->putVector3($this->delta);
+
+		$this->putProtocolOptional($this->itemInteractionData, fn(ItemInteractionData $data) => $data->write($this));
+		$this->putProtocolOptional($this->itemStackRequest, fn(ItemStackRequest $request) => $request->write($this));
+		$this->putProtocolOptional($this->blockActions, fn(array $actions) => $this->putList($actions, function(PlayerBlockAction $action) : void{
+			$this->putVarInt(ConstantTranslator::getInstance()->toNetworkId(PlayerActionPacket::class, $action->getActionType(), $this->protocol));
+			if ($action instanceof PlayerBlockActionWithBlockInfo) {
+				$action->write($this);
+			} else {
+				$this->putBlockPosition(0, 0, 0);
+				$this->putVarInt(0);
+			}
+		}));
+		$this->putProtocolOptional($this->vehicleInfo !== null ? new Vector2($this->vehicleInfo->getVehicleRotationX(), $this->vehicleInfo->getVehicleRotationZ()) : null, fn(Vector2 $v) => $this->putVector2($v));
+		$this->putProtocolOptional($this->vehicleInfo?->getPredictedVehicleActorUniqueId(), fn(int $v) => $this->putEntityUniqueId($v));
+
+		$this->putLFloat($this->analogMoveVecX);
+		$this->putLFloat($this->analogMoveVecZ);
+		$this->putVector3($this->cameraOrientation);
+		$this->putVector2($this->rawMove);
+	}
+
+	private function setFlag(int $flag, bool $value) : void
+	{
+		if ($value) {
+			$this->inputFlags |= 1 << $flag;
+		} else {
+			$this->inputFlags &= ~(1 << $flag);
+		}
+	}
+
 	protected function decodePayload() : void
 	{
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_2168) {
+			$this->decodePayloadV2168();
+			return;
+		}
+
 		$this->pitch = $this->getLFloat();
 		$this->yaw = $this->getLFloat();
 		$this->position = $this->getVector3();
@@ -286,32 +416,32 @@ class PlayerAuthInputPacket extends DataPacket
 		$this->inputFlags = $this->getUnsignedVarLong();
 		$this->inputMode = $this->getUnsignedVarInt();
 		$this->playMode = $this->getUnsignedVarInt();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_527) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_527) {
 			$this->interactionMode = $this->getUnsignedVarInt();
 		}
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_748) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_748) {
 			$this->interactRotation = $this->getVector2();
 		} else {
 			if ($this->playMode === PlayMode::VR) {
 				$this->vrGazeDirection = $this->getVector3();
 			}
 		}
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_419) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_419) {
 			$this->tick = $this->getUnsignedVarLong();
 			$this->delta = $this->getVector3();
 
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_428) {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_428) {
 				if ($this->hasFlag(PlayerAuthInputFlags::PERFORM_ITEM_INTERACTION)) {
-					$this->itemInteractionData = ItemInteractionData::read($this, $this->getProtocol());
+					$this->itemInteractionData = ItemInteractionData::read($this);
 				}
 				if ($this->hasFlag(PlayerAuthInputFlags::PERFORM_ITEM_STACK_REQUEST)) {
-					$this->itemStackRequest = ItemStackRequest::read($this, $this->getProtocol());
+					$this->itemStackRequest = ItemStackRequest::read($this);
 				}
 				if ($this->hasFlag(PlayerAuthInputFlags::PERFORM_BLOCK_ACTIONS)) {
 					$this->blockActions = [];
 					$max = $this->getVarInt();
 					for ($i = 0; $i < $max; ++$i) {
-						$actionType = ConstantTranslator::getInstance()->fromNetworkId(PlayerActionPacket::class, $this->getVarInt(), $this->getProtocol());
+						$actionType = ConstantTranslator::getInstance()->fromNetworkId(PlayerActionPacket::class, $this->getVarInt(), $this->protocol);
 						$this->blockActions[] = match (true) {
 							PlayerBlockActionWithBlockInfo::isValidActionType($actionType) => PlayerBlockActionWithBlockInfo::read($this, $actionType),
 							$actionType === PlayerActionPacket::ACTION_STOP_BREAK => new PlayerBlockActionStopBreak(),
@@ -320,18 +450,18 @@ class PlayerAuthInputPacket extends DataPacket
 					}
 				}
 
-				if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_649) {
+				if ($this->protocol >= ProtocolInfo::PROTOCOL_649) {
 					if ($this->hasFlag(PlayerAuthInputFlags::IN_CLIENT_PREDICTED_VEHICLE)) {
-						$this->vehicleInfo = PlayerAuthInputVehicleInfo::read($this, $this->getProtocol());
+						$this->vehicleInfo = PlayerAuthInputVehicleInfo::read($this);
 					}
 				}
 
-				if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_575) {
+				if ($this->protocol >= ProtocolInfo::PROTOCOL_575) {
 					$this->analogMoveVecX = $this->getLFloat();
 					$this->analogMoveVecZ = $this->getLFloat();
-					if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_748) {
+					if ($this->protocol >= ProtocolInfo::PROTOCOL_748) {
 						$this->cameraOrientation = $this->getVector3();
-						if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_766) {
+						if ($this->protocol >= ProtocolInfo::PROTOCOL_766) {
 							$this->rawMove = $this->getVector2();
 						}
 					}
@@ -342,6 +472,11 @@ class PlayerAuthInputPacket extends DataPacket
 
 	protected function encodePayload() : void
 	{
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_2168) {
+			$this->encodePayloadV2168();
+			return;
+		}
+
 		$this->putLFloat($this->pitch);
 		$this->putLFloat($this->yaw);
 		$this->putVector3($this->position);
@@ -351,11 +486,11 @@ class PlayerAuthInputPacket extends DataPacket
 		$this->putUnsignedVarLong($this->inputFlags);
 		$this->putUnsignedVarInt($this->inputMode);
 		$this->putUnsignedVarInt($this->playMode);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_527) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_527) {
 			$this->putUnsignedVarInt($this->interactionMode);
 		}
 
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_748) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_748) {
 			$this->putVector2($this->interactRotation);
 		} else {
 			if ($this->playMode === PlayMode::VR) {
@@ -363,37 +498,37 @@ class PlayerAuthInputPacket extends DataPacket
 				$this->putVector3($this->vrGazeDirection);
 			}
 		}
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_419) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_419) {
 			$this->putUnsignedVarLong($this->tick);
 			$this->putVector3($this->delta);
 
-			if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_471) {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_471) {
 				if ($this->itemInteractionData !== null) {
-					$this->itemInteractionData->write($this, $this->getProtocol());
+					$this->itemInteractionData->write($this);
 				}
 				if ($this->itemStackRequest !== null) {
-					$this->itemStackRequest->write($this, $this->getProtocol());
+					$this->itemStackRequest->write($this);
 				}
 				if ($this->blockActions !== null) {
 					$this->putVarInt(count($this->blockActions));
 					foreach ($this->blockActions as $blockAction) {
-						$this->putVarInt(ConstantTranslator::getInstance()->toNetworkId(PlayerActionPacket::class, $blockAction->getActionType(), $this->getProtocol()));
+						$this->putVarInt(ConstantTranslator::getInstance()->toNetworkId(PlayerActionPacket::class, $blockAction->getActionType(), $this->protocol));
 						$blockAction->write($this);
 					}
 				}
 
-				if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_649) {
+				if ($this->protocol >= ProtocolInfo::PROTOCOL_649) {
 					if ($this->vehicleInfo !== null) {
-						$this->vehicleInfo->write($this, $this->getProtocol());
+						$this->vehicleInfo->write($this);
 					}
 				}
 
-				if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_575) {
+				if ($this->protocol >= ProtocolInfo::PROTOCOL_575) {
 					$this->putLFloat($this->analogMoveVecX);
 					$this->putLFloat($this->analogMoveVecZ);
-					if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_748) {
+					if ($this->protocol >= ProtocolInfo::PROTOCOL_748) {
 						$this->putVector3($this->cameraOrientation);
-						if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_766) {
+						if ($this->protocol >= ProtocolInfo::PROTOCOL_766) {
 							$this->putVector2($this->rawMove);
 						}
 					}

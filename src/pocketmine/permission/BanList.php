@@ -95,7 +95,7 @@ class BanList
 		$this->save();
 	}
 
-	public function addBan(string $target, string $reason = null, DateTime $expires = null, string $source = null) : BanEntry
+	public function addBan(string $target, ?string $reason = null, ?DateTime $expires = null, ?string $source = null) : BanEntry
 	{
 		$entry = new BanEntry($target);
 		$entry->setSource($source ?? $entry->getSource());

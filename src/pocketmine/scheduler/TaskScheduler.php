@@ -27,6 +27,7 @@ declare(strict_types=1);
 namespace pocketmine\scheduler;
 
 use InvalidStateException;
+use pocketmine\Server;
 use pocketmine\utils\ReversePriorityQueue;
 
 class TaskScheduler
@@ -175,7 +176,12 @@ class TaskScheduler
 				unset($this->tasks[$task->getTaskId()]);
 				continue;
 			}
-			$task->run($this->currentTick);
+			try{
+				$task->run($this->currentTick);
+			}catch (\Throwable $e){
+				Server::getInstance()->getLogger()->critical("Could not execute task " . $task->getTaskName() . ": " . $e->getMessage());
+				Server::getInstance()->getLogger()->logException($e);
+			}
 			if ($task->isRepeating()) {
 				$task->setNextRun($this->currentTick + $task->getPeriod());
 				$this->queue->insert($task, $this->currentTick + $task->getPeriod());

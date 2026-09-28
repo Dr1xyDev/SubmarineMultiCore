@@ -24,13 +24,8 @@ namespace pocketmine\network\mcpe\convert;
 
 use Closure;
 use pocketmine\level\particle\Particle;
-use pocketmine\network\mcpe\convert\constants\actorMetadataList\flags\ActorFlags110;
-use pocketmine\network\mcpe\convert\constants\actorMetadataList\flags\ActorFlags137;
-use pocketmine\network\mcpe\convert\constants\actorMetadataList\flags\ActorFlags223;
-use pocketmine\network\mcpe\convert\constants\actorMetadataList\flags\ActorFlags274;
-use pocketmine\network\mcpe\convert\constants\actorMetadataList\flags\ActorFlags291;
-use pocketmine\network\mcpe\convert\constants\actorMetadataList\flags\ActorFlags354;
-use pocketmine\network\mcpe\convert\constants\actorMetadataList\flags\ActorFlags390;
+use pocketmine\network\mcpe\convert\constants\actorMetadataList\flags\ActorFlags113;
+use pocketmine\network\mcpe\convert\constants\actorMetadataList\flags\ActorFlags407;
 use pocketmine\network\mcpe\convert\constants\actorMetadataList\flags\ActorFlags428;
 use pocketmine\network\mcpe\convert\constants\actorMetadataList\flags\ActorFlags475;
 use pocketmine\network\mcpe\convert\constants\actorMetadataList\flags\ActorFlags560;
@@ -43,38 +38,35 @@ use pocketmine\network\mcpe\convert\constants\actorMetadataList\flags\ActorFlags
 use pocketmine\network\mcpe\convert\constants\actorMetadataList\flags\ActorFlags800;
 use pocketmine\network\mcpe\convert\constants\actorMetadataList\flags\ActorFlags818;
 use pocketmine\network\mcpe\convert\constants\actorMetadataList\flags\ActorFlags844;
-use pocketmine\network\mcpe\convert\constants\actorMetadataList\properties\ActorProperties110;
-use pocketmine\network\mcpe\convert\constants\actorMetadataList\properties\ActorProperties223;
-use pocketmine\network\mcpe\convert\constants\actorMetadataList\properties\ActorProperties340;
-use pocketmine\network\mcpe\convert\constants\actorMetadataList\properties\ActorProperties354;
-use pocketmine\network\mcpe\convert\constants\actorMetadataList\properties\ActorProperties361;
+use pocketmine\network\mcpe\convert\constants\actorMetadataList\flags\ActorFlags897;
+use pocketmine\network\mcpe\convert\constants\actorMetadataList\flags\ActorFlags975;
+use pocketmine\network\mcpe\convert\constants\actorMetadataList\properties\ActorProperties113;
+use pocketmine\network\mcpe\convert\constants\actorMetadataList\properties\ActorProperties407;
 use pocketmine\network\mcpe\convert\constants\actorMetadataList\properties\ActorProperties428;
 use pocketmine\network\mcpe\convert\constants\actorMetadataList\properties\ActorProperties594;
 use pocketmine\network\mcpe\convert\constants\actorMetadataList\properties\ActorProperties712;
 use pocketmine\network\mcpe\convert\constants\actorMetadataList\properties\ActorProperties776;
 use pocketmine\network\mcpe\convert\constants\actorMetadataList\properties\ActorProperties800;
-use pocketmine\network\mcpe\convert\constants\bossBarColor\BossBarColor110;
+use pocketmine\network\mcpe\convert\constants\actorMetadataList\properties\ActorProperties924;
+use pocketmine\network\mcpe\convert\constants\actorMetadataList\properties\ActorProperties975;
+use pocketmine\network\mcpe\convert\constants\bossBarColor\BossBarColor113;
 use pocketmine\network\mcpe\convert\constants\bossBarColor\BossBarColor622;
-use pocketmine\network\mcpe\convert\constants\commandArgumentTypeIds\CommandArgumentTypeIds137;
-use pocketmine\network\mcpe\convert\constants\commandArgumentTypeIds\CommandArgumentTypeIds274;
-use pocketmine\network\mcpe\convert\constants\commandArgumentTypeIds\CommandArgumentTypeIds332;
-use pocketmine\network\mcpe\convert\constants\commandArgumentTypeIds\CommandArgumentTypeIds340;
-use pocketmine\network\mcpe\convert\constants\commandArgumentTypeIds\CommandArgumentTypeIds370;
-use pocketmine\network\mcpe\convert\constants\commandArgumentTypeIds\CommandArgumentTypeIds388;
+use pocketmine\network\mcpe\convert\constants\commandArgumentTypeIds\CommandArgumentTypeIds1001;
+use pocketmine\network\mcpe\convert\constants\commandArgumentTypeIds\CommandArgumentTypeIds2193;
+use pocketmine\network\mcpe\convert\constants\commandArgumentTypeIds\CommandArgumentTypeIds407;
 use pocketmine\network\mcpe\convert\constants\commandArgumentTypeIds\CommandArgumentTypeIds428;
 use pocketmine\network\mcpe\convert\constants\commandArgumentTypeIds\CommandArgumentTypeIds503;
 use pocketmine\network\mcpe\convert\constants\commandArgumentTypeIds\CommandArgumentTypeIds527;
 use pocketmine\network\mcpe\convert\constants\commandArgumentTypeIds\CommandArgumentTypeIds582;
 use pocketmine\network\mcpe\convert\constants\commandArgumentTypeIds\CommandArgumentTypeIds662;
+use pocketmine\network\mcpe\convert\constants\itemStackRequestActionTypeIds\ItemStackRequestActionType2168;
 use pocketmine\network\mcpe\convert\constants\itemStackRequestActionTypeIds\ItemStackRequestActionType407;
 use pocketmine\network\mcpe\convert\constants\itemStackRequestActionTypeIds\ItemStackRequestActionType422;
 use pocketmine\network\mcpe\convert\constants\itemStackRequestActionTypeIds\ItemStackRequestActionType428;
 use pocketmine\network\mcpe\convert\constants\itemStackRequestActionTypeIds\ItemStackRequestActionType486;
-use pocketmine\network\mcpe\convert\constants\levelSoundIds\LevelSoundIds110;
-use pocketmine\network\mcpe\convert\constants\levelSoundIds\LevelSoundIds137;
-use pocketmine\network\mcpe\convert\constants\levelSoundIds\LevelSoundIds141;
-use pocketmine\network\mcpe\convert\constants\levelSoundIds\LevelSoundIds223;
-use pocketmine\network\mcpe\convert\constants\levelSoundIds\LevelSoundIds261;
+use pocketmine\network\mcpe\convert\constants\levelSoundIds\LevelSoundIds1001;
+use pocketmine\network\mcpe\convert\constants\levelSoundIds\LevelSoundIds113;
+use pocketmine\network\mcpe\convert\constants\levelSoundIds\LevelSoundIds407;
 use pocketmine\network\mcpe\convert\constants\levelSoundIds\LevelSoundIds428;
 use pocketmine\network\mcpe\convert\constants\levelSoundIds\LevelSoundIds475;
 use pocketmine\network\mcpe\convert\constants\levelSoundIds\LevelSoundIds486;
@@ -94,12 +86,12 @@ use pocketmine\network\mcpe\convert\constants\levelSoundIds\LevelSoundIds818;
 use pocketmine\network\mcpe\convert\constants\levelSoundIds\LevelSoundIds819;
 use pocketmine\network\mcpe\convert\constants\levelSoundIds\LevelSoundIds827;
 use pocketmine\network\mcpe\convert\constants\levelSoundIds\LevelSoundIds844;
-use pocketmine\network\mcpe\convert\constants\particleIds\ParticleIds110;
-use pocketmine\network\mcpe\convert\constants\particleIds\ParticleIds137;
-use pocketmine\network\mcpe\convert\constants\particleIds\ParticleIds274;
-use pocketmine\network\mcpe\convert\constants\particleIds\ParticleIds313;
-use pocketmine\network\mcpe\convert\constants\particleIds\ParticleIds361;
-use pocketmine\network\mcpe\convert\constants\particleIds\ParticleIds389;
+use pocketmine\network\mcpe\convert\constants\levelSoundIds\LevelSoundIds897;
+use pocketmine\network\mcpe\convert\constants\levelSoundIds\LevelSoundIds924;
+use pocketmine\network\mcpe\convert\constants\levelSoundIds\LevelSoundIds944;
+use pocketmine\network\mcpe\convert\constants\levelSoundIds\LevelSoundIds975;
+use pocketmine\network\mcpe\convert\constants\particleIds\ParticleIds113;
+use pocketmine\network\mcpe\convert\constants\particleIds\ParticleIds407;
 use pocketmine\network\mcpe\convert\constants\particleIds\ParticleIds431;
 use pocketmine\network\mcpe\convert\constants\particleIds\ParticleIds448;
 use pocketmine\network\mcpe\convert\constants\particleIds\ParticleIds630;
@@ -108,8 +100,9 @@ use pocketmine\network\mcpe\convert\constants\particleIds\ParticleIds662;
 use pocketmine\network\mcpe\convert\constants\particleIds\ParticleIds712;
 use pocketmine\network\mcpe\convert\constants\particleIds\ParticleIds766;
 use pocketmine\network\mcpe\convert\constants\particleIds\ParticleIds844;
-use pocketmine\network\mcpe\convert\constants\playerActionIds\PlayerActionIds110;
-use pocketmine\network\mcpe\convert\constants\playerActionIds\PlayerActionIds137;
+use pocketmine\network\mcpe\convert\constants\particleIds\ParticleIds944;
+use pocketmine\network\mcpe\convert\constants\playerActionIds\PlayerActionIds113;
+use pocketmine\network\mcpe\convert\constants\playerActionIds\PlayerActionIds407;
 use pocketmine\network\mcpe\convert\constants\playerActionIds\PlayerActionIds419;
 use pocketmine\network\mcpe\convert\constants\playerActionIds\PlayerActionIds428;
 use pocketmine\network\mcpe\convert\constants\playerActionIds\PlayerActionIds527;
@@ -119,10 +112,8 @@ use pocketmine\network\mcpe\convert\constants\playerActionIds\PlayerActionIds618
 use pocketmine\network\mcpe\convert\constants\playerActionIds\PlayerActionIds622;
 use pocketmine\network\mcpe\convert\constants\playerActionIds\PlayerActionIds748;
 use pocketmine\network\mcpe\convert\constants\playerActionIds\PlayerActionIds818;
-use pocketmine\network\mcpe\convert\constants\resourcePackTypeIds\ResourcePackTypeIds361;
-use pocketmine\network\mcpe\convert\constants\resourcePackTypeIds\ResourcePackTypeIds370;
-use pocketmine\network\mcpe\convert\constants\textPacketTypeIds\TextPacketTypeIds110;
-use pocketmine\network\mcpe\convert\constants\textPacketTypeIds\TextPacketTypeIds137;
+use pocketmine\network\mcpe\convert\constants\resourcePackTypeIds\ResourcePackTypeIds407;
+use pocketmine\network\mcpe\convert\constants\textPacketTypeIds\TextPacketTypeIds113;
 use pocketmine\network\mcpe\convert\constants\textPacketTypeIds\TextPacketTypeIds407;
 use pocketmine\network\mcpe\convert\constants\textPacketTypeIds\TextPacketTypeIds554;
 use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
@@ -159,6 +150,11 @@ class ConstantTranslator
 	public function __construct()
 	{
 		$this->collect(LevelSoundEventPacket::class, [
+			ProtocolInfo::PROTOCOL_1001 => LevelSoundIds1001::class,
+			ProtocolInfo::PROTOCOL_975 => LevelSoundIds975::class,
+			ProtocolInfo::PROTOCOL_944 => LevelSoundIds944::class,
+			ProtocolInfo::PROTOCOL_924 => LevelSoundIds924::class,
+			ProtocolInfo::PROTOCOL_897 => LevelSoundIds897::class,
 			ProtocolInfo::PROTOCOL_844 => LevelSoundIds844::class,
 			ProtocolInfo::PROTOCOL_827 => LevelSoundIds827::class,
 			ProtocolInfo::PROTOCOL_819 => LevelSoundIds819::class,
@@ -178,27 +174,21 @@ class ConstantTranslator
 			ProtocolInfo::PROTOCOL_486 => LevelSoundIds486::class,
 			ProtocolInfo::PROTOCOL_475 => LevelSoundIds475::class,
 			ProtocolInfo::PROTOCOL_428 => LevelSoundIds428::class,
-			ProtocolInfo::PROTOCOL_261 => LevelSoundIds261::class,
-			ProtocolInfo::PROTOCOL_223 => LevelSoundIds223::class,
-			ProtocolInfo::PROTOCOL_141 => LevelSoundIds141::class,
-			ProtocolInfo::PROTOCOL_137 => LevelSoundIds137::class,
-			ProtocolInfo::PROTOCOL_110 => LevelSoundIds110::class,
+			ProtocolInfo::PROTOCOL_407 => LevelSoundIds407::class,
+			ProtocolInfo::PROTOCOL_113 => LevelSoundIds113::class,
 		], function ($value, string $name) : bool {
 			return str_starts_with($name, "SOUND_");
 		});
 
 		$this->collect(AvailableCommandsPacket::class, [
+			ProtocolInfo::PROTOCOL_2193 => CommandArgumentTypeIds2193::class,
+			ProtocolInfo::PROTOCOL_1001 => CommandArgumentTypeIds1001::class,
 			ProtocolInfo::PROTOCOL_662 => CommandArgumentTypeIds662::class,
 			ProtocolInfo::PROTOCOL_582 => CommandArgumentTypeIds582::class,
 			ProtocolInfo::PROTOCOL_527 => CommandArgumentTypeIds527::class,
 			ProtocolInfo::PROTOCOL_503 => CommandArgumentTypeIds503::class,
 			ProtocolInfo::PROTOCOL_428 => CommandArgumentTypeIds428::class,
-			ProtocolInfo::PROTOCOL_388 => CommandArgumentTypeIds388::class,
-			ProtocolInfo::PROTOCOL_370 => CommandArgumentTypeIds370::class,
-			ProtocolInfo::PROTOCOL_340 => CommandArgumentTypeIds340::class,
-			ProtocolInfo::PROTOCOL_332 => CommandArgumentTypeIds332::class,
-			ProtocolInfo::PROTOCOL_274 => CommandArgumentTypeIds274::class,
-			ProtocolInfo::PROTOCOL_137 => CommandArgumentTypeIds137::class
+			ProtocolInfo::PROTOCOL_407 => CommandArgumentTypeIds407::class
 		], function ($value, string $name) : bool {
 			return str_starts_with($name, "ARG_TYPE");
 		});
@@ -213,27 +203,26 @@ class ConstantTranslator
 			ProtocolInfo::PROTOCOL_527 => PlayerActionIds527::class,
 			ProtocolInfo::PROTOCOL_428 => PlayerActionIds428::class,
 			ProtocolInfo::PROTOCOL_419 => PlayerActionIds419::class,
-			ProtocolInfo::PROTOCOL_137 => PlayerActionIds137::class,
-			ProtocolInfo::PROTOCOL_110 => PlayerActionIds110::class,
+			ProtocolInfo::PROTOCOL_407 => PlayerActionIds407::class,
+			ProtocolInfo::PROTOCOL_113 => PlayerActionIds113::class
 		], function ($value, string $name) : bool {
 			return str_starts_with($name, "ACTION_");
 		});
 
 		$this->collect(ResourcePackType::class, [
-			ProtocolInfo::PROTOCOL_370 => ResourcePackTypeIds370::class,
-			ProtocolInfo::PROTOCOL_361 => ResourcePackTypeIds361::class,
+			ProtocolInfo::PROTOCOL_407 => ResourcePackTypeIds407::class
 		]);
 
 		$this->collect(TextPacket::class, [
 			ProtocolInfo::PROTOCOL_554 => TextPacketTypeIds554::class,
 			ProtocolInfo::PROTOCOL_407 => TextPacketTypeIds407::class,
-			ProtocolInfo::PROTOCOL_137 => TextPacketTypeIds137::class,
-			ProtocolInfo::PROTOCOL_110 => TextPacketTypeIds110::class,
+			ProtocolInfo::PROTOCOL_113 => TextPacketTypeIds113::class
 		], function ($value, string $name) : bool {
 			return str_starts_with($name, "TYPE_");
 		});
 
 		$this->collect(Particle::class, [
+			ProtocolInfo::PROTOCOL_944 => ParticleIds944::class,
 			ProtocolInfo::PROTOCOL_844 => ParticleIds844::class,
 			ProtocolInfo::PROTOCOL_766 => ParticleIds766::class,
 			ProtocolInfo::PROTOCOL_712 => ParticleIds712::class,
@@ -242,29 +231,28 @@ class ConstantTranslator
 			ProtocolInfo::PROTOCOL_630 => ParticleIds630::class,
 			ProtocolInfo::PROTOCOL_448 => ParticleIds448::class,
 			ProtocolInfo::PROTOCOL_431 => ParticleIds431::class,
-			ProtocolInfo::PROTOCOL_389 => ParticleIds389::class,
-			ProtocolInfo::PROTOCOL_361 => ParticleIds361::class,
-			ProtocolInfo::PROTOCOL_313 => ParticleIds313::class,
-			ProtocolInfo::PROTOCOL_274 => ParticleIds274::class,
-			ProtocolInfo::PROTOCOL_137 => ParticleIds137::class,
-			ProtocolInfo::PROTOCOL_110 => ParticleIds110::class,
+			ProtocolInfo::PROTOCOL_407 => ParticleIds407::class,
+			ProtocolInfo::PROTOCOL_113 => ParticleIds113::class
 		], function ($value, string $name) : bool {
 			return str_starts_with($name, "TYPE_");
 		});
 
 		$this->collect(ItemStackRequestActionType::class, [
+			ProtocolInfo::PROTOCOL_2168 => ItemStackRequestActionType2168::class,
 			ProtocolInfo::PROTOCOL_486 => ItemStackRequestActionType486::class,
 			ProtocolInfo::PROTOCOL_428 => ItemStackRequestActionType428::class,
 			ProtocolInfo::PROTOCOL_422 => ItemStackRequestActionType422::class,
-			ProtocolInfo::PROTOCOL_407 => ItemStackRequestActionType407::class,
+			ProtocolInfo::PROTOCOL_407 => ItemStackRequestActionType407::class
 		]);
 
 		$this->collect(BossBarColor::class, [
 			ProtocolInfo::PROTOCOL_622 => BossBarColor622::class,
-			ProtocolInfo::PROTOCOL_110 => BossBarColor110::class,
+			ProtocolInfo::PROTOCOL_113 => BossBarColor113::class,
 		]);
 
 		$this->collect(EntityMetadataFlags::class, [
+			ProtocolInfo::PROTOCOL_975 => ActorFlags975::class,
+			ProtocolInfo::PROTOCOL_897 => ActorFlags897::class,
 			ProtocolInfo::PROTOCOL_844 => ActorFlags844::class,
 			ProtocolInfo::PROTOCOL_818 => ActorFlags818::class,
 			ProtocolInfo::PROTOCOL_800 => ActorFlags800::class,
@@ -277,26 +265,20 @@ class ConstantTranslator
 			ProtocolInfo::PROTOCOL_560 => ActorFlags560::class,
 			ProtocolInfo::PROTOCOL_475 => ActorFlags475::class,
 			ProtocolInfo::PROTOCOL_428 => ActorFlags428::class,
-			ProtocolInfo::PROTOCOL_390 => ActorFlags390::class,
-			ProtocolInfo::PROTOCOL_354 => ActorFlags354::class,
-			ProtocolInfo::PROTOCOL_291 => ActorFlags291::class,
-			ProtocolInfo::PROTOCOL_274 => ActorFlags274::class,
-			ProtocolInfo::PROTOCOL_223 => ActorFlags223::class,
-			ProtocolInfo::PROTOCOL_137 => ActorFlags137::class,
-			ProtocolInfo::PROTOCOL_110 => ActorFlags110::class
+			ProtocolInfo::PROTOCOL_407 => ActorFlags407::class,
+			ProtocolInfo::PROTOCOL_113 => ActorFlags113::class
 		]);
 
 		$this->collect(EntityMetadataProperties::class, [
+			ProtocolInfo::PROTOCOL_975 => ActorProperties975::class,
+			ProtocolInfo::PROTOCOL_924 => ActorProperties924::class,
 			ProtocolInfo::PROTOCOL_800 => ActorProperties800::class,
 			ProtocolInfo::PROTOCOL_776 => ActorProperties776::class,
 			ProtocolInfo::PROTOCOL_712 => ActorProperties712::class,
 			ProtocolInfo::PROTOCOL_594 => ActorProperties594::class,
 			ProtocolInfo::PROTOCOL_428 => ActorProperties428::class,
-			ProtocolInfo::PROTOCOL_361 => ActorProperties361::class,
-			ProtocolInfo::PROTOCOL_354 => ActorProperties354::class,
-			ProtocolInfo::PROTOCOL_340 => ActorProperties340::class,
-			ProtocolInfo::PROTOCOL_223 => ActorProperties223::class,
-			ProtocolInfo::PROTOCOL_110 => ActorProperties110::class
+			ProtocolInfo::PROTOCOL_407 => ActorProperties407::class,
+			ProtocolInfo::PROTOCOL_113 => ActorProperties113::class
 		]);
 	}
 
@@ -358,7 +340,7 @@ class ConstantTranslator
 		}
 	}
 
-	public function toNetworkId(string $coreClassConstants, int $id, int $playerProtocol, int $default = null) : int
+	public function toNetworkId(string $coreClassConstants, int $id, int $playerProtocol, ?int $default = null) : int
 	{
 		if (!isset($this->constantsMapping[$coreClassConstants])) {
 			throw new ConstantTranslatorException("The $coreClassConstants class for translating constants was not found.");

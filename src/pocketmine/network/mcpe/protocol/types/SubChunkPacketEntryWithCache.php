@@ -23,6 +23,8 @@ declare(strict_types=1);
 namespace pocketmine\network\mcpe\protocol\types;
 
 use pocketmine\network\mcpe\NetworkBinaryStream;
+use pocketmine\network\mcpe\protocol\PacketDecodeException;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 final class SubChunkPacketEntryWithCache
 {
@@ -42,17 +44,23 @@ final class SubChunkPacketEntryWithCache
 		return $this->usedBlobHash;
 	}
 
-	public static function read(NetworkBinaryStream $in, int $protocolVersion) : self
+	public static function read(NetworkBinaryStream $in) : self
 	{
-		$base = SubChunkPacketEntryCommon::read($in, true, $protocolVersion);
+		$base = SubChunkPacketEntryCommon::read($in, true);
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_2168 && !$in->getBool()) {
+			throw new PacketDecodeException("Missing blob hash for a subchunk entry with the cache enabled");
+		}
 		$usedBlobHash = $in->getLLong();
 
 		return new self($base, $usedBlobHash);
 	}
 
-	public function write(NetworkBinaryStream $out, int $protocolVersion) : void
+	public function write(NetworkBinaryStream $out) : void
 	{
-		$this->base->write($out, true, $protocolVersion);
+		$this->base->write($out, true);
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_2168) {
+			$out->putBool(true); //optional since 1.26.40
+		}
 		$out->putLLong($this->usedBlobHash);
 	}
 }

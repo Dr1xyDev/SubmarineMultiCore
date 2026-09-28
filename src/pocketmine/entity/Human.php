@@ -38,11 +38,13 @@ use pocketmine\inventory\PlayerInventory;
 use pocketmine\inventory\PlayerOffHandInventory;
 use pocketmine\item\Consumable;
 use pocketmine\item\Durable;
+use pocketmine\item\enchantment\EnchantingHelper;
 use pocketmine\item\enchantment\Enchantment;
 use pocketmine\item\FoodSource;
 use pocketmine\item\Item;
 use pocketmine\item\MaybeConsumable;
 use pocketmine\item\Totem;
+use pocketmine\level\ChunkManager;
 use pocketmine\level\Level;
 use pocketmine\level\sound\TotemUseSound;
 use pocketmine\level\sound\XpCollectSound;
@@ -120,7 +122,7 @@ class Human extends Creature implements ProjectileSource, InventoryHolder
 
 	protected float $baseOffset = 1.62;
 
-	public function __construct(Level $level, CompoundTag $nbt)
+	public function __construct(ChunkManager $level, CompoundTag $nbt)
 	{
 		if ($this->skin === null) {
 			$skinTag = $nbt->getCompoundTag("Skin");
@@ -185,7 +187,7 @@ class Human extends Creature implements ProjectileSource, InventoryHolder
 	{
 		$targets = $targets ?? $this->hasSpawned;
 		foreach ($targets as $target) {
-			if ($target->getProtocolVersion() < ProtocolInfo::PROTOCOL_137) {
+			if ($target->getProtocolVersion() < ProtocolInfo::PROTOCOL_407) {
 				if ($target !== $this) {
 					$this->despawnFrom($target);
 				}
@@ -615,13 +617,23 @@ class Human extends Creature implements ProjectileSource, InventoryHolder
 	/**
 	 * Sets the duration in ticks until the human can pick up another XP orb.
 	 */
-	public function resetXpCooldown(int $value = 2) : void
-	{
+	public function resetXpCooldown(int $value = 2) : void{
 		$this->xpCooldown = $value;
 	}
 
-	public function getXpDropAmount() : int
-	{
+	public function getEnchantmentSeed() : int{
+		return $this->xpSeed;
+	}
+
+	public function setEnchantmentSeed(int $seed) : void{
+		$this->xpSeed = $seed;
+	}
+
+	public function regenerateEnchantmentSeed() : void{
+		$this->xpSeed = EnchantingHelper::generateSeed();
+	}
+
+	public function getXpDropAmount() : int{
 		//this causes some XP to be lost on death when above level 1 (by design), dropping at most enough points for
 		//about 7.5 levels of XP.
 		return (int) min(100, 7 * $this->getXpLevel());
@@ -947,8 +959,6 @@ class Human extends Creature implements ProjectileSource, InventoryHolder
 		$player->sendDataPacket(AddPlayerPacket::create(
 			$this->getUniqueId(),
 			$this->getNameTag(),
-			"",
-			0,
 			$this->getId(),
 			$this->getId(),
 			"",
@@ -970,13 +980,13 @@ class Human extends Creature implements ProjectileSource, InventoryHolder
 					0.0
 				)
 			]),
-			new AdventureSettingsData(0, 0, 0, 0, 0, 0),
+			new AdventureSettingsData(0, CommandPermissions::NORMAL, 0, PlayerPermissions::VISITOR, 0, 0),
 			$links,
 			"",
-			DeviceOS::UNKNOWN
+			$this instanceof Player ? ($this->getDeviceOS() ?? DeviceOS::UNKNOWN) : DeviceOS::UNKNOWN
 		));
 
-		if ($player->getProtocolVersion() >= ProtocolInfo::PROTOCOL_223) {
+		if ($player->getProtocolVersion() >= ProtocolInfo::PROTOCOL_407) {
 			//TODO: Hack for MCPE 1.2.13: DATA_NAMETAG is useless in AddPlayerPacket, so it has to be sent separately
 			$this->sendData($player, [self::DATA_NAMETAG => [self::DATA_TYPE_STRING, $this->getNameTag()]]);
 		} else {

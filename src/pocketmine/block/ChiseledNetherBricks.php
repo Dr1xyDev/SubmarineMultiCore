@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class ChiseledNetherBricks extends NetherBrick
 {
 	protected $id = self::CHISELED_NETHER_BRICKS;
@@ -36,14 +34,5 @@ class ChiseledNetherBricks extends NetherBrick
 	public function getName() : string
 	{
 		return "Chiseled Nether Bricks";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_419) {
-			return BlockFactory::get(BlockIds::RED_NETHER_BRICK, $this->meta);
-		}
-
-		return null;
 	}
 }

@@ -45,7 +45,7 @@ class Spyglass extends Item implements Releasable
 	public function getItemProtocol(int $playerProtocol) : ?TranslatedItemData
 	{
 		if ($playerProtocol < ProtocolInfo::PROTOCOL_440) {
-			return new TranslatedItemData(ItemIds::BLAZE_ROD, $this->getDamage());
+			return new TranslatedItemData(ItemIds::BLAZE_ROD, $this->getDamage(), $this->getName());
 		}
 
 		return parent::getItemProtocol($playerProtocol);

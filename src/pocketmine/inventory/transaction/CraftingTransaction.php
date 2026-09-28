@@ -24,15 +24,21 @@ namespace pocketmine\inventory\transaction;
 
 use pocketmine\event\inventory\CraftItemEvent;
 use pocketmine\inventory\CraftingRecipe;
+use pocketmine\inventory\RecipeIngredient;
 use pocketmine\item\Item;
 use pocketmine\network\mcpe\protocol\ContainerClosePacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\types\inventory\ContainerIds;
 use pocketmine\Player;
 
+use pocketmine\utils\Utils;
+use function array_fill_keys;
+use function array_keys;
 use function array_pop;
 use function count;
 use function intdiv;
+use function min;
+use function uasort;
 
 /**
  * This transaction type is specialized for crafting validation. It shares most of the same semantics of the base
@@ -67,59 +73,165 @@ class CraftingTransaction extends InventoryTransaction
 	}
 
 	/**
-	 * @param Item[] $txItems
-	 * @param Item[] $recipeItems
+	 * @param Item[] $providedItems
+	 * @return Item[]
 	 *
-	 * @throws TransactionValidationException
+	 * @phpstan-param list<Item> $providedItems
+	 * @phpstan-return list<Item>
 	 */
-	protected function matchRecipeItems(array $txItems, array $recipeItems, bool $wildcards, int $iterations = 0) : int
-	{
-		if (count($recipeItems) === 0) {
-			throw new TransactionValidationException("No recipe items given");
+	private static function packItems(array $providedItems) : array{
+		$packedProvidedItems = [];
+		while(count($providedItems) > 0){
+			$item = array_pop($providedItems);
+			foreach($providedItems as $k => $otherItem){
+				if($item->canStackWith($otherItem)){
+					$item->setCount($item->getCount() + $otherItem->getCount());
+					unset($providedItems[$k]);
+				}
+			}
+			$packedProvidedItems[] = $item;
 		}
-		if (count($txItems) === 0) {
+
+		return $packedProvidedItems;
+	}
+
+	/**
+	 * @param Item[]             $providedItems
+	 * @param RecipeIngredient[] $recipeIngredients
+	 *
+	 * @phpstan-param list<Item> $providedItems
+	 * @phpstan-param list<RecipeIngredient> $recipeIngredients
+	 */
+	public static function matchIngredients(array $providedItems, array $recipeIngredients, int $expectedIterations) : void{
+		if(count($recipeIngredients) === 0){
+			throw new TransactionValidationException("No recipe ingredients given");
+		}
+		if(count($providedItems) === 0){
 			throw new TransactionValidationException("No transaction items given");
 		}
 
-		while (count($recipeItems) > 0) {
+		$packedProvidedItems = self::packItems(Utils::cloneObjectArray($providedItems));
+		$packedProvidedItemMatches = array_fill_keys(array_keys($packedProvidedItems), 0);
+
+		$recipeIngredientMatches = [];
+
+		foreach($recipeIngredients as $ingredientIndex => $recipeIngredient){
+			$acceptedItems = [];
+			foreach($packedProvidedItems as $itemIndex => $packedItem){
+				if($recipeIngredient->accepts($packedItem)){
+					$packedProvidedItemMatches[$itemIndex]++;
+					$acceptedItems[$itemIndex] = $itemIndex;
+				}
+			}
+
+			if(count($acceptedItems) === 0){
+				throw new TransactionValidationException("No provided items satisfy ingredient requirement $recipeIngredient");
+			}
+
+			$recipeIngredientMatches[$ingredientIndex] = $acceptedItems;
+		}
+
+		foreach($packedProvidedItemMatches as $itemIndex => $itemMatchCount){
+			if($itemMatchCount === 0){
+				$item = $packedProvidedItems[$itemIndex];
+				throw new TransactionValidationException("Provided item $item is not accepted by any recipe ingredient");
+			}
+		}
+
+		//Most picky ingredients first - avoid picky ingredient getting their items stolen by wildcard ingredients
+		//TODO: this is still insufficient when multiple wildcard ingredients have overlaps, but we don't (yet) have to
+		//worry about those.
+		uasort($recipeIngredientMatches, fn(array $a, array $b) => count($a) <=> count($b));
+
+		foreach($recipeIngredientMatches as $ingredientIndex => $acceptedItems){
+			$needed = $expectedIterations;
+
+			foreach($packedProvidedItems as $itemIndex => $item){
+				if(!isset($acceptedItems[$itemIndex])){
+					continue;
+				}
+
+				$taken = min($needed, $item->getCount());
+				$needed -= $taken;
+				$item->setCount($item->getCount() - $taken);
+
+				if($item->getCount() === 0){
+					unset($packedProvidedItems[$itemIndex]);
+				}
+
+				if($needed === 0){
+					//validation passed!
+					continue 2;
+				}
+			}
+
+			$recipeIngredient = $recipeIngredients[$ingredientIndex];
+			$actualIterations = $expectedIterations - $needed;
+			throw new TransactionValidationException("Not enough items to satisfy recipe ingredient $recipeIngredient for $expectedIterations (only have enough items for $actualIterations iterations)");
+		}
+
+		if(count($packedProvidedItems) > 0){
+			throw new TransactionValidationException("Not all provided items were used");
+		}
+	}
+
+	/**
+	 * @param Item[] $txItems
+	 * @param Item[] $recipeItems
+	 *
+	 * @phpstan-param list<Item> $txItems
+	 * @phpstan-param list<Item> $recipeItems
+	 *
+	 * @throws TransactionValidationException
+	 */
+	protected function matchOutputs(array $txItems, array $recipeItems) : int{
+		if(count($recipeItems) === 0){
+			throw new TransactionValidationException("No recipe items given");
+		}
+		if(count($txItems) === 0){
+			throw new TransactionValidationException("No transaction items given");
+		}
+
+		$iterations = 0;
+		while(count($recipeItems) > 0){
 			/** @var Item $recipeItem */
 			$recipeItem = array_pop($recipeItems);
 			$needCount = $recipeItem->getCount();
-			foreach ($recipeItems as $i => $otherRecipeItem) {
-				if ($otherRecipeItem->canStackWith($recipeItem)) { //make sure they have the same wildcards set
+			foreach($recipeItems as $i => $otherRecipeItem){
+				if($otherRecipeItem->canStackWith($recipeItem)){ //make sure they have the same wildcards set
 					$needCount += $otherRecipeItem->getCount();
 					unset($recipeItems[$i]);
 				}
 			}
 
 			$haveCount = 0;
-			foreach ($txItems as $j => $txItem) {
-				if ($txItem->equals($recipeItem, !$wildcards || !$recipeItem->hasAnyDamageValue(), !$wildcards || $recipeItem->hasNamedTag())) {
+			foreach($txItems as $j => $txItem){
+				if($txItem->canStackWith($recipeItem)){
 					$haveCount += $txItem->getCount();
 					unset($txItems[$j]);
 				}
 			}
 
-			if ($haveCount % $needCount !== 0) {
+			if($haveCount % $needCount !== 0){
 				//wrong count for this output, should divide exactly
 				throw new TransactionValidationException("Expected an exact multiple of required $recipeItem (given: $haveCount, needed: $needCount)");
 			}
 
 			$multiplier = intdiv($haveCount, $needCount);
-			if ($multiplier < 1) {
+			if($multiplier < 1){
 				throw new TransactionValidationException("Expected more than zero items matching $recipeItem (given: $haveCount, needed: $needCount)");
 			}
-			if ($iterations === 0) {
+			if($iterations === 0){
 				$iterations = $multiplier;
-			} elseif ($multiplier !== $iterations) {
+			}elseif($multiplier !== $iterations){
 				//wrong count for this output, should match previous outputs
 				throw new TransactionValidationException("Expected $recipeItem x$iterations, but found x$multiplier");
 			}
 		}
 
-		if (count($txItems) > 0) {
+		if(count($txItems) > 0){
 			//all items should be destroyed in this process
-			throw new TransactionValidationException("Expected 0 ingredients left over, have " . count($txItems));
+			throw new TransactionValidationException("Expected 0 items left over, have " . count($txItems));
 		}
 
 		return $iterations;
@@ -128,12 +240,13 @@ class CraftingTransaction extends InventoryTransaction
 	private function validateRecipe(CraftingRecipe $recipe, ?int $expectedRepetitions) : int
 	{
 		//compute number of times recipe was crafted
-		$repetitions = $this->matchRecipeItems($this->outputs, $recipe->getResultsFor($this->source->getCraftingGrid()), false);
+		$repetitions = $this->matchOutputs($this->outputs, $recipe->getResultsFor($this->source->getCraftingGrid()));
 		if ($expectedRepetitions !== null && $repetitions !== $expectedRepetitions) {
 			throw new TransactionValidationException("Expected $expectedRepetitions repetitions, got $repetitions");
 		}
 		//assert that $repetitions x recipe ingredients should be consumed
-		$this->matchRecipeItems($this->inputs, $recipe->getIngredientList(), true, $repetitions);
+		self::matchIngredients($this->inputs, $recipe->getIngredientList(), $repetitions);
+
 		return $repetitions;
 	}
 
@@ -151,9 +264,9 @@ class CraftingTransaction extends InventoryTransaction
 			foreach ($this->source->getServer()->getCraftingManager()->matchRecipeByOutputs($this->outputs, $this->source->getCraftingProtocol()) as $recipe) {
 				try {
 					//compute number of times recipe was crafted
-					$this->repetitions = $this->matchRecipeItems($this->outputs, $recipe->getResultsFor($this->source->getCraftingGrid()), false);
+					$this->repetitions = $this->matchOutputs($this->outputs, $recipe->getResultsFor($this->source->getCraftingGrid()));
 					//assert that $repetitions x recipe ingredients should be consumed
-					$this->matchRecipeItems($this->inputs, $recipe->getIngredientList(), true, $this->repetitions);
+					self::matchIngredients($this->inputs, $recipe->getIngredientList(), $this->repetitions);
 
 					//Success!
 					$this->recipe = $recipe;
@@ -181,7 +294,7 @@ class CraftingTransaction extends InventoryTransaction
 
 	protected function sendInventories() : void
 	{
-		if ($this->source->getProtocolVersion() < ProtocolInfo::PROTOCOL_137) {
+		if ($this->source->getProtocolVersion() < ProtocolInfo::PROTOCOL_407) {
 			return;
 		}
 
@@ -194,11 +307,7 @@ class CraftingTransaction extends InventoryTransaction
 		 * transaction goes wrong.
 		 */
 		$pk = new ContainerClosePacket();
-		if ($this->source->getProtocolVersion() >= ProtocolInfo::PROTOCOL_407) {
-			$pk->windowId = ContainerIds::INVENTORY;
-		} else {
-			$pk->windowId = ContainerIds::NONE;
-		}
+		$pk->windowId = ContainerIds::INVENTORY;
 		$pk->windowType = $this->source->getCurrentWindowType();
 		$pk->server = true;
 		$this->source->dataPacket($pk);

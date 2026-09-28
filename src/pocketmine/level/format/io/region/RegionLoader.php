@@ -28,7 +28,6 @@ use pocketmine\utils\AssumptionFailedError;
 use pocketmine\utils\Binary;
 use pocketmine\utils\BinaryDataException;
 use pocketmine\utils\BinaryStream;
-
 use function assert;
 use function ceil;
 use function chr;
@@ -53,7 +52,6 @@ use function strlen;
 use function time;
 use function touch;
 use function unpack;
-
 use const SORT_NUMERIC;
 use const STR_PAD_RIGHT;
 

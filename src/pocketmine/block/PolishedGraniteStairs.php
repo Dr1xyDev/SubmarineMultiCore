@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace pocketmine\block;
 
 use pocketmine\item\TieredTool;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 class PolishedGraniteStairs extends Stair
 {
@@ -57,14 +56,5 @@ class PolishedGraniteStairs extends Stair
 	public function getName() : string
 	{
 		return "Polished Granite Stairs";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_332) {
-			return BlockFactory::get(BlockIds::COBBLESTONE_STAIRS, $this->meta);
-		}
-
-		return null;
 	}
 }

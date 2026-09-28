@@ -59,7 +59,7 @@ class PlayerArmorDamagePacket extends DataPacket
 
 	protected function decodePayload() : void
 	{
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_844) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_844) {
 			for ($i = 0, $count = $this->getUnsignedVarInt(); $i < $count; ++$i) {
 				$this->armorSlotAndDamagePairs[] = ArmorSlotAndDamagePair::read($this);
 			}
@@ -78,29 +78,30 @@ class PlayerArmorDamagePacket extends DataPacket
 
 	protected function encodePayload() : void
 	{
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_844) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_844) {
 			$this->putUnsignedVarInt(count($this->armorSlotAndDamagePairs));
 			foreach ($this->armorSlotAndDamagePairs as $pair) {
 				$pair->write($this);
 			}
 		} else {
-			$flags = 0;
+			//the client reads the damages in slot order, one per flag bit
+			$damages = [];
 			foreach ($this->armorSlotAndDamagePairs as $pair) {
-				if ($this->getProtocol() < ProtocolInfo::PROTOCOL_712 && $pair->getSlot() === ArmorSlot::BODY) {
+				if ($this->protocol < ProtocolInfo::PROTOCOL_712 && $pair->getSlot() === ArmorSlot::BODY) {
 					continue;
 				}
-
-				$flags = (1 << $pair->getSlot()->value);
+				$damages[$pair->getSlot()->value] = $pair->getDamage();
 			}
+			ksort($damages);
 
+			$flags = 0;
+			foreach ($damages as $slot => $_) {
+				$flags |= (1 << $slot);
+			}
 			$this->putByte($flags);
 
-			foreach ($this->armorSlotAndDamagePairs as $pair) {
-				if ($this->getProtocol() < ProtocolInfo::PROTOCOL_712 && $pair->getSlot() === ArmorSlot::BODY) {
-					continue;
-				}
-
-				$this->putVarInt($pair->getDamage());
+			foreach ($damages as $damage) {
+				$this->putVarInt($damage);
 			}
 		}
 	}

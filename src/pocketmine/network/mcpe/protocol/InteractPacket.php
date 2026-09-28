@@ -22,42 +22,36 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\protocol;
 
+use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\NetworkSession;
 
 class InteractPacket extends DataPacket
 {
 	public const NETWORK_ID = ProtocolInfo::INTERACT_PACKET;
 
-	public const ACTION_RIGHT_CLICK = 1;
-	public const ACTION_LEFT_CLICK = 2;
-	public const ACTION_LEAVE_VEHICLE = 3;
-	public const ACTION_MOUSEOVER = 4;
+	public const int ACTION_RIGHT_CLICK = 1;
+	public const int ACTION_LEFT_CLICK = 2;
+	public const int ACTION_LEAVE_VEHICLE = 3;
+	public const int ACTION_MOUSEOVER = 4;
+	public const int ACTION_OPEN_NPC = 5;
+	public const int ACTION_OPEN_INVENTORY = 6;
 
-	public const ACTION_OPEN_INVENTORY = 6;
-
-	/** @var int */
-	public $action;
-	/** @var int */
-	public $target;
-
-	/** @var float */
-	public $x;
-	/** @var float */
-	public $y;
-	/** @var float */
-	public $z;
+	public int $action;
+	public int $target;
+	public ?Vector3 $position = null;
 
 	protected function decodePayload() : void
 	{
 		$this->action = $this->getByte();
 		$this->target = $this->getEntityRuntimeId();
 
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_137) {
-			if ($this->action === self::ACTION_MOUSEOVER || ($this->getProtocol() >= ProtocolInfo::PROTOCOL_486 && $this->action === self::ACTION_LEAVE_VEHICLE)) {
-				//TODO: should this be a vector3?
-				$this->x = $this->getLFloat();
-				$this->y = $this->getLFloat();
-				$this->z = $this->getLFloat();
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_897) {
+				$this->position = $this->getOptional($this->getVector3(...));
+			} else {
+				if ($this->action === self::ACTION_MOUSEOVER || ($this->protocol >= ProtocolInfo::PROTOCOL_486 && $this->action === self::ACTION_LEAVE_VEHICLE)) {
+					$this->position = $this->getVector3();
+				}
 			}
 		}
 	}
@@ -67,11 +61,13 @@ class InteractPacket extends DataPacket
 		$this->putByte($this->action);
 		$this->putEntityRuntimeId($this->target);
 
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_137) {
-			if ($this->action === self::ACTION_MOUSEOVER || ($this->getProtocol() >= ProtocolInfo::PROTOCOL_486 && $this->action === self::ACTION_LEAVE_VEHICLE)) {
-				$this->putLFloat($this->x);
-				$this->putLFloat($this->y);
-				$this->putLFloat($this->z);
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_897) {
+				$this->putOptional($this->position, $this->putVector3(...));
+			} else {
+				if ($this->action === self::ACTION_MOUSEOVER || ($this->protocol >= ProtocolInfo::PROTOCOL_486 && $this->action === self::ACTION_LEAVE_VEHICLE)) {
+					$this->putVector3($this->position);
+				}
 			}
 		}
 	}

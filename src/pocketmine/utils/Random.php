@@ -28,34 +28,24 @@ use function time;
  * XorShift128Engine Random Number Noise, used for fast seeded values
  * Most of the code in this class was adapted from the XorShift128Engine in the php-random library.
  */
-class Random
-{
+class Random{
 	public const X = 123456789;
 	public const Y = 362436069;
 	public const Z = 521288629;
 	public const W = 88675123;
 
-	/** @var int */
-	private $x;
+	private int $x;
+	private int $y;
+	private int $z;
+	private int $w;
 
-	/** @var int */
-	private $y;
-
-	/** @var int */
-	private $z;
-
-	/** @var int */
-	private $w;
-
-	/** @var int */
-	protected $seed;
+	protected int $seed;
 
 	/**
 	 * @param int $seed Integer to be used as seed.
 	 */
-	public function __construct(int $seed = -1)
-	{
-		if ($seed === -1) {
+	public function __construct(int $seed = -1){
+		if($seed === -1){
 			$seed = time();
 		}
 
@@ -64,11 +54,8 @@ class Random
 
 	/**
 	 * @param int $seed Integer to be used as seed.
-	 *
-	 * @return void
 	 */
-	public function setSeed(int $seed)
-	{
+	public function setSeed(int $seed) : void{
 		$this->seed = $seed;
 		$this->x = self::X ^ $seed;
 		$this->y = self::Y ^ ($seed << 17) | (($seed >> 15) & 0x7fffffff) & 0xffffffff;
@@ -76,24 +63,21 @@ class Random
 		$this->w = self::W ^ ($seed << 18) | (($seed >> 14) & 0x7fffffff) & 0xffffffff;
 	}
 
-	public function getSeed() : int
-	{
+	public function getSeed() : int{
 		return $this->seed;
 	}
 
 	/**
 	 * Returns an 31-bit integer (not signed)
 	 */
-	public function nextInt() : int
-	{
+	public function nextInt() : int{
 		return $this->nextSignedInt() & 0x7fffffff;
 	}
 
 	/**
 	 * Returns a 32-bit integer (signed)
 	 */
-	public function nextSignedInt() : int
-	{
+	public function nextSignedInt() : int{
 		$t = ($this->x ^ ($this->x << 11)) & 0xffffffff;
 
 		$this->x = $this->y;
@@ -101,30 +85,27 @@ class Random
 		$this->z = $this->w;
 		$this->w = ($this->w ^ (($this->w >> 19) & 0x7fffffff) ^ ($t ^ (($t >> 8) & 0x7fffffff))) & 0xffffffff;
 
-		return $this->w;
+		return Binary::signInt($this->w);
 	}
 
 	/**
 	 * Returns a float between 0.0 and 1.0 (inclusive)
 	 */
-	public function nextFloat() : float
-	{
+	public function nextFloat() : float{
 		return $this->nextInt() / 0x7fffffff;
 	}
 
 	/**
 	 * Returns a float between -1.0 and 1.0 (inclusive)
 	 */
-	public function nextSignedFloat() : float
-	{
+	public function nextSignedFloat() : float{
 		return $this->nextSignedInt() / 0x7fffffff;
 	}
 
 	/**
 	 * Returns a random boolean
 	 */
-	public function nextBoolean() : bool
-	{
+	public function nextBoolean() : bool{
 		return ($this->nextSignedInt() & 0x01) === 0;
 	}
 
@@ -134,18 +115,11 @@ class Random
 	 * @param int $start default 0
 	 * @param int $end   default 0x7fffffff
 	 */
-	public function nextRange(int $start = 0, int $end = 0x7fffffff) : int
-	{
+	public function nextRange(int $start = 0, int $end = 0x7fffffff) : int{
 		return $start + ($this->nextInt() % ($end + 1 - $start));
 	}
 
-	public function nextBoundedInt(int $bound) : int
-	{
+	public function nextBoundedInt(int $bound) : int{
 		return $this->nextInt() % $bound;
-	}
-
-	public function nextMinMax(int $min, int $max) : int
-	{
-		return (int) ($min + $this->nextInt()) % $max;
 	}
 }

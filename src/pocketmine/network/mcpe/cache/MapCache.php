@@ -39,6 +39,20 @@ class MapCache
 		return self::$instances[$protocolVersion] ?? (self::$instances[$protocolVersion] = new MapCache($protocolVersion));
 	}
 
+	public static function removeMap(int $mapId) : void
+	{
+		foreach (self::$instances as $instance) {
+			unset($instance->caches[$mapId]);
+		}
+	}
+
+	public static function clearAll() : void
+	{
+		foreach (self::$instances as $instance) {
+			$instance->caches = [];
+		}
+	}
+
 	/** @var string[] */
 	private array $caches = [];
 
@@ -64,7 +78,7 @@ class MapCache
 		$pk->mapId = $id;
 		$pk->decorations = $data->getDecorations();
 		$pk->trackedEntities = $data->getTrackedObjects();
-		if ($this->getProtocolVersion() >= ProtocolInfo::PROTOCOL_137) {
+		if ($this->getProtocolVersion() >= ProtocolInfo::PROTOCOL_407) {
 			$pk->eids[] = $data->getId();
 		}
 

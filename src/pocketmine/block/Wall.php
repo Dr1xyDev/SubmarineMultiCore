@@ -23,38 +23,10 @@ declare(strict_types=1);
 namespace pocketmine\block;
 
 use pocketmine\block\utils\WallConnectionType;
-use pocketmine\item\TieredTool;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Facing;
 
-abstract class Wall extends Transparent
-{
-
-	public function __construct(int $meta = 0)
-	{
-		$this->meta = $meta;
-	}
-
-	public function getToolType() : int
-	{
-		return BlockToolType::TYPE_PICKAXE;
-	}
-
-	public function getToolHarvestLevel() : int
-	{
-		return TieredTool::TIER_WOODEN;
-	}
-
-	public function getHardness() : float
-	{
-		return 2;
-	}
-
-	public function getName() : string
-	{
-		return "Wall";
-	}
-
+class Wall extends Transparent {
 	public function onNearbyBlockChange() : void{
 		if($this->recalculateConnections()){
 			$this->level->setBlock($this, $this);
@@ -80,8 +52,7 @@ abstract class Wall extends Transparent
 	/**
 	 * @see WallConnectionType
 	 */
-	public function calculateConnection(int $face) : int
-	{
+	public function calculateConnection(int $face) : int{
 		$sidePos = $this->getSide($face);
 		$side = $this->level->getBlock($sidePos);
 		$up = $this->getSide(Facing::UP);
@@ -121,8 +92,7 @@ abstract class Wall extends Transparent
 		return WallConnectionType::NONE;
 	}
 
-	protected function recalculateBoundingBox() : ?AxisAlignedBB
-	{
+	protected function recalculateBoundingBox() : ?AxisAlignedBB{
 		//walls don't have any special collision boxes like fences do
 
 		$east = $this->canConnect($this->getSide(Facing::EAST));

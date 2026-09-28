@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace pocketmine\network\mcpe\protocol\types;
 
 use pocketmine\network\mcpe\NetworkBinaryStream;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 final class SubChunkPosition
 {
@@ -48,8 +49,21 @@ final class SubChunkPosition
 		return $this->z;
 	}
 
-	public static function read(NetworkBinaryStream $in) : self
-	{
+	public static function readFixedInts(NetworkBinaryStream $in) : self{
+		if($in->getProtocol() >= ProtocolInfo::PROTOCOL_1001){
+			$x = $in->getLInt();
+			$y = $in->getLInt();
+			$z = $in->getLInt();
+		}else{
+			$x = $in->getVarInt();
+			$y = $in->getVarInt();
+			$z = $in->getVarInt();
+		}
+
+		return new self($x, $y, $z);
+	}
+
+	public static function readVarInts(NetworkBinaryStream $in) : self{
 		$x = $in->getVarInt();
 		$y = $in->getVarInt();
 		$z = $in->getVarInt();
@@ -57,8 +71,19 @@ final class SubChunkPosition
 		return new self($x, $y, $z);
 	}
 
-	public function write(NetworkBinaryStream $out) : void
-	{
+	public function writeFixedInts(NetworkBinaryStream $out) : void{
+		if($out->getProtocol() >= ProtocolInfo::PROTOCOL_1001){
+			$out->putLInt($this->x);
+			$out->putLInt($this->y);
+			$out->putLInt($this->z);
+		} else {
+			$out->putVarInt($this->x);
+			$out->putVarInt($this->y);
+			$out->putVarInt($this->z);
+		}
+	}
+
+	public function writeVarInts(NetworkBinaryStream $out) : void{
 		$out->putVarInt($this->x);
 		$out->putVarInt($this->y);
 		$out->putVarInt($this->z);

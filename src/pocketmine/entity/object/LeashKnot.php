@@ -27,6 +27,7 @@ use pocketmine\entity\Entity;
 use pocketmine\entity\Living;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\item\Item;
+use pocketmine\level\ChunkManager;
 use pocketmine\level\Level;
 use pocketmine\level\Position;
 use pocketmine\math\AxisAlignedBB;
@@ -51,7 +52,7 @@ class LeashKnot extends Entity
 	/**
 	 * LeashKnot constructor.
 	 */
-	public function __construct(Level $level, CompoundTag $nbt)
+	public function __construct(ChunkManager $level, CompoundTag $nbt)
 	{
 		parent::__construct($level, $nbt);
 

@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class WarpedPressurePlate extends WoodenPressurePlate
 {
 	protected $id = self::WARPED_PRESSURE_PLATE;
@@ -41,14 +39,5 @@ class WarpedPressurePlate extends WoodenPressurePlate
 	public function getFuelTime() : int
 	{
 		return 0;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_419) {
-			return BlockFactory::get(BlockIds::WOODEN_PRESSURE_PLATE, $this->meta);
-		}
-
-		return null;
 	}
 }

@@ -39,7 +39,7 @@ class NearestAttackableTargetBehavior extends TargetBehavior
 	protected $targetEntity;
 	protected $targetEntitySelector;
 
-	public function __construct(Mob $mob, string $classTarget, bool $checkSight = true, int $chance = 10, bool $onlyNearby = false, ?Closure $targetSelector = null)
+	public function __construct(Mob $mob, string $classTarget, bool $checkSight = false, int $chance = 0, bool $onlyNearby = false, ?Closure $targetSelector = null)
 	{
 		parent::__construct($mob, $checkSight, $onlyNearby);
 
@@ -111,10 +111,11 @@ class NearestAttackableTargetBehavior extends TargetBehavior
 
 			// Sort
 			$nearest = null;
-			$lastDistance = PHP_INT_MAX;
+			$lastDistanceSq = PHP_INT_MAX;
 			foreach ($list as $entity) {
-				if ($d = $entity->distance($this->mob) < $lastDistance) {
-					$lastDistance = $d;
+				$dSq = $entity->distanceSquared($this->mob);
+				if ($dSq < $lastDistanceSq) {
+					$lastDistanceSq = $dSq;
 					$nearest = $entity;
 				}
 			}

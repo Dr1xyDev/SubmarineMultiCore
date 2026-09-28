@@ -1,0 +1,90 @@
+{
+   "name": "semennejo/submarine",
+   "description": "A server software for Minecraft: Bedrock Edition written in PHP",
+   "type": "project",
+   "homepage": "https://pmmp.io",
+   "license": "LGPL-3.0",
+   "repositories": [
+     {"type": "git", "url": "https://github.com/Benedikt05/NBT"}
+   ],
+   "require": {
+      "php": "^8.3",
+      "php-64bit": "*",
+      "ext-chunkutils2": "^0.3.1",
+      "ext-crypto": "^0.3.1",
+      "ext-ctype": "*",
+      "ext-curl": "*",
+      "ext-date": "*",
+      "ext-encoding": "~1.0.0",
+      "ext-hash": "*",
+      "ext-igbinary": "*",
+      "ext-json": "*",
+      "ext-libxml": "*",
+      "ext-mbstring": "*",
+      "ext-openssl": "*",
+      "ext-pcre": "*",
+      "ext-phar": "*",
+      "ext-reflection": "*",
+      "ext-simplexml": "*",
+      "ext-spl": "*",
+      "ext-gd": "*",
+      "ext-leveldb": "^0.2.1 || ^0.3.0",
+      "ext-zlib": ">=1.2.11",
+      "adhocore/json-comment": "^1.1",
+      "benedikt05/nbt": "3.0.1",
+      "composer-runtime-api": "^2.0",
+      "firebase/php-jwt": "^7.0",
+      "fgrosse/phpasn1": "^2.3",
+      "pocketmine/bedrock-block-upgrade-schema": "~5.2.0+bedrock-1.21.110",
+      "pocketmine/binaryutils": "^0.1.9",
+      "pocketmine/callback-validator": "^1.0.2",
+      "pocketmine/errorhandler": "^0.7.0",
+      "pocketmine/log": "^0.4.0",
+      "pocketmine/math": "^1.0.0",
+      "pocketmine/spl": "^0.4.0",
+      "symfony/filesystem": "~6.2.0",
+      "ext-gmp": "*",
+      "ramsey/uuid": "~4.9.0",
+      "ext-bcmath": "*",
+      "phpseclib/phpseclib": "2.0.28",
+      "ext-sockets": "*"
+   },
+   "require-dev": {
+      "friendsofphp/php-cs-fixer": "*",
+      "phpstan/phpstan": "1.11.1",
+      "phpstan/phpstan-phpunit": "^1.0.0",
+      "phpstan/phpstan-strict-rules": "^1.0.0",
+      "phpunit/phpunit": "^9.2"
+   },
+   "autoload": {
+      "psr-4": {
+         "": ["src", "src/raklib"]
+      },
+      "files": [
+         "src/pocketmine/CoreConstants.php",
+         "src/pocketmine/GlobalConstants.php"
+      ]
+   },
+   "autoload-dev": {
+      "psr-4": {
+         "pocketmine\\": "tests/phpunit/"
+      }
+   },
+   "config": {
+      "platform": {
+         "php": "8.3.0"
+      },
+      "sort-packages": true,
+      "disable-tls": false,
+      "audit": {
+         "block-insecure": false
+      }
+   },
+   "scripts": {
+      "make-devtools": "@php -dphar.readonly=0 tests/plugins/DevTools/src/DevTools/ConsoleScript.php --make tests/plugins/DevTools --out plugins/DevTools.phar",
+      "make-server": [
+         "@composer install --no-dev --classmap-authoritative --ignore-platform-reqs",
+         "@php -dphar.readonly=0 build/server-phar.php"
+      ]
+   }
+}

@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace pocketmine\block;
 
 use pocketmine\item\TieredTool;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 class CryingObsidian extends Solid
 {
@@ -62,14 +61,5 @@ class CryingObsidian extends Solid
 	public function getLightLevel() : int
 	{
 		return 10;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_419) {
-			return BlockFactory::get(BlockIds::OBSIDIAN);
-		}
-
-		return null;
 	}
 }

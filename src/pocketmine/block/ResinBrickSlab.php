@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace pocketmine\block;
 
 use pocketmine\item\TieredTool;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 class ResinBrickSlab extends Slab
 {
@@ -67,14 +66,5 @@ class ResinBrickSlab extends Slab
 	public function getToolHarvestLevel() : int
 	{
 		return TieredTool::TIER_WOODEN;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_766) {
-			return BlockFactory::get(BlockIds::STONE_SLAB, ($this->isTop() ? 8 : 0));
-		}
-
-		return null;
 	}
 }

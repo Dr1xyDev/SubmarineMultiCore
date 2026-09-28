@@ -55,7 +55,7 @@ class ContainerSetSlotPacket extends DataPacket
 		$this->windowId = $this->getByte();
 		$this->inventorySlot = $this->getVarInt();
 		$this->hotbarSlot = $this->getVarInt();
-		$this->item = $this->getItemStackWithoutStackId($this->getProtocol());
+		$this->item = $this->getItemStackWithoutStackId();
 		$this->selectSlot = $this->getByte();
 	}
 
@@ -64,7 +64,7 @@ class ContainerSetSlotPacket extends DataPacket
 		$this->putByte($this->windowId);
 		$this->putVarInt($this->inventorySlot);
 		$this->putVarInt($this->hotbarSlot);
-		$this->putItemStackWithoutStackId($this->item, $this->getProtocol());
+		$this->putItemStackWithoutStackId($this->item);
 		$this->putByte($this->selectSlot);
 	}
 

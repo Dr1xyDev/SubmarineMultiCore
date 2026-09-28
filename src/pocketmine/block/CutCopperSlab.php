@@ -25,7 +25,6 @@ namespace pocketmine\block;
 use pocketmine\block\utils\CopperMaterial;
 use pocketmine\block\utils\CopperOxidation;
 use pocketmine\item\TieredTool;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 class CutCopperSlab extends Slab implements CopperMaterial
 {
@@ -117,14 +116,5 @@ class CutCopperSlab extends Slab implements CopperMaterial
 	public function getToolHarvestLevel() : int
 	{
 		return TieredTool::TIER_STONE;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_440) {
-			return BlockFactory::get(BlockIds::STONE_SLAB, ($this->isTop() ? 0x08 : 0));
-		}
-
-		return null;
 	}
 }

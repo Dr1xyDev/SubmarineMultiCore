@@ -22,13 +22,13 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\item\Item;
+use pocketmine\block\utils\StaticSupportTrait;
 use pocketmine\math\Facing;
-use pocketmine\math\Vector3;
-use pocketmine\Player;
 
 class Flower extends Flowable
 {
+	use StaticSupportTrait;
+
 	public const TYPE_POPPY = 0;
 	public const TYPE_BLUE_ORCHID = 1;
 	public const TYPE_ALLIUM = 2;
@@ -64,23 +64,15 @@ class Flower extends Flowable
 		return $names[$this->getVariant()] ?? "Unknown";
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
-	{
-		$down = $this->getSide(Facing::DOWN);
-		if ($down->getId() === Block::GRASS || $down->getId() === Block::DIRT || $down->getId() === Block::FARMLAND) {
-			$this->getLevel()->setBlock($blockReplace, $this, true);
-
-			return true;
-		}
-
-		return false;
-	}
-
-	public function onNearbyBlockChange() : void
-	{
-		if ($this->getSide(Facing::DOWN)->isTransparent()) {
-			$this->getLevel()->useBreakOn($this);
-		}
+	protected function canBeSupportedAt(Block $block) : bool{
+		$supportBlock = $block->getSide(Facing::DOWN);
+		return
+			$supportBlock instanceof Grass ||
+			$supportBlock instanceof Dirt ||
+			$supportBlock instanceof Mycelium ||
+			$supportBlock instanceof Podzol ||
+			$supportBlock instanceof Farmland ||
+			$supportBlock instanceof Mud;
 	}
 
 	public function getFlameEncouragement() : int

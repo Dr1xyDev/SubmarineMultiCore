@@ -76,12 +76,19 @@ class SubChunkRequestPacket extends DataPacket
 	protected function decodePayload() : void
 	{
 		$this->dimension = $this->getVarInt();
-		$this->basePosition = SubChunkPosition::read($this);
-
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_486) {
-			$this->entries = [];
-			for ($i = 0, $count = $this->getLInt(); $i < $count; $i++) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_1001) {
+			for ($i = 0, $count = $this->getUnsignedVarInt(); $i < $count; $i++) {
 				$this->entries[] = SubChunkPositionOffset::read($this);
+			}
+
+			$this->basePosition = SubChunkPosition::readFixedInts($this);
+		} else {
+			$this->basePosition = SubChunkPosition::readVarInts($this);
+
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_486) {
+				for ($i = 0, $count = $this->getLInt(); $i < $count; $i++) {
+					$this->entries[] = SubChunkPositionOffset::read($this);
+				}
 			}
 		}
 	}
@@ -89,12 +96,21 @@ class SubChunkRequestPacket extends DataPacket
 	protected function encodePayload() : void
 	{
 		$this->putVarInt($this->dimension);
-		$this->basePosition->write($this);
-
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_486) {
-			$this->putLInt(count($this->entries));
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_1001) {
+			$this->putUnsignedVarInt(count($this->entries));
 			foreach ($this->entries as $entry) {
 				$entry->write($this);
+			}
+
+			$this->basePosition->writeFixedInts($this);
+		} else {
+			$this->basePosition->writeVarInts($this);
+
+			if ($this->protocol >= ProtocolInfo::PROTOCOL_486) {
+				$this->putLInt(count($this->entries));
+				foreach ($this->entries as $entry) {
+					$entry->write($this);
+				}
 			}
 		}
 	}

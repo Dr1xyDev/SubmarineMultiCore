@@ -68,9 +68,9 @@ class ResourcePackDataInfoPacket extends DataPacket
 		$this->chunkCount = $this->getLInt();
 		$this->compressedPackSize = $this->getLLong();
 		$this->sha256 = $this->getString();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_361) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->isPremium = $this->getBool();
-			$this->packType = ConstantTranslator::getInstance()->fromNetworkId(ResourcePackType::class, $this->getByte(), $this->getProtocol());
+			$this->packType = ConstantTranslator::getInstance()->fromNetworkId(ResourcePackType::class, $this->getByte(), $this->protocol);
 		}
 	}
 
@@ -81,9 +81,9 @@ class ResourcePackDataInfoPacket extends DataPacket
 		$this->putLInt($this->chunkCount);
 		$this->putLLong($this->compressedPackSize);
 		$this->putString($this->sha256);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_361) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->putBool($this->isPremium);
-			$this->putByte(ConstantTranslator::getInstance()->toNetworkId(ResourcePackType::class, $this->packType, $this->getProtocol(), ResourcePackType::INVALID));
+			$this->putByte(ConstantTranslator::getInstance()->toNetworkId(ResourcePackType::class, $this->packType, $this->protocol, ResourcePackType::INVALID));
 		}
 	}
 

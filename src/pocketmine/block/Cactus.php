@@ -22,18 +22,22 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
+use pocketmine\block\utils\BlockEventHelper;
+use pocketmine\block\utils\StaticSupportTrait;
 use pocketmine\entity\Entity;
-use pocketmine\event\block\BlockGrowEvent;
 use pocketmine\event\entity\EntityDamageByBlockEvent;
 use pocketmine\event\entity\EntityDamageEvent;
-use pocketmine\item\Item;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Facing;
-use pocketmine\math\Vector3;
-use pocketmine\Player;
+use function mt_rand;
 
 class Cactus extends Transparent
 {
+	use StaticSupportTrait;
+
+	public const int MAX_AGE = 15;
+	public const int MAX_HEIGHT = 3;
+
 	protected $id = self::CACTUS;
 
 	public function __construct(int $meta = 0)
@@ -56,6 +60,11 @@ class Cactus extends Transparent
 		return "Cactus";
 	}
 
+	public function getVariantBitmask() : int
+	{
+		return 0;
+	}
+
 	protected function recalculateBoundingBox() : ?AxisAlignedBB
 	{
 
@@ -75,20 +84,18 @@ class Cactus extends Transparent
 		$entity->attack($ev);
 	}
 
-	public function onNearbyBlockChange() : void
-	{
-		$down = $this->getSide(Facing::DOWN);
-		if ($down->getId() !== self::SAND && $down->getId() !== self::CACTUS) {
-			$this->getLevel()->useBreakOn($this);
-		} else {
-			for ($side = 2; $side <= 5; ++$side) {
-				$b = $this->getSide($side);
-				if ($b->isSolid()) {
-					$this->getLevel()->useBreakOn($this);
-					break;
-				}
+	protected function canBeSupportedAt(Block $block) : bool{
+		$supportBlock = $block->getSide(Facing::DOWN);
+		if(!$supportBlock->isSameType($this) && !$supportBlock instanceof Sand){
+			return false;
+		}
+		foreach(Facing::HORIZONTAL as $side){
+			if($block->getSide($side)->isSolid()){
+				return false;
 			}
 		}
+
+		return true;
 	}
 
 	public function ticksRandomly() : bool
@@ -98,50 +105,52 @@ class Cactus extends Transparent
 
 	public function onRandomTick() : void
 	{
-		if ($this->getSide(Facing::DOWN)->getId() !== self::CACTUS) {
-			if ($this->meta === 0x0f) {
-				for ($y = 1; $y < 3; ++$y) {
-					$b = $this->getLevel()->getBlockAt($this->x, $this->y + $y, $this->z);
-					if ($b->getId() === self::AIR) {
-						$ev = new BlockGrowEvent($b, BlockFactory::get(Block::CACTUS));
-						$ev->call();
-						if ($ev->isCancelled()) {
-							break;
-						}
-						$this->getLevel()->setBlock($b, $ev->getNewState(), true);
-					} else {
-						break;
-					}
+		$up = $this->getSide(Facing::UP);
+		if($up->getId() !== BlockIds::AIR){
+			return;
+		}
+
+		$level = $this->level;
+
+		if(!$level->isInWorld($up->x, $up->y, $up->z)){
+			return;
+		}
+
+		$height = 1;
+		while($height < self::MAX_HEIGHT && $this->getSide(Facing::DOWN, $height)->isSameType($this)){
+			$height++;
+		}
+
+		if($this->meta === 9){
+			$canGrowFlower = true;
+			foreach(Facing::HORIZONTAL as $side){
+				if($up->getSide($side)->isSolid()){
+					$canGrowFlower = false;
+					break;
 				}
-				$this->meta = 0;
-				$this->getLevel()->setBlock($this, $this);
-			} else {
-				++$this->meta;
-				$this->getLevel()->setBlock($this, $this);
 			}
-		}
-	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
-	{
-		$down = $this->getSide(Facing::DOWN);
-		if ($down->getId() === self::SAND || $down->getId() === self::CACTUS) {
-			$block0 = $this->getSide(Facing::NORTH);
-			$block1 = $this->getSide(Facing::SOUTH);
-			$block2 = $this->getSide(Facing::WEST);
-			$block3 = $this->getSide(Facing::EAST);
-			if (!$block0->isSolid() && !$block1->isSolid() && !$block2->isSolid() && !$block3->isSolid()) {
-				$this->getLevel()->setBlock($this, $this, true);
-
-				return true;
+			if($canGrowFlower){
+				$chance = $height >= self::MAX_HEIGHT ? 25 : 10;
+				if(mt_rand(1, 100) <= $chance){
+					if(BlockEventHelper::grow($up, BlockFactory::get(BlockIds::CACTUS_FLOWER), null)){
+						$this->meta = 0;
+						$level->setBlock($this, $this, update: false);
+					}
+					return;
+				}
 			}
 		}
 
-		return false;
-	}
+		if($this->meta === self::MAX_AGE){
+			$this->meta = 0;
 
-	public function getVariantBitmask() : int
-	{
-		return 0;
+			if($height < self::MAX_HEIGHT){
+				BlockEventHelper::grow($up, BlockFactory::get(BlockIds::CACTUS), null);
+			}
+		}else{
+			++$this->meta;
+		}
+		$level->setBlock($this, $this, update: false);
 	}
 }

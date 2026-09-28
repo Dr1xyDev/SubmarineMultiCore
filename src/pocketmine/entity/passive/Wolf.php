@@ -67,7 +67,7 @@ class Wolf extends Tamable
 		$this->targetBehaviorPool->setBehavior(0, new HurtByTargetBehavior($this, true));
 		$this->targetBehaviorPool->setBehavior(1, new OwnerHurtByTargetBehavior($this));
 		$this->targetBehaviorPool->setBehavior(2, new OwnerHurtTargetBehavior($this));
-		$this->targetBehaviorPool->setBehavior(3, new NearestAttackableTargetBehavior($this, Skeleton::class, false));
+		$this->targetBehaviorPool->setBehavior(3, new NearestAttackableTargetBehavior($this, Skeleton::class));
 	}
 
 	protected function initEntity() : void
@@ -99,6 +99,7 @@ class Wolf extends Tamable
 				if ($item->getId() == Item::BONE) {
 					if ($player->isSurvival()) {
 						$item->pop();
+						$player->getInventory()->setItemInHand($item);
 					}
 
 					if (mt_rand(0, 2) == 0) {

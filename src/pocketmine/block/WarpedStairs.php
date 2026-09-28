@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class WarpedStairs extends WoodenStairs
 {
 	protected $id = self::WARPED_STAIRS;
@@ -36,14 +34,5 @@ class WarpedStairs extends WoodenStairs
 	public function getName() : string
 	{
 		return "Warped Stairs";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_419) {
-			return BlockFactory::get(BlockIds::WOODEN_STAIRS, $this->meta);
-		}
-
-		return null;
 	}
 }

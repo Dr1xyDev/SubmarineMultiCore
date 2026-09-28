@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace pocketmine\block;
 
 use pocketmine\math\AxisAlignedBB;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 class HeavyCore extends Flowable
 {
@@ -64,14 +63,5 @@ class HeavyCore extends Flowable
 			$this->y + 0.5,
 			$this->z + 0.75
 		);
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_671) {
-			return BlockFactory::get(BlockIds::SKULL_BLOCK);
-		}
-
-		return null;
 	}
 }

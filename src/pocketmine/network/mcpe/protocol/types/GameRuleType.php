@@ -29,6 +29,8 @@ final class GameRuleType
 		//NOOP
 	}
 
+	/** @since 1.26.40 - a rule without a value */
+	public const NULL = 0;
 	public const BOOL = 1;
 	public const INT = 2;
 	public const FLOAT = 3;

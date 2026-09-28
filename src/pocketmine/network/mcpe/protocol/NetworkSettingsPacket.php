@@ -47,7 +47,7 @@ class NetworkSettingsPacket extends DataPacket
 	protected function decodePayload() : void
 	{
 		$this->compressionThreshold = $this->getLShort();
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_554) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_554) {
 			$this->compressionAlgorithm = $this->getLShort();
 			$this->enableClientThrottling = $this->getBool();
 			$this->clientThrottleThreshold = $this->getByte();
@@ -58,7 +58,7 @@ class NetworkSettingsPacket extends DataPacket
 	protected function encodePayload() : void
 	{
 		$this->putLShort($this->compressionThreshold);
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_554) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_554) {
 			$this->putLShort($this->compressionAlgorithm);
 			$this->putBool($this->enableClientThrottling);
 			$this->putByte($this->clientThrottleThreshold);

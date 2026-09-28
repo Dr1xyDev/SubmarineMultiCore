@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class WoodenTrapdoor extends Trapdoor
 {
 	public function getHardness() : float
@@ -38,14 +36,10 @@ class WoodenTrapdoor extends Trapdoor
 
 	public function getFuelTime() : int
 	{
-		return 300;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_261) {
-			return BlockFactory::get(BlockIds::WOODEN_TRAPDOOR, $this->meta);
+		if ($this->id === BlockIds::CRIMSON_TRAPDOOR || $this->id === BlockIds::WARPED_TRAPDOOR) {
+			return 0;
 		}
 
-		return null;
+		return 300;
 	}
 }

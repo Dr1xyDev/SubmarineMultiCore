@@ -22,51 +22,25 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\item\Item;
+use pocketmine\block\utils\StaticSupportTrait;
 use pocketmine\math\Facing;
-use pocketmine\math\Vector3;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-use pocketmine\Player;
 
-class CactusFlower extends Flowable
-{
-	protected $id = self::CACTUS_FLOWER;
+class CactusFlower extends Flowable{
+	use StaticSupportTrait;
 
-	public function __construct(int $meta = 0)
-	{
-		$this->meta = $meta;
+	protected function canBeSupportedAt(Block $block) : bool{
+		$supportBlock = $block->getSide(Facing::DOWN);
+		return
+			$supportBlock instanceof Cactus ||
+			$supportBlock instanceof Farmland ||
+			$supportBlock->isSolid();
 	}
 
-	public function getName() : string
-	{
-		return "Cactus Flower";
+	public function getFlameEncouragement() : int{
+		return 60;
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool
-	{
-		$down = $this->getSide(Facing::DOWN);
-		if ($down instanceof Cactus || $down instanceof Farmland || $down->isSolid()) {
-			$this->getLevel()->setBlock($blockReplace, $this, true);
-
-			return true;
-		}
-
-		return false;
-	}
-
-	public function onNearbyBlockChange() : void
-	{
-		if ($this->getSide(Facing::DOWN)->isTransparent()) {
-			$this->getLevel()->useBreakOn($this);
-		}
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_786) {
-			return BlockFactory::get(BlockIds::RED_FLOWER, Flower::TYPE_PINK_TULIP);
-		}
-
-		return null;
+	public function getFlammability() : int{
+		return 100;
 	}
 }

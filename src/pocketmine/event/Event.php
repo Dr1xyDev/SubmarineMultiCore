@@ -27,9 +27,11 @@ declare(strict_types=1);
 namespace pocketmine\event;
 
 use BadMethodCallException;
+use pocketmine\Server;
 use pocketmine\timings\Timings;
 use RuntimeException;
 
+use Throwable;
 use function assert;
 use function get_class;
 
@@ -103,6 +105,9 @@ abstract class Event
 					$currentList = $currentList->getParent();
 				}
 			}
+		} catch (Throwable $e) {
+			Server::getInstance()->getLogger()->error("An error occurred while executing " . get_class($this) . " event handler: " . $e->getMessage());
+			Server::getInstance()->getLogger()->logException($e);
 		} finally {
 			--self::$eventCallDepth;
 			$timings->stopTiming();

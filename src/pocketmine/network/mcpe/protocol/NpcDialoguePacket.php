@@ -84,7 +84,7 @@ class NpcDialoguePacket extends DataPacket
 
 	protected function decodePayload() : void
 	{
-		$this->npcActorUniqueId = $this->getEntityUniqueId();
+		$this->npcActorUniqueId = $this->getLLong(); //not a varlong, unlike other actor IDs
 		$this->actionType = $this->getVarInt();
 		$this->dialogue = $this->getString();
 		$this->sceneName = $this->getString();
@@ -94,7 +94,7 @@ class NpcDialoguePacket extends DataPacket
 
 	protected function encodePayload() : void
 	{
-		$this->putEntityUniqueId($this->npcActorUniqueId);
+		$this->putLLong($this->npcActorUniqueId);
 		$this->putVarInt($this->actionType);
 		$this->putString($this->dialogue);
 		$this->putString($this->sceneName);

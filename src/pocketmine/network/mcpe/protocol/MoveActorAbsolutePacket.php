@@ -31,23 +31,19 @@ class MoveActorAbsolutePacket extends DataPacket
 
 	public const FLAG_GROUND = 0x01;
 	public const FLAG_TELEPORT = 0x02;
+	public const FLAG_FORCE_MOVE_LOCAL_ENTITY = 0x04;
+	public const FLAG_FORCE_COMPLETION = 0x8;
 
-	/** @var int */
-	public $entityRuntimeId;
-	/** @var int */
-	public $flags = 0;
-	/** @var Vector3 */
-	public $position;
-	/** @var float */
-	public $pitch;
-	/** @var float */
-	public $yaw;
-	/** @var float */
-	public $headYaw; //always zero for non-mobs
+	public int $entityRuntimeId;
+	public Vector3 $position;
+	public float $pitch;
+	public float $yaw;
+	public float $headYaw; //always zero for non-mobs
+	public int $flags = 0;
 
 	protected function decodePayload() : void
 	{
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_274) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->entityRuntimeId = $this->getEntityRuntimeId();
 			$this->flags = $this->getByte();
 			$this->position = $this->getVector3();
@@ -74,7 +70,7 @@ class MoveActorAbsolutePacket extends DataPacket
 
 	protected function encodePayload() : void
 	{
-		if ($this->getProtocol() >= ProtocolInfo::PROTOCOL_274) {
+		if ($this->protocol >= ProtocolInfo::PROTOCOL_407) {
 			$this->putEntityRuntimeId($this->entityRuntimeId);
 			$this->putByte($this->flags);
 			$this->putVector3($this->position);

@@ -102,6 +102,7 @@ class Ocelot extends Tamable
 			if ($item->getId() == Item::RAW_SALMON || $item->getId() == Item::RAW_FISH) {
 				if ($player->isSurvival()) {
 					$item->pop();
+					$player->getInventory()->setItemInHand($item);
 				}
 				if ($this->isTamed()) {
 					$this->setInLove(true);
@@ -139,9 +140,8 @@ class Ocelot extends Tamable
 
 	public function getDrops() : array
 	{
-		return [
-			ItemFactory::get(Item::STRING, 0, rand(0, 2)),
-		];
+		$string = rand(0, 2 + $this->getLootingLevel());
+		return $string > 0 ? [ItemFactory::get(Item::STRING, 0, $string)] : [];
 	}
 
 	public function setSittingFromBehavior(bool $value) : void

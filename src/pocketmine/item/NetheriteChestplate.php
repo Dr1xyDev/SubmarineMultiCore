@@ -44,6 +44,10 @@ class NetheriteChestplate extends Armor
 		return 593;
 	}
 
+	public function getEnchantAbility() : int{
+		return 15;
+	}
+
 	public function getArmorSlot() : int
 	{
 		return ArmorSlot::SLOT_CHESTPLATE;
@@ -57,7 +61,7 @@ class NetheriteChestplate extends Armor
 	public function getItemProtocol(int $playerProtocol) : ?TranslatedItemData
 	{
 		if ($playerProtocol < ProtocolInfo::PROTOCOL_407) {
-			return new TranslatedItemData(ItemIds::DIAMOND_CHESTPLATE, $this->getDamage());
+			return new TranslatedItemData(ItemIds::DIAMOND_CHESTPLATE, $this->getDamage(), $this->getName());
 		}
 
 		return parent::getItemProtocol($playerProtocol);

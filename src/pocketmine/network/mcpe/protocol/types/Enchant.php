@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace pocketmine\network\mcpe\protocol\types;
 
 use pocketmine\network\mcpe\NetworkBinaryStream;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 final class Enchant
 {
@@ -44,14 +45,24 @@ final class Enchant
 
 	public static function read(NetworkBinaryStream $in) : self
 	{
-		$id = $in->getByte();
+		if ($in->getProtocol() >= ProtocolInfo::PROTOCOL_975) {
+			$id = $in->getUnsignedVarInt();
+		} else {
+			$id = $in->getByte();
+		}
+
 		$level = $in->getByte();
 		return new self($id, $level);
 	}
 
 	public function write(NetworkBinaryStream $out) : void
 	{
-		$out->putByte($this->id);
+		if ($out->getProtocol() >= ProtocolInfo::PROTOCOL_975) {
+			$out->putUnsignedVarInt($this->id);
+		} else {
+			$out->putByte($this->id);
+		}
+
 		$out->putByte($this->level);
 	}
 }

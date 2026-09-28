@@ -25,7 +25,6 @@ namespace pocketmine\block;
 use pocketmine\item\Item;
 use pocketmine\math\Facing;
 use pocketmine\math\Vector3;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\Player;
 
 class Wood extends Log
@@ -43,13 +42,6 @@ class Wood extends Log
 	public const STRIPPED_JUNGLE = 11;
 	public const STRIPPED_ACACIA = 12;
 	public const STRIPPED_DARK_OAK = 13;
-
-	protected $id = self::WOOD;
-
-	public function __construct(int $meta = 0)
-	{
-		$this->meta = $meta;
-	}
 
 	public function getName() : string
 	{
@@ -74,8 +66,7 @@ class Wood extends Log
 		return -1;
 	}
 
-	public function getFaces() : array {
-		$meta = $this->meta;
+	public static function getAxisFaces(int $meta) : array {
 		return match ($meta) {
 			self::OAK => [Facing::DOWN => self::OAK, Facing::NORTH => 35, Facing::WEST => 34],
 			self::SPRUCE => [Facing::DOWN => self::SPRUCE, Facing::NORTH => 39, Facing::WEST => 38],
@@ -95,18 +86,8 @@ class Wood extends Log
 		};
 	}
 
-	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player $player = null) : bool{
-		$this->meta = $this->getFaces()[$face & ~0x01];
-
-		$this->getLevel()->setBlock($blockReplace, $this, true, true);
-		return true;
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_340) {
-			return BlockFactory::get(BlockIds::LOG, 12);
-		}
-
-		return null;
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool{
+		$this->meta = $this->getAxisFaces($this->meta)[$face & ~0x01];
+		return Block::place($item, $blockReplace, $blockClicked, $face, $clickVector, $player);
 	}
 }

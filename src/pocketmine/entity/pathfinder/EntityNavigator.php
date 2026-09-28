@@ -36,8 +36,7 @@ use function array_unshift;
 use function array_values;
 use function count;
 use function floor;
-use function reset;
-use function uasort;
+use const PHP_INT_MAX;
 
 class EntityNavigator
 {
@@ -104,14 +103,15 @@ class EntityNavigator
 		while (!empty($open)) {
 			$current = $last;
 			if ($last !== $highScore) {
-				uasort($open, function ($a, $b) {
-					if ($a->fScore == $b->fScore) {
-						return 0;
+				// Find minimum fScore node in O(n) instead of sorting the entire set in O(n log n)
+				$minScore = PHP_INT_MAX;
+				$current = null;
+				foreach ($open as $node) {
+					if ($node->fScore < $minScore) {
+						$minScore = $node->fScore;
+						$current = $node;
 					}
-
-					return $a->fScore > $b->fScore ? 1 : -1;
-				});
-				$current = reset($open);
+				}
 				$currentY = $this->getBlockByPoint($current, $blockCache)->y;
 			}
 
@@ -234,14 +234,15 @@ class EntityNavigator
 	 */
 	public function getNeighbors(PathPoint $tile, array &$cache, int $startY) : array
 	{
-		$block = $this->mob->level->getBlock(new Vector3($tile->x, $startY, $tile->y));
+		$block = $this->mob->level->getBlockAt((int) $tile->x, $startY, (int) $tile->y);
 
 		if (!isset($cache[$tile->getHashCode()])) {
 			$cache[$tile->getHashCode()] = $block;
 		}
 
 		$list = [];
-		for ($index = 0; $index < count($this->neighbors); ++$index) {
+		$neighborCount = count($this->neighbors);
+		for ($index = 0; $index < $neighborCount; ++$index) {
 			$item = new PathPoint($tile->x + $this->neighbors[$index][0], $tile->y + $this->neighbors[$index][1]);
 			// Check for too high steps
 
@@ -441,22 +442,32 @@ class EntityNavigator
 
 	public function isClearBetweenPoints(Vector3 $from, Vector3 $to, bool $onlySee = false) : bool
 	{
-		$entityPos = $from;
-		$targetPos = $to;
-		$distance = $entityPos->distance($targetPos);
-		$rayPos = $entityPos;
-		$direction = $targetPos->subtractVector($entityPos)->normalize();
+		$distanceSq = $from->distanceSquared($to);
+		$direction = $to->subtractVector($from)->normalize();
 
-		if ($distance < $direction->length()) {
+		$dirLenSq = $direction->lengthSquared();
+		if ($distanceSq < $dirLenSq) {
 			return true;
 		}
 
+		$rayX = $from->x;
+		$rayY = $from->y;
+		$rayZ = $from->z;
+		$dirX = $direction->x;
+		$dirY = $direction->y;
+		$dirZ = $direction->z;
+
 		do {
-			if (!$this->isSafeToStandAt($rayPos->floor(), $onlySee)) {
+			if (!$this->isSafeToStandAt(new Vector3((int) floor($rayX), (int) floor($rayY), (int) floor($rayZ)), $onlySee)) {
 				return false;
 			}
-			$rayPos = $rayPos->addVector($direction);
-		} while ($distance > $entityPos->distance($rayPos));
+			$rayX += $dirX;
+			$rayY += $dirY;
+			$rayZ += $dirZ;
+			$dx = $rayX - $from->x;
+			$dy = $rayY - $from->y;
+			$dz = $rayZ - $from->z;
+		} while ($distanceSq > ($dx * $dx + $dy * $dy + $dz * $dz));
 
 		return true;
 	}

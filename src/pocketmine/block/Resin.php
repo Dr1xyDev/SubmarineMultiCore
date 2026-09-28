@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class Resin extends Solid
 {
 	protected $id = self::RESIN_BLOCK;
@@ -41,14 +39,5 @@ class Resin extends Solid
 	public function getName() : string
 	{
 		return "Resin Block";
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_766) {
-			return BlockFactory::get(BlockIds::BRICK_BLOCK);
-		}
-
-		return null;
 	}
 }

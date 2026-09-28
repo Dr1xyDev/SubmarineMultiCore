@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
-
 class WallSign extends SignPost
 {
 	public function onNearbyBlockChange() : void
@@ -31,14 +29,5 @@ class WallSign extends SignPost
 		if ($this->getSide($this->meta ^ 0x01)->getId() === self::AIR) {
 			$this->getLevel()->useBreakOn($this);
 		}
-	}
-
-	public function getBlockProtocol(int $playerProtocol) : ?Block
-	{
-		if ($playerProtocol < ProtocolInfo::PROTOCOL_332) {
-			return BlockFactory::get(BlockIds::WALL_SIGN, $this->meta);
-		}
-
-		return null;
 	}
 }

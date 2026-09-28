@@ -24,12 +24,9 @@ namespace pocketmine\block;
 
 use pocketmine\item\Item;
 use pocketmine\level\Level;
-use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\LevelEventPacket;
 use pocketmine\Player;
-
-use function min;
-use function mt_rand;
+use function abs;
 
 class DragonEgg extends Fallable
 {
@@ -60,34 +57,55 @@ class DragonEgg extends Fallable
 		return 1;
 	}
 
+	public function isTransparent() : bool
+	{
+		return true;
+	}
+
+	public function isBreakable(Item $item) : bool
+	{
+		return false;
+	}
+
 	public function getToolType() : int
 	{
 		return BlockToolType::TYPE_PICKAXE;
 	}
 
-	public function onActivate(Item $item, Player $player = null) : bool
+	public function onActivate(Item $item, ?Player $player = null) : bool
 	{
-		$level = $player->getLevel();
-		for ($i = 0; $i < 1000; $i++) {
-			$x = $this->x + mt_rand(-15, 15);
-			$y = $this->y + mt_rand(-7, 7);
-			$z = $this->z + mt_rand(-15, 15);
-			if ($level->getBlockAt($x, $y, $z)->getId() === Block::AIR && $y < Level::Y_MAX && $y > Level::Y_MIN) {
-				$source = $this->asVector3();
-				$target = new Vector3($x, $y, $z);
+		$this->teleport();
+		return true;
+	}
 
-				$level->setBlock($source, BlockFactory::get(Block::AIR));
-				$level->setBlock($target, BlockFactory::get(Block::DRAGON_EGG));
+	public function onAttack(Item $item, int $face, ?Player $player = null) : bool
+	{
+		$this->teleport();
+		return false;
+	}
 
-				$dir = $target->subtractVector($source)->normalize();
-				$max = min(128, $source->distance($target));
-				for ($j = 0; $j <= $max; $j++) {
-					$this->getLevel()->broadcastLevelEvent($source->addVector($dir->multiply($j)->add(0, 1.5, 0)), LevelEventPacket::EVENT_PARTICLE_DRAGON_EGG_TELEPORT);
-				}
+	public function teleport() : void
+	{
+		$level = $this->getLevel();
+		for($i = 0; $i < 1000; $i++){
+			$blockPos = $this->add(
+				$level->random->nextBoundedInt(16) - $level->random->nextBoundedInt(16),
+				$level->random->nextBoundedInt(8) - $level->random->nextBoundedInt(8),
+				$level->random->nextBoundedInt(16) - $level->random->nextBoundedInt(16)
+			);
+			if($level->getBlock($blockPos)->getId() === BlockIds::AIR && $blockPos->getY() > Level::Y_MIN && $blockPos->getY() < Level::Y_MAX){
+				$diffX = $this->getFloorX() - $blockPos->getFloorX();
+		$diffY = $this->getFloorY() - $blockPos->getFloorY();
+		$diffZ = $this->getFloorZ() - $blockPos->getFloorZ();
+				$level->broadcastLevelEvent(
+					$this,
+					LevelEventPacket::EVENT_PARTICLE_DRAGON_EGG_TELEPORT,
+					(((((abs($diffX) << 16) | (abs($diffY) << 8)) | abs($diffZ)) | (($diffX < 0 ? 1 : 0) << 24)) | (($diffY < 0 ? 1 : 0) << 25)) | (($diffZ < 0 ? 1 : 0) << 26)
+				);
+				$level->setBlock($this, BlockFactory::get(BlockIds::AIR), true, true);
+				$level->setBlock($blockPos, $this, true, true);
 				break;
 			}
 		}
-
-		return true;
 	}
 }
