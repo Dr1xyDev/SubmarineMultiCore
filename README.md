@@ -10,12 +10,12 @@
   SubmarineTeam / SubTeam
 
 - 🌐 Multiversión soportada:
-  "1.1.0 → 1.26.51"
+  "1.1.0 → 1.26.52"
   (Se pueden agregar más versiones modificando el núcleo)
 
 - 🐘 PHP requerido: "8.3"
 
-- 🧩 API: "3.28.1"
+- 🧩 API: "PM3"
 
 ---
 
@@ -25,14 +25,6 @@ bin/
 src/
 vendor/
 start.sh
-
----
-
-⚠️ Problemas con permisos en Panel Pterodactyl
-
-Si tienes problemas de permisos en Panel Pterodactyl, descarga el archivo:
-
-Pterodactyl-Bin+phar.tar.gz
 
 desde este repositorio.
 
